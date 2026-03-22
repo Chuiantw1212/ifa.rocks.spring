@@ -1,27 +1,35 @@
 package rocks.ifa.spring.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-import rocks.ifa.spring.model.dto.UserFullDataRes;
-import rocks.ifa.spring.model.dto.UserProfileUpdateReq;
-import rocks.ifa.spring.service.UserProfileService;
-import rocks.ifa.spring.service.UserService;
+import org.springframework.web.bind.annotation.*;
+import rocks.ifa.spring.model.dto.*;
+import rocks.ifa.spring.service.*;
 import rocks.ifa.spring.util.SecurityUtils;
 
+
 @RestController
+@RequestMapping("/api/v1/user")
+@Tag(name = "User API", description = "使用者核心資料管理")
+@RequiredArgsConstructor // ✅ 使用 Lombok 實現建構函式注入
 public class UserController {
 
+    // ✅ 將所有依賴都改為 private final
     private final UserService userService;
     private final UserProfileService userProfileService;
+    private final UserCareerService userCareerService;
+    private final UserLaborPensionService userLaborPensionService;
+    private final UserLaborInsuranceService userLaborInsuranceService;
+    private final UserTaxService userTaxService;
 
-    public UserController(UserService userService, UserProfileService userProfileService) {
-        this.userService = userService;
-        this.userProfileService = userProfileService;
+    @Operation(summary = "註冊新使用者")
+    @PostMapping("/me")
+    public ResponseEntity<String> registerUser(@RequestBody @Valid UserRegistrationReq req) {
+        userService.registerUser(req);
+        return ResponseEntity.ok("註冊成功");
     }
 
     @Operation(summary = "獲取當前使用者所有資料")
@@ -37,5 +45,45 @@ public class UserController {
         String uid = SecurityUtils.getCurrentUserUid();
         userProfileService.updateProfile(uid, req);
         return ResponseEntity.ok("更新成功");
+    }
+
+    @Operation(summary = "更新使用者職涯資料")
+    @PutMapping("/career")
+    public ResponseEntity<String> updateCareer(@RequestBody @Valid UserCareerUpdateReq req) {
+        String uid = SecurityUtils.getCurrentUserUid();
+        userCareerService.updateCareer(uid, req);
+        return ResponseEntity.ok("更新成功");
+    }
+
+    @Operation(summary = "更新使用者勞退資料")
+    @PutMapping("/labor-pension")
+    public ResponseEntity<String> updateLaborPension(@RequestBody @Valid UserLaborPensionUpdateReq req) {
+        String uid = SecurityUtils.getCurrentUserUid();
+        userLaborPensionService.updateLaborPension(uid, req);
+        return ResponseEntity.ok("更新成功");
+    }
+
+    @Operation(summary = "更新使用者勞保資料")
+    @PutMapping("/labor-insurance")
+    public ResponseEntity<String> updateLaborInsurance(@RequestBody @Valid UserLaborInsuranceUpdateReq req) {
+        String uid = SecurityUtils.getCurrentUserUid();
+        userLaborInsuranceService.updateLaborInsurance(uid, req);
+        return ResponseEntity.ok("更新成功");
+    }
+
+    @Operation(summary = "更新使用者稅務資料")
+    @PutMapping("/tax")
+    public ResponseEntity<String> updateTax(@RequestBody @Valid UserTaxUpdateReq req) {
+        String uid = SecurityUtils.getCurrentUserUid();
+        userTaxService.updateTax(uid, req);
+        return ResponseEntity.ok("更新成功");
+    }
+
+    @Operation(summary = "刪除當前使用者帳號")
+    @DeleteMapping
+    public ResponseEntity<Void> deleteUser() {
+        String uid = SecurityUtils.getCurrentUserUid();
+        userService.deleteUser(uid);
+        return ResponseEntity.noContent().build();
     }
 }
