@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.en_chu.calculator_api_spring.mapper.UserLaborInsuranceMapper">
+<mapper namespace="rocks.ifa.spring.mapper.UserLaborInsuranceMapper">
 
-    <resultMap id="BaseResultMap" type="com.en_chu.calculator_api_spring.entity.UserLaborInsurance">
+    <resultMap id="BaseResultMap" type="rocks.ifa.spring.entity.UserLaborInsurance">
         <id column="id" property="id" />
         <result column="firebase_uid" property="firebaseUid" />
         <result column="expected_claim_age" property="expectedClaimAge" />

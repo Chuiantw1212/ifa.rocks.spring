@@ -10,7 +10,7 @@ spring:
     include: local
 
   application:
-    name: calculator-api-spring
+    name: ifa.rocks.spring
   
   datasource:
     url: jdbc:postgresql://${DB_HOST:?DB_HOST environment variable is not set}:${DB_PORT:?DB_PORT environment variable is not set}/${DB_NAME:?DB_NAME environment variable is not set}?sslmode=require
@@ -20,17 +20,13 @@ spring:
 
 mybatis:
   mapper-locations: classpath:mapper/*.xml
-  type-aliases-package: com.en_chu.calculator_api_spring.model
+  type-aliases-package: rocks.ifa.spring.model
 
 # Production CORS settings
 app:
   cors:
     allowed-origins:
-      - https://enchu-8085a.web.app
-      - https://enchu-8085a.firebaseapp.com
-      - https://www.en-chu.com
-      # ✅ Updated Cloud Run URL
-      - https://calculator-api-spring-20260210-592400229145.asia-east1.run.app
+      - https://ifa.rocks
 
 management:
   endpoints:
