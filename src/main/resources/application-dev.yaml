@@ -1,0 +1,15 @@
+# Development Environment Configuration
+server:
+  port: 8888
+
+app:
+  cors:
+    allowed-origins:
+      - http://localhost:5173
+      - http://localhost:8888
+
+logging:
+  pattern:
+    console: "%clr(%d{HH:mm:ss}){faint} %clr(%-5level){green} - %msg%n"
+  level:
+    org.springframework.security: WARN

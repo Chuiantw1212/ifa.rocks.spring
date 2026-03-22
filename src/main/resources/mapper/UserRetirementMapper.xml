@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.en_chu.calculator_api_spring.mapper.UserRetirementMapper">
+
+    <resultMap id="BaseResultMap" type="com.en_chu.calculator_api_spring.entity.UserRetirement">
+        <id column="id" property="id" />
+        <result column="firebase_uid" property="firebaseUid" />
+        <result column="household_type" property="householdType" />
+        <result column="housing_mode" property="housingMode" />
+        <result column="housing_cost" property="housingCost" />
+        <result column="health_tier_code" property="healthTierCode" />
+        <result column="health_cost" property="healthCost" />
+        <result column="active_living_code" property="activeLivingCode" />
+        <result column="active_living_cost" property="activeLivingCost" />
+        <result column="slow_go_start_age" property="slowGoStartAge" />
+        <result column="defense_tier_code" property="defenseTierCode" />
+        <result column="monthly_medical_cost" property="monthlyMedicalCost" />
+        <result column="critical_illness_code" property="criticalIllnessCode" />
+        <result column="critical_illness_reserve" property="criticalIllnessReserve" />
+        <result column="nogo_start_age" property="nogoStartAge" />
+        <result column="ltc_care_mode" property="ltcCareMode" />
+        <result column="ltc_monthly_cost" property="ltcMonthlyCost" />
+        <result column="ltc_monthly_supplies" property="ltcMonthlySupplies" />
+        <result column="ltc_subsidy" property="ltcSubsidy" />
+        <result column="created_at" property="createdAt" />
+        <result column="updated_at" property="updatedAt" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, firebase_uid, household_type, housing_mode, housing_cost,
+        health_tier_code, health_cost, active_living_code, active_living_cost,
+        slow_go_start_age, defense_tier_code, monthly_medical_cost, 
+        critical_illness_code, critical_illness_reserve, 
+        nogo_start_age, ltc_care_mode, ltc_monthly_cost, ltc_monthly_supplies, ltc_subsidy,
+        created_at, updated_at
+    </sql>
+
+    <select id="selectByUid" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM user_retirements WHERE firebase_uid = #{firebaseUid}
+    </select>
+
+    <select id="existsByUid" resultType="boolean">
+        SELECT EXISTS (SELECT 1 FROM user_retirements WHERE firebase_uid = #{firebaseUid})
+    </select>
+
+    <update id="updateByUid">
+        UPDATE user_retirements
+        SET 
+            household_type = #{householdType},
+            housing_mode = #{housingMode},
+            housing_cost = #{housingCost},
+            health_tier_code = #{healthTierCode},
+            health_cost = #{healthCost},
+            active_living_code = #{activeLivingCode},
+            active_living_cost = #{activeLivingCost},
+            slow_go_start_age = #{slowGoStartAge},
+            defense_tier_code = #{defenseTierCode},
+            monthly_medical_cost = #{monthlyMedicalCost},
+            critical_illness_code = #{criticalIllnessCode},
+            critical_illness_reserve = #{criticalIllnessReserve},
+            nogo_start_age = #{nogoStartAge},
+            ltc_care_mode = #{ltcCareMode},
+            ltc_monthly_cost = #{ltcMonthlyCost},
+            ltc_monthly_supplies = #{ltcMonthlySupplies},
+            ltc_subsidy = #{ltcSubsidy},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE 
+            firebase_uid = #{firebaseUid}
+    </update>
+
+    <update id="updateSelectiveByUid">
+        UPDATE user_retirements
+        <set>
+            <if test="householdType != null">household_type = #{householdType},</if>
+            <if test="housingMode != null">housing_mode = #{housingMode},</if>
+            <if test="housingCost != null">housing_cost = #{housingCost},</if>
+            <if test="healthTierCode != null">health_tier_code = #{healthTierCode},</if>
+            <if test="healthCost != null">health_cost = #{healthCost},</if>
+            <if test="activeLivingCode != null">active_living_code = #{activeLivingCode},</if>
+            <if test="activeLivingCost != null">active_living_cost = #{activeLivingCost},</if>
+            <if test="slowGoStartAge != null">slow_go_start_age = #{slowGoStartAge},</if>
+            <if test="defenseTierCode != null">defense_tier_code = #{defenseTierCode},</if>
+            <if test="monthlyMedicalCost != null">monthly_medical_cost = #{monthlyMedicalCost},</if>
+            <if test="criticalIllnessCode != null">critical_illness_code = #{criticalIllnessCode},</if>
+            <if test="criticalIllnessReserve != null">critical_illness_reserve = #{criticalIllnessReserve},</if>
+            <if test="nogoStartAge != null">nogo_start_age = #{nogoStartAge},</if>
+            <if test="ltcCareMode != null">ltc_care_mode = #{ltcCareMode},</if>
+            <if test="ltcMonthlyCost != null">ltc_monthly_cost = #{ltcMonthlyCost},</if>
+            <if test="ltcMonthlySupplies != null">ltc_monthly_supplies = #{ltcMonthlySupplies},</if>
+            <if test="ltcSubsidy != null">ltc_subsidy = #{ltcSubsidy},</if>
+            updated_at = CURRENT_TIMESTAMP
+        </set>
+        WHERE firebase_uid = #{firebaseUid}
+    </update>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_retirements (
+            firebase_uid, household_type, housing_mode, housing_cost,
+            health_tier_code, health_cost, active_living_code, active_living_cost,
+            slow_go_start_age, defense_tier_code, monthly_medical_cost, 
+            critical_illness_code, critical_illness_reserve,
+            nogo_start_age, ltc_care_mode, ltc_monthly_cost, ltc_monthly_supplies, ltc_subsidy
+        ) VALUES (
+            #{firebaseUid}, #{householdType}, #{housingMode}, #{housingCost},
+            #{healthTierCode}, #{healthCost}, #{activeLivingCode}, #{activeLivingCost},
+            #{slowGoStartAge}, #{defenseTierCode}, #{monthlyMedicalCost}, 
+            #{criticalIllnessCode}, #{criticalIllnessReserve},
+            #{nogoStartAge}, #{ltcCareMode}, #{ltcMonthlyCost}, #{ltcMonthlySupplies}, #{ltcSubsidy}
+        )
+    </insert>
+
+    <delete id="deleteByUid">
+        DELETE FROM user_retirements
+        WHERE firebase_uid = #{firebaseUid}
+    </delete>
+
+</mapper>

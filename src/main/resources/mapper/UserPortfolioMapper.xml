@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.en_chu.calculator_api_spring.mapper.UserPortfolioMapper">
+
+	<resultMap id="BaseResultMap" type="com.en_chu.calculator_api_spring.entity.UserPortfolio">
+		<id property="id" column="id" />
+		<result property="firebaseUid" column="firebase_uid" />
+		<result property="countryCode" column="country_code" />
+		<result property="currency" column="currency" />
+		<result property="exchangeRate" column="exchange_rate" />
+		<result property="marketValue" column="market_value" />
+		<result property="realizedPnl" column="realized_pnl" />
+        <result column="created_at" property="createdAt" />
+        <result column="updated_at" property="updatedAt" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		id, firebase_uid, country_code, currency, exchange_rate,
+        market_value, realized_pnl, created_at, updated_at
+	</sql>
+
+	<select id="selectByUid" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM user_portfolios
+		WHERE firebase_uid = #{firebaseUid}
+		ORDER BY market_value DESC
+	</select>
+
+	<select id="selectByIdAndUid" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM user_portfolios
+		WHERE id = #{id}
+		AND firebase_uid = #{firebaseUid}
+	</select>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_portfolios (
+            firebase_uid, country_code, currency, exchange_rate,
+            market_value, realized_pnl
+        ) VALUES (
+            #{firebaseUid}, #{countryCode}, #{currency}, #{exchangeRate},
+            #{marketValue}, #{realizedPnl}
+        )
+	</insert>
+
+	<update id="update">
+		UPDATE user_portfolios
+		SET
+			country_code = #{countryCode},
+			currency = #{currency},
+			exchange_rate = #{exchangeRate},
+			market_value = #{marketValue},
+			realized_pnl = #{realizedPnl},
+			updated_at = CURRENT_TIMESTAMP
+		WHERE id = #{id} AND firebase_uid = #{firebaseUid}
+	</update>
+
+	<delete id="deleteByIdAndUid">
+        DELETE FROM user_portfolios
+        WHERE id = #{id} AND firebase_uid = #{firebaseUid}
+	</delete>
+
+	<delete id="deleteByUid">
+        DELETE FROM user_portfolios
+        WHERE firebase_uid = #{firebaseUid}
+	</delete>
+
+</mapper>

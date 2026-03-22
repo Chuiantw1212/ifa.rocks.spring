@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.en_chu.calculator_api_spring.mapper.UserCreditCardMapper">
+
+    <resultMap id="BaseResultMap" type="com.en_chu.calculator_api_spring.entity.UserCreditCard">
+        <id column="id" property="id" />
+        <result column="firebase_uid" property="firebaseUid" />
+        <result column="name" property="name" />
+        <result column="deduction_account" property="deductionAccount" />
+        <result column="usage_type" property="usageType" />
+        <result column="storage_location" property="storageLocation" />
+        <result column="average_monthly_expense" property="averageMonthlyExpense" />
+        <result column="created_at" property="createdAt" />
+        <result column="updated_at" property="updatedAt" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, firebase_uid, name, deduction_account, usage_type, storage_location,
+        average_monthly_expense, created_at, updated_at
+    </sql>
+
+    <select id="selectByUid" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM user_credit_cards
+        WHERE firebase_uid = #{firebaseUid}
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="selectByIdAndUid" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM user_credit_cards
+        WHERE id = #{id} AND firebase_uid = #{firebaseUid}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_credit_cards (
+            firebase_uid, name, deduction_account, usage_type,
+            storage_location, average_monthly_expense
+        ) VALUES (
+            #{firebaseUid}, #{name}, #{deductionAccount}, #{usageType},
+            #{storageLocation}, #{averageMonthlyExpense}
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE user_credit_cards
+        SET
+            name = #{name},
+            deduction_account = #{deductionAccount},
+            usage_type = #{usageType},
+            storage_location = #{storageLocation},
+            average_monthly_expense = #{averageMonthlyExpense},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id} AND firebase_uid = #{firebaseUid}
+    </update>
+
+    <delete id="deleteByIdAndUid">
+        DELETE FROM user_credit_cards
+        WHERE id = #{id} AND firebase_uid = #{firebaseUid}
+    </delete>
+
+    <delete id="deleteByUid">
+        DELETE FROM user_credit_cards
+        WHERE firebase_uid = #{firebaseUid}
+    </delete>
+
+</mapper>

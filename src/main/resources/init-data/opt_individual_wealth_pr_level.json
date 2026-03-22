@@ -1,0 +1,111 @@
+{
+  "id": "opt_individual_wealth_pr_level",
+  "name": "台灣個人財富階層 PR 值配置 (2025 ROA/ROE Corrected)",
+  "version": "3.0",
+  "list": [
+    { 
+      "code": 10, 
+      "label": "經濟脆弱層 (PR 0-20)", 
+      "rangeMin": 0,
+      "rangeMax": 1500000,
+      "desc": "個人淨值 < 150 萬。多為租屋族或負債族，抗風險低，易陷入貧窮陷阱。", 
+      "sort": 1,
+      "performanceRoaMin": 0,
+      "performanceRoaMax": 1,
+      "performanceRoeMin": -10,
+      "performanceRoeMax": 0,
+      "performanceNote": "壞槓桿效應：債務利率 (15%) > 資產回報 (1%)，導致實質淨值負成長"
+    },
+    { 
+      "code": 30, 
+      "label": "基礎工薪層 (PR 20-40)", 
+      "rangeMin": 1500000,
+      "rangeMax": 3400000,
+      "desc": "個人淨值 150-340 萬。資產增值絕緣體，主要資產為儲蓄險與舊車/機車。", 
+      "sort": 2,
+      "performanceRoaMin": 1,
+      "performanceRoaMax": 2,
+      "performanceRoeMin": 1,
+      "performanceRoeMax": 3,
+      "performanceNote": "低槓桿：資產回報與通膨抵銷，財富增長僅依賴儲蓄"
+    },
+    { 
+      "code": 50, 
+      "label": "中產階級分水嶺 (PR 40-60)", 
+      "rangeMin": 3400000,
+      "rangeMax": 6000000,
+      "desc": "個人淨值 340-600 萬。台灣社會中位數，通常擁有一間房產（高房貸）。", 
+      "sort": 3,
+      "performanceRoaMin": 3.5,
+      "performanceRoaMax": 5,
+      "performanceRoeMin": 5,
+      "performanceRoeMax": 8,
+      "performanceNote": "中性槓桿：資產增值來自房價，但現金流壓力大 (Cash Poor)"
+    },
+    { 
+      "code": 70, 
+      "label": "穩健中產層 (PR 60-80)", 
+      "rangeMin": 6000000,
+      "rangeMax": 12000000,
+      "desc": "個人淨值 600-1,200 萬。房貸壓力減輕，開始累積 ETF 或第二桶金。", 
+      "sort": 4,
+      "performanceRoaMin": 4.5,
+      "performanceRoaMax": 6.5,
+      "performanceRoeMin": 7,
+      "performanceRoeMax": 10,
+      "performanceNote": "轉型期：資產配置由房產單一核心轉向股債多元配置"
+    },
+    { 
+      "code": 80, 
+      "label": "富裕中產層 (PR 80-90)", 
+      "rangeMin": 12000000,
+      "rangeMax": 16000000,
+      "desc": "個人淨值 1,200-1,600 萬。享受到資本利得複利，資產效率顯著提升。", 
+      "sort": 5,
+      "performanceRoaMin": 5,
+      "performanceRoaMax": 7,
+      "performanceRoeMin": 8,
+      "performanceRoeMax": 12,
+      "performanceNote": "良性槓桿起點：利用理財型房貸創造 3-5% 的利差 (Spread)"
+    },
+    { 
+      "code": 90, 
+      "label": "高資產族群 (PR 90-95)", 
+      "rangeMin": 16000000,
+      "rangeMax": 24000000,
+      "desc": "個人淨值 1,600-2,400 萬。完整的資產配置，進入全台前 10%。", 
+      "sort": 6,
+      "performanceRoaMin": 8,
+      "performanceRoaMax": 11,
+      "performanceRoeMin": 12,
+      "performanceRoeMax": 18,
+      "performanceNote": "積極槓桿：股票質押與房產增貸，放大資本利得"
+    },
+    { 
+      "code": 95, 
+      "label": "準富豪層 (PR 95-99)", 
+      "rangeMin": 24000000,
+      "rangeMax": 64000000,
+      "desc": "個人淨值 2,400-6,400 萬。中小企業主與高階經理人，資產規模接近百萬美元。", 
+      "sort": 7,
+      "performanceRoaMin": 9,
+      "performanceRoaMax": 12,
+      "performanceRoeMin": 15,
+      "performanceRoeMax": 20,
+      "performanceNote": "規模經濟：資產規模大，能取得更低融資成本與私募機會"
+    },
+    { 
+      "code": 99, 
+      "label": "頂層富豪 (Top 1%)", 
+      "rangeMin": 64000000,
+      "rangeMax": null,
+      "desc": "個人淨值 > 6,400 萬 (約 200 萬美元)。享有跨國匯兌與稅務規劃優勢。", 
+      "sort": 8,
+      "performanceRoaMin": 12,
+      "performanceRoaMax": null,
+      "performanceRoeMin": 20,
+      "performanceRoeMax": null,
+      "performanceNote": "跨國套利：匯兌收益、稅務優化與股權增值的三重紅利"
+    }
+  ]
+}

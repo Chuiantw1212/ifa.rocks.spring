@@ -1,0 +1,147 @@
+{
+  "id": "opt_taipei_wealth_decile",
+  "name": "臺北市家戶財富十分位戰略模型 (2024 都市數據最終版)",
+  "currency": "TWD",
+  "list": [
+    {
+      "code": "D1",
+      "label": "D1 (社會底層)",
+      "netWorthRangeMin": 0,
+      "netWorthRangeMax": 1000000,
+      "debtRatio": 86.0,
+      "allocation": {
+        "realEstate": 0.0,
+        "cash": 100.0,
+        "securities": 0.0,
+        "insurance": 0.0
+      },
+      "description": "受限於租賃陷阱與高昂生活費，資產極為稀薄且負債剛性。因無房產，完全被排除在台北資產增值紅利之外。"
+    },
+    {
+      "code": "D2",
+      "label": "D2 (邊緣勞工)",
+      "netWorthRangeMin": 1000000,
+      "netWorthRangeMax": 3000000,
+      "debtRatio": 70.0,
+      "allocation": {
+        "realEstate": 0.0,
+        "cash": 92.0,
+        "securities": 3.0,
+        "insurance": 5.0
+      },
+      "description": "多為租屋中的年輕白領，資產以活存為主。負債多來自於學貸、信貸或車貸，缺乏積累第一桶金的能力。"
+    },
+    {
+      "code": "D3",
+      "label": "D3 (租屋中產)",
+      "netWorthRangeMin": 3000000,
+      "netWorthRangeMax": 8000000,
+      "debtRatio": 50.0,
+      "allocation": {
+        "realEstate": 0.0,
+        "cash": 55.0,
+        "securities": 15.0,
+        "insurance": 30.0
+      },
+      "description": "工作穩定但儲蓄受高房租侵蝕。因缺乏不動產擔保，資產配置轉向防禦性的儲蓄險與定期定額基金，試圖對抗通膨。"
+    },
+    {
+      "code": "D4",
+      "label": "D4 (購屋入門層)",
+      "netWorthRangeMin": 8000000,
+      "netWorthRangeMax": 15000000,
+      "debtRatio": 77.5,
+      "allocation": {
+        "realEstate": 75.0,
+        "cash": 10.0,
+        "securities": 5.0,
+        "insurance": 10.0
+      },
+      "description": "新進購屋族群，資產負債表因鉅額房貸而劇烈膨脹。淨值雖達標，但財務韌性受極高槓桿率侵蝕。"
+    },
+    {
+      "code": "D5",
+      "label": "D5 (核心中產)",
+      "netWorthRangeMin": 15000000,
+      "netWorthRangeMax": 25000000,
+      "debtRatio": 60.0,
+      "allocation": {
+        "realEstate": 80.0,
+        "cash": 8.0,
+        "securities": 5.0,
+        "insurance": 7.0
+      },
+      "description": "資產配置極端失衡，八成以上資產鎖死於自用住宅，呈現『資產富裕、現金流貧窮』的典型房奴特徵。"
+    },
+    {
+      "code": "D6",
+      "label": "D6 (資深中產)",
+      "netWorthRangeMin": 25000000,
+      "netWorthRangeMax": 35000000,
+      "debtRatio": 40.0,
+      "allocation": {
+        "realEstate": 75.0,
+        "cash": 10.0,
+        "securities": 6.3,
+        "insurance": 8.7
+      },
+      "description": "受益於臺北房產長期增值與本金攤還，資產負債比顯著回落。保險與勞退準備成為其流動性主體。"
+    },
+    {
+      "code": "D7",
+      "label": "D7 (準富裕層)",
+      "netWorthRangeMin": 35000000,
+      "netWorthRangeMax": 50000000,
+      "debtRatio": 25.0,
+      "allocation": {
+        "realEstate": 65.0,
+        "cash": 10.5,
+        "securities": 14.0,
+        "insurance": 10.5
+      },
+      "description": "房貸接近繳清，開始具備明顯的金融資產配置能力，保險配置由單純儲蓄轉向退休現金流規劃。"
+    },
+    {
+      "code": "D8",
+      "label": "D8 (富裕層)",
+      "netWorthRangeMin": 50000000,
+      "netWorthRangeMax": 80000000,
+      "debtRatio": 15.0,
+      "allocation": {
+        "realEstate": 55.0,
+        "cash": 11.5,
+        "securities": 20.0,
+        "insurance": 13.5
+      },
+      "description": "負債轉為策略性套利工具。財富增值轉向股房雙引擎，具備強大財務彈性，保險佔比達到絕對金額高峰。"
+    },
+    {
+      "code": "D9",
+      "label": "D9 (高資產客群)",
+      "netWorthRangeMin": 80000000,
+      "netWorthRangeMax": 150000000,
+      "debtRatio": 6.5,
+      "allocation": {
+        "realEstate": 40.0,
+        "cash": 10.0,
+        "securities": 38.0,
+        "insurance": 12.0
+      },
+      "description": "資產規模突破億元大關。負債極低，證券配置成為財富擴張核心，實現資本利得對勞務所得的完全超越。"
+    },
+    {
+      "code": "D10",
+      "label": "D10 (頂層資本家)",
+      "netWorthRangeMin": 150000000,
+      "netWorthRangeMax": null,
+      "debtRatio": 4.3,
+      "allocation": {
+        "realEstate": 30.0,
+        "cash": 10.0,
+        "securities": 46.0,
+        "insurance": 14.0
+      },
+      "description": "資產實質脫鉤生存負擔。透過全球化證券配置與鉅額保單規劃，實現階級固化與跨代財富傳承。"
+    }
+  ]
+}

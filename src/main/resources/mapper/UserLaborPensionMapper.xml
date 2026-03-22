@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.en_chu.calculator_api_spring.mapper.UserLaborPensionMapper">
+
+	<resultMap id="BaseResultMap" type="com.en_chu.calculator_api_spring.entity.UserLaborPension">
+		<id column="id" property="id" />
+		<result column="firebase_uid" property="firebaseUid" />
+		<result column="expected_retirement_age" property="expectedRetirementAge" />
+		<result column="remaining_life_at_retirement" property="remainingLifeAtRetirement" />
+		<result column="retirement_roi" property="retirementRoi" />
+		<result column="employer_contribution" property="employerContribution" />
+		<result column="employer_earnings" property="employerEarnings" />
+		<result column="personal_contribution" property="personalContribution" />
+		<result column="personal_earnings" property="personalEarnings" />
+		<result column="current_work_seniority" property="currentWorkSeniority" />
+		<result column="predicted_lump_sum" property="predictedLumpSum" />
+		<result column="predicted_net_lump_sum" property="predictedNetLumpSum" />
+		<result column="created_at" property="createdAt" />
+		<result column="updated_at" property="updatedAt" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		id, firebase_uid,
+		expected_retirement_age,
+		remaining_life_at_retirement, retirement_roi,
+		employer_contribution,
+		employer_earnings, personal_contribution, personal_earnings,
+		current_work_seniority, predicted_lump_sum, predicted_net_lump_sum,
+		created_at, updated_at
+	</sql>
+
+	<select id="selectByUid" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM user_labor_pensions
+		WHERE firebase_uid = #{firebaseUid}
+	</select>
+
+	<select id="existsByUid" resultType="boolean">
+        SELECT EXISTS (SELECT 1 FROM user_labor_pensions WHERE firebase_uid = #{firebaseUid})
+    </select>
+
+	<update id="updateByUid">
+        UPDATE user_labor_pensions
+        SET
+            expected_retirement_age = #{expectedRetirementAge},
+            remaining_life_at_retirement = #{remainingLifeAtRetirement},
+            retirement_roi = #{retirementRoi},
+            employer_contribution = #{employerContribution},
+            employer_earnings = #{employerEarnings},
+            personal_contribution = #{personalContribution},
+            personal_earnings = #{personalEarnings},
+            current_work_seniority = #{currentWorkSeniority},
+            predicted_lump_sum = #{predictedLumpSum},
+            predicted_net_lump_sum = #{predictedNetLumpSum},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE firebase_uid = #{firebaseUid}
+    </update>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_labor_pensions (
+            firebase_uid,
+            expected_retirement_age,
+            remaining_life_at_retirement,
+            retirement_roi,
+            employer_contribution,
+            employer_earnings,
+            personal_contribution,
+            personal_earnings,
+            current_work_seniority,
+            predicted_lump_sum,
+            predicted_net_lump_sum
+        ) VALUES (
+            #{firebaseUid},
+            #{expectedRetirementAge},
+            #{remainingLifeAtRetirement},
+            #{retirementRoi},
+            #{employerContribution},
+            #{employerEarnings},
+            #{personalContribution},
+            #{personalEarnings},
+            #{currentWorkSeniority},
+            #{predictedLumpSum},
+            #{predictedNetLumpSum}
+        )
+    </insert>
+
+	<delete id="deleteByUid">
+		DELETE FROM user_labor_pensions
+		WHERE firebase_uid = #{firebaseUid}
+	</delete>
+
+</mapper>

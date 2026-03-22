@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.en_chu.calculator_api_spring.mapper.DataAdminMapper">
+
+    <!-- 清理 user_businesses 表中的孤兒資料 -->
+    <delete id="deleteOrphanedBusinesses">
+        DELETE FROM user_businesses b
+        WHERE NOT EXISTS (
+            SELECT 1 FROM user_profiles p WHERE p.firebase_uid = b.firebase_uid
+        )
+    </delete>
+
+    <!-- 清理 user_credit_cards 表中的孤兒資料 -->
+    <delete id="deleteOrphanedCreditCards">
+        DELETE FROM user_credit_cards cc
+        WHERE NOT EXISTS (
+            SELECT 1 FROM user_profiles p WHERE p.firebase_uid = cc.firebase_uid
+        )
+    </delete>
+
+    <!-- 清理 user_portfolios 表中的孤兒資料 -->
+    <delete id="deleteOrphanedPortfolios">
+        DELETE FROM user_portfolios pf
+        WHERE NOT EXISTS (
+            SELECT 1 FROM user_profiles p WHERE p.firebase_uid = pf.firebase_uid
+        )
+    </delete>
+
+    <!-- 清理 user_real_estates 表中的孤兒資料 -->
+    <delete id="deleteOrphanedRealEstates">
+        DELETE FROM user_real_estates re
+        WHERE NOT EXISTS (
+            SELECT 1 FROM user_profiles p WHERE p.firebase_uid = re.firebase_uid
+        )
+    </delete>
+
+</mapper>

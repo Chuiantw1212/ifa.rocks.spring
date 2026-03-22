@@ -1,0 +1,24 @@
+{
+  "id": "opt_real_estate_usage",
+  "name": "房地產用途配置",
+  "list": [
+    {
+      "code": "self",
+      "label": "自用住宅",
+      "icon": "Home",
+      "sort": 1
+    },
+    {
+      "code": "rent",
+      "label": "出租投資",
+      "icon": "AttachMoney",
+      "sort": 2
+    },
+    {
+      "code": "vacant",
+      "label": "閒置資產",
+      "icon": "DoNotDisturb",
+      "sort": 3
+    }
+  ]
+}

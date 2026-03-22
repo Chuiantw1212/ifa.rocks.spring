@@ -1,0 +1,54 @@
+{
+  "id": "opt_market",
+  "name": "金融市場",
+  "list":  [
+        {
+          "code": "TW",
+          "label": "台灣",
+          "currency": "TWD",
+          "defaultRate": 1.0
+        },
+        {
+          "code": "US",
+          "label": "美國",
+          "currency": "USD",
+          "defaultRate": 32.5
+        },
+        {
+          "code": "JP",
+          "label": "日本",
+          "currency": "JPY",
+          "defaultRate": 0.21
+        },
+        {
+          "code": "KR",
+          "label": "韓國",
+          "currency": "KRW",
+          "defaultRate": 0.023
+        },
+        {
+          "code": "DE",
+          "label": "德國",
+          "currency": "EUR",
+          "defaultRate": 35.1
+        },
+        {
+          "code": "SG",
+          "label": "新加坡",
+          "currency": "SGD",
+          "defaultRate": 24.2
+        },
+        {
+          "code": "UK",
+          "label": "英國",
+          "currency": "GBP",
+          "defaultRate": 41.2
+        },
+        {
+          "code": "VN",
+          "label": "越南",
+          "currency": "VND",
+          "defaultRate": 0.0013
+        }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "id": "opt_retirement_gogo_housing_solo",
+  "name": "退休居住選項 (獨居模式)",
+  "source": "2026年退休居住經濟學報告",
+  "currency": "TWD",
+  "list": [
+    {
+      "code": "SOLO_OWN_OLD",
+      "label": "自有老屋 (Aging in Place)",
+      "monthlyCost": 23000,
+      "description": "資產陷阱：包含現金流與適老化翻修攤提。雖名義上無租金，但面臨老舊公寓「行動牢籠」風險與流動性衝擊。"
+    },
+    {
+      "code": "SOLO_RENT_SUITE",
+      "label": "租賃-獨立套房",
+      "monthlyCost": 16000,
+      "description": "都會區行情：單位面積成本最高。面臨房東拒租高齡者之風險且缺乏社交支持，生活不穩定性較高。"
+    },
+    {
+      "code": "SOLO_INST_STD",
+      "label": "養生村-單人房",
+      "monthlyCost": 30000,
+      "description": "標竿機構：參考長庚/樂陶居單人房。享有完整醫療與緊急救援，但需獨力負擔所有固定成本。"
+    },
+    {
+      "code": "SOLO_INST_LUX",
+      "label": "養生村-都會豪華",
+      "monthlyCost": 72000,
+      "description": "高端獨居：參考康寧生活會館。位於市中心豪宅規格，鄰近頂級醫療，適合高資產且重視交通便利者。"
+    }
+  ]
+}

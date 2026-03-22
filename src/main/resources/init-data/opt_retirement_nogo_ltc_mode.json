@@ -1,0 +1,67 @@
+{
+  "id": "opt_retirement_nogo_ltc_mode",
+  "name": "2026 長照策略分級 (台北市靜止期精算版)",
+  "currency": "TWD",
+  "list": [
+    {
+      "code": "LTC_HOME_HYBRID",
+      "category": "居家照護",
+      "label": "混合模式 (外看 + 日照/專業服務)",
+      "marketShare": "11.9%",
+      "monthlyCost": 37000,
+      "defaultSupplies": 16000,
+      "defaultSubsidy": 3000,
+      "description": "2026 年最均衡的戰略模式。由外籍看護負擔 24 小時基礎照顧（月薪含食宿保費約 3.7 萬），並搭配長照 2.0 喘息服務與日間照顧。此模式能有效填補外勞休假空窗並引入專業復能指導，將家屬自籌缺口控制在每月約 5 萬元。"
+    },
+    {
+      "code": "LTC_HOME_MIGRANT",
+      "category": "居家照護",
+      "label": "純外籍看護",
+      "marketShare": "14.6%",
+      "monthlyCost": 37000,
+      "defaultSupplies": 16000,
+      "defaultSubsidy": 0,
+      "description": "傳統全日照護主力。雖然名義薪資較低，但受 2026 年基本工資調漲與國際搶人競爭影響，台北市實質雇主負擔（含薪資、加班費、健保及外勞食宿水電）已攀升。因未搭配公費資源，所有耗材與醫療雜支均需全額自費，風險抵抗力較低。"
+    },
+    {
+      "code": "LTC_INSTITUTION_SHARED",
+      "category": "機構安置",
+      "label": "一般護理之家 (3-4人房)",
+      "marketShare": "12.1%",
+      "monthlyCost": 60000,
+      "defaultSupplies": 15000,
+      "defaultSubsidy": 10000,
+      "description": "重度失能者的最終防線。2026 年受人力流失陷阱影響，機構月費顯著墊高（含住房與三管護理約 6 萬）。雖然每月可獲 1 萬元政府補助，但扣除後的自籌缺口仍達 6.5 萬元，且台北市床位供給極度剛性，一位難求。"
+    },
+    {
+      "code": "LTC_INSTITUTION_PREMIUM",
+      "category": "機構安置",
+      "label": "高品質單人房",
+      "marketShare": "2.0%",
+      "monthlyCost": 80000,
+      "defaultSupplies": 15000,
+      "defaultSubsidy": 10000,
+      "description": "高資產族群的避風港。鎖定戰後嬰兒潮世代對隱私與尊嚴的需求，提供醫養整合與飯店式管理。因不受公費價格天花板限制，能以高薪吸引優質護理人力。扣除萬元補助後，每月需自籌約 8.5 萬元，對醫療通膨敏感度極高。"
+    },
+    {
+      "code": "LTC_HOME_LOCAL",
+      "category": "居家照護",
+      "label": "本籍全天看護 (24H)",
+      "marketShare": "0.5%",
+      "monthlyCost": 105000,
+      "defaultSupplies": 35000,
+      "defaultSubsidy": 30000,
+      "description": "瀕臨消失的貴族級服務。本籍照服員日薪行情已穩站 3,500 元。雖然可申請長照 2.0 補助折抵（每月最高約 3 萬），但加上高端有機膳食與居家醫材耗材後，每月現金流需求突破 11 萬元，僅存於極少數高資產家庭。"
+    },
+    {
+      "code": "LTC_INFORMAL_FAMILY",
+      "category": "居家照護",
+      "label": "純家庭照護 (非正式)",
+      "marketShare": "54.3%",
+      "monthlyCost": 0,
+      "defaultSupplies": 15000,
+      "defaultSubsidy": 0,
+      "description": "市場最大宗但最脆弱的板塊。由家屬自行承擔全日照護，雖無現金薪資支出，但每月仍需負擔約 1.5 萬元的尿布與營養品開銷。隨台北市平均不健康生存年數達 8.5 年，此模式極易導致照顧者體力耗盡並產生巨大機會成本。"
+    }
+  ]
+}

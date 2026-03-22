@@ -1,0 +1,37 @@
+{
+  "id": "opt_retirement_slowgo_medical",
+  "name": "慢活期 (75-85歲) 醫療品質分級",
+  "currency": "TWD",
+  "list": [
+    {
+      "code": "D_SURVIVAL",
+      "label": "健保標準型 (Q1)",
+      "monthlyBudget": 4500,
+      "description": "維持生命底線。完全採用健保給付之傳統醫材（如金屬支架）。住院環境為多人健保房，以治癒疾病為唯一目標。"
+    },
+    {
+      "code": "D_BASIC",
+      "label": "基礎舒適型 (Q2)",
+      "monthlyBudget": 7500,
+      "description": "優化術後疼痛管理。具備自費止痛、防沾黏醫材及基礎物理治療能力。住院能負擔差額升等至雙人病房。"
+    },
+    {
+      "code": "D_QUALITY",
+      "label": "功能優化型 (Q3)",
+      "monthlyBudget": 12000,
+      "description": "關鍵醫材升級。能以現金選用『塗藥血管支架』或『耐磨陶瓷人工關節』。旨在透過高品質維修，減少二次手術風險。"
+    },
+    {
+      "code": "D_ADVANCED",
+      "label": "微創精準型 (Q4)",
+      "monthlyBudget": 18000,
+      "description": "縮短恢復期。優先採用『達文西機械手臂』進行微創執刀，顯著降低高齡患者術後出血與體力衰退風險。常態性入住單人病房。"
+    },
+    {
+      "code": "D_VIP",
+      "label": "頂級尊榮型 (Q5)",
+      "monthlyBudget": 28000,
+      "description": "極致生存尊嚴。支持全自費之標靶藥物、免疫療法或再生醫學。享有特約 VIP 門診，決策以『低副作用』為導向。"
+    }
+  ]
+}

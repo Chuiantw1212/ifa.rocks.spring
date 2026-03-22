@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.en_chu.calculator_api_spring.mapper.UserCareerMapper">
+
+    <resultMap id="BaseResultMap" type="com.en_chu.calculator_api_spring.entity.UserCareer">
+        <id column="id" property="id" />
+        <result column="firebase_uid" property="firebaseUid" />
+        <result column="base_salary" property="baseSalary" />
+        <result column="other_allowance" property="otherAllowance" />
+        <result column="monthly_net_income" property="monthlyNetIncome" />
+        <result column="annual_bonus" property="annualBonus" />
+        <result column="annual_total_income" property="annualTotalIncome" />
+        <result column="dependents" property="dependents" />
+        <result column="labor_insurance" property="laborInsurance" />
+        <result column="health_insurance" property="healthInsurance" />
+        <result column="other_deduction" property="otherDeduction" />
+        <result column="pension_personal_rate" property="pensionPersonalRate" />
+        <result column="pension_personal_amount" property="pensionPersonalAmount" />
+        <result column="pension_employer_amount" property="pensionEmployerAmount" />
+        <result column="pension_total_amount" property="pensionTotalAmount" />
+        <result column="stock_deduction" property="stockDeduction" />
+        <result column="stock_company_match" property="stockCompanyMatch" />
+        <result column="created_at" property="createdAt" />
+        <result column="updated_at" property="updatedAt" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, firebase_uid, 
+        base_salary, other_allowance, monthly_net_income,
+        annual_bonus, annual_total_income,
+        dependents, labor_insurance, health_insurance, other_deduction,
+        pension_personal_rate, pension_personal_amount, pension_employer_amount, pension_total_amount,
+        stock_deduction, stock_company_match,
+        created_at, updated_at
+    </sql>
+
+    <update id="updateByUid">
+        UPDATE user_careers
+        SET 
+            base_salary = #{baseSalary},
+            other_allowance = #{otherAllowance},
+            monthly_net_income = #{monthlyNetIncome},
+            annual_bonus = #{annualBonus},
+            annual_total_income = #{annualTotalIncome},
+            dependents = #{dependents},
+            labor_insurance = #{laborInsurance},
+            health_insurance = #{healthInsurance},
+            other_deduction = #{otherDeduction},
+            pension_personal_rate = #{pensionPersonalRate},
+            pension_personal_amount = #{pensionPersonalAmount},
+            pension_employer_amount = #{pensionEmployerAmount},
+            pension_total_amount = #{pensionTotalAmount},
+            stock_deduction = #{stockDeduction},
+            stock_company_match = #{stockCompanyMatch},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE 
+            firebase_uid = #{firebaseUid}
+    </update>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_careers (
+            firebase_uid, 
+            base_salary, 
+            other_allowance, 
+            monthly_net_income,
+            annual_bonus,
+            annual_total_income,
+            dependents,
+            labor_insurance,
+            health_insurance, 
+            other_deduction,
+            pension_personal_rate,
+            pension_personal_amount,
+            pension_employer_amount, 
+            pension_total_amount,
+            stock_deduction,
+            stock_company_match
+        ) VALUES (
+            #{firebaseUid},
+            #{baseSalary}, 
+            #{otherAllowance},
+            #{monthlyNetIncome},
+            #{annualBonus},
+            #{annualTotalIncome},
+            #{dependents},
+            #{laborInsurance},
+            #{healthInsurance}, 
+            #{otherDeduction},
+            #{pensionPersonalRate},
+            #{pensionPersonalAmount},
+            #{pensionEmployerAmount}, 
+            #{pensionTotalAmount},
+            #{stockDeduction},
+            #{stockCompanyMatch}
+        )
+    </insert>
+
+    <select id="selectByUid" resultMap="BaseResultMap">
+        SELECT 
+        <include refid="Base_Column_List" />
+        FROM user_careers 
+        WHERE firebase_uid = #{firebaseUid}
+    </select>
+
+    <select id="existsByUid" resultType="boolean">
+        SELECT EXISTS (SELECT 1 FROM user_careers WHERE firebase_uid = #{firebaseUid})
+    </select>
+
+    <delete id="deleteByUid">
+        DELETE FROM user_careers
+        WHERE firebase_uid = #{firebaseUid}
+    </delete>
+
+</mapper>

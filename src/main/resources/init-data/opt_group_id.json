@@ -1,0 +1,11 @@
+{
+  "id": "opt_group_id",
+  "name": "分組標籤配置",
+  "list": [
+    { "code": 1, "label": "藍", "color": "#3B82F6", "sort": 1 },
+    { "code": 2, "label": "橘", "color": "#F97316", "sort": 2 },
+    { "code": 3, "label": "紫", "color": "#8B5CF6", "sort": 3 },
+    { "code": 4, "label": "青", "color": "#06B6D4", "sort": 4 },
+    { "code": 5, "label": "粉", "color": "#EC4899", "sort": 5 }
+  ]
+}
