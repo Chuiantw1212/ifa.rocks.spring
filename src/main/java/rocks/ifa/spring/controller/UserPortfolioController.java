@@ -1,8 +1,8 @@
 package rocks.ifa.spring.controller;
 
-import rocks.ifa.spring.model.UserPortfolioCreateReq;
-import rocks.ifa.spring.model.UserPortfolioDto;
-import rocks.ifa.spring.model.UserPortfolioUpdateReq;
+import rocks.ifa.spring.dto.UserPortfolioCreateReq;
+import rocks.ifa.spring.dto.UserPortfolioDto;
+import rocks.ifa.spring.dto.UserPortfolioUpdateReq;
 import rocks.ifa.spring.service.UserPortfolioService;
 import rocks.ifa.spring.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;

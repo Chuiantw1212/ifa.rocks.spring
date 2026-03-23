@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import rocks.ifa.spring.model.UserBusinessDto;
+import rocks.ifa.spring.dto.UserBusinessDto;
 import rocks.ifa.spring.service.UserBusinessService;
 import rocks.ifa.spring.util.PageResponse;
 import rocks.ifa.spring.util.SecurityUtils;

@@ -1,18 +1,20 @@
-package rocks.ifa.spring.model;
+package rocks.ifa.spring.dto;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 
 /**
- * DTO for creating or fully updating user retirement settings.
+ * DTO for UserRetirement data.
  */
 @Data
-public class UserRetirementUpdateReq {
+public class UserRetirementDto {
 
-    @NotNull(message = "Household type cannot be null")
+    private Long id;
+    private OffsetDateTime updatedAt;
+
+    // --- Phase 1: Go-Go ---
     private String householdType;
-
     private String housingMode;
     private BigDecimal housingCost;
     private String healthTierCode;
@@ -20,12 +22,14 @@ public class UserRetirementUpdateReq {
     private String activeLivingCode;
     private BigDecimal activeLivingCost;
 
+    // --- Phase 2: Slow-Go ---
     private Integer slowGoStartAge;
     private String defenseTierCode;
     private BigDecimal monthlyMedicalCost;
     private String criticalIllnessCode;
     private BigDecimal criticalIllnessReserve;
 
+    // --- Phase 3: No-Go ---
     private Integer nogoStartAge;
     private String ltcCareMode;
     private BigDecimal ltcMonthlyCost;

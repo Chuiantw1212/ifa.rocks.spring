@@ -1,7 +1,7 @@
 package rocks.ifa.spring.service;
 
-import rocks.ifa.spring.model.UserProfileDto;
-import rocks.ifa.spring.model.UserProfileUpdateReq;
+import rocks.ifa.spring.dto.UserProfileDto;
+import rocks.ifa.spring.dto.UserProfileUpdateReq;
 
 public interface UserProfileService {
     UserProfileDto getProfile(String uid);

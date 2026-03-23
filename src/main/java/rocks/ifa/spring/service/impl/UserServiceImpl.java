@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rocks.ifa.spring.entity.UserProfile;
 import rocks.ifa.spring.mapper.*;
-import rocks.ifa.spring.model.UserFullDataRes;
+import rocks.ifa.spring.dto.UserFullDataRes;
 import rocks.ifa.spring.service.*;
 
 @Slf4j

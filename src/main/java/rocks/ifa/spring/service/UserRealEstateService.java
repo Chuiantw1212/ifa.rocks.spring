@@ -1,6 +1,6 @@
 package rocks.ifa.spring.service;
 
-import rocks.ifa.spring.model.UserRealEstateDto;
+import rocks.ifa.spring.dto.UserRealEstateDto;
 
 import java.util.List;
 

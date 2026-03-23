@@ -2,7 +2,7 @@ package rocks.ifa.spring.service.impl;
 
 import rocks.ifa.spring.entity.UserRealEstate;
 import rocks.ifa.spring.mapper.UserRealEstateMapper;
-import rocks.ifa.spring.model.UserRealEstateDto;
+import rocks.ifa.spring.dto.UserRealEstateDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;

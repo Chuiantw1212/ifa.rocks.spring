@@ -2,7 +2,7 @@ package rocks.ifa.spring.service.impl;
 
 import rocks.ifa.spring.entity.UserCreditCard;
 import rocks.ifa.spring.mapper.UserCreditCardMapper;
-import rocks.ifa.spring.model.UserCreditCardDto;
+import rocks.ifa.spring.dto.UserCreditCardDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;

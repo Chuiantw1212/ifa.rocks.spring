@@ -11,7 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import rocks.ifa.spring.entity.UserBusiness;
 import rocks.ifa.spring.mapper.UserBusinessMapper;
-import rocks.ifa.spring.model.UserBusinessDto;
+import rocks.ifa.spring.dto.UserBusinessDto;
 import rocks.ifa.spring.util.PageResponse;
 import rocks.ifa.spring.service.UserBusinessService;
 

@@ -1,7 +1,7 @@
 package rocks.ifa.spring.service;
 
-import rocks.ifa.spring.model.UserCareerDto;
-import rocks.ifa.spring.model.UserCareerUpdateReq;
+import rocks.ifa.spring.dto.UserCareerDto;
+import rocks.ifa.spring.dto.UserCareerUpdateReq;
 
 public interface UserCareerService {
     UserCareerDto getCareer(String uid);

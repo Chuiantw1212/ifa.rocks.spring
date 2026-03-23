@@ -1,8 +1,6 @@
 package rocks.ifa.spring.controller;
 
-import com.en_chu.calculator_api_spring.model.*;
-import com.en_chu.calculator_api_spring.service.*;
-import rocks.ifa.spring.model.*;
+import rocks.ifa.spring.dto.*;
 import rocks.ifa.spring.service.*;
 import rocks.ifa.spring.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;

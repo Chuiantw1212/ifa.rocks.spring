@@ -6,7 +6,7 @@ import java.util.concurrent.ExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import rocks.ifa.spring.model.LifeExpectancyRes;
+import rocks.ifa.spring.dto.LifeExpectancyRes;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 

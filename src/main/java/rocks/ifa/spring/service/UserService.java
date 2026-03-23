@@ -1,6 +1,6 @@
 package rocks.ifa.spring.service;
 
-import rocks.ifa.spring.model.UserFullDataRes;
+import rocks.ifa.spring.dto.UserFullDataRes;
 
 public interface UserService {
     UserFullDataRes getFullUserData(String uid);

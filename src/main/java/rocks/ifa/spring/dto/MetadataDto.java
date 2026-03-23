@@ -1,4 +1,4 @@
-package rocks.ifa.spring.model;
+package rocks.ifa.spring.dto;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

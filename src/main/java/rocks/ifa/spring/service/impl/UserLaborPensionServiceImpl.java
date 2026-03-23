@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rocks.ifa.spring.entity.UserLaborPension;
 import rocks.ifa.spring.mapper.UserLaborPensionMapper;
-import rocks.ifa.spring.model.UserLaborPensionDto;
-import rocks.ifa.spring.model.UserLaborPensionUpdateReq;
+import rocks.ifa.spring.dto.UserLaborPensionDto;
+import rocks.ifa.spring.dto.UserLaborPensionUpdateReq;
 import rocks.ifa.spring.service.UserLaborPensionService;
 
 @Slf4j

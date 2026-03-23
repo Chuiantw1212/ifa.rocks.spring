@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rocks.ifa.spring.entity.UserProfile;
 import rocks.ifa.spring.mapper.UserProfileMapper;
-import rocks.ifa.spring.model.UserProfileDto;
-import rocks.ifa.spring.model.UserProfileUpdateReq;
+import rocks.ifa.spring.dto.UserProfileDto;
+import rocks.ifa.spring.dto.UserProfileUpdateReq;
 import rocks.ifa.spring.service.UserProfileService;
 
 import java.time.LocalDate;

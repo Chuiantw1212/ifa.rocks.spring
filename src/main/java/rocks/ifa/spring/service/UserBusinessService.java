@@ -1,6 +1,6 @@
 package rocks.ifa.spring.service;
 
-import rocks.ifa.spring.model.UserBusinessDto;
+import rocks.ifa.spring.dto.UserBusinessDto;
 import rocks.ifa.spring.util.PageResponse;
 
 public interface UserBusinessService {

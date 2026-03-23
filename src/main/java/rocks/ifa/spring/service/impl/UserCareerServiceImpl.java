@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rocks.ifa.spring.entity.UserCareer;
 import rocks.ifa.spring.mapper.UserCareerMapper;
-import rocks.ifa.spring.model.UserCareerDto;
-import rocks.ifa.spring.model.UserCareerUpdateReq;
+import rocks.ifa.spring.dto.UserCareerDto;
+import rocks.ifa.spring.dto.UserCareerUpdateReq;
 import rocks.ifa.spring.service.UserCareerService;
 
 @Slf4j

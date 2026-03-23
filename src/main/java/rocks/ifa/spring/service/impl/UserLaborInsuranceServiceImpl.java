@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rocks.ifa.spring.entity.UserLaborInsurance;
 import rocks.ifa.spring.mapper.UserLaborInsuranceMapper;
-import rocks.ifa.spring.model.UserLaborInsuranceDto;
-import rocks.ifa.spring.model.UserLaborInsuranceUpdateReq;
+import rocks.ifa.spring.dto.UserLaborInsuranceDto;
+import rocks.ifa.spring.dto.UserLaborInsuranceUpdateReq;
 import rocks.ifa.spring.service.UserLaborInsuranceService;
 
 @Slf4j

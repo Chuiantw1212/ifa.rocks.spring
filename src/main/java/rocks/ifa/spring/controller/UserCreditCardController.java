@@ -1,6 +1,6 @@
 package rocks.ifa.spring.controller;
 
-import rocks.ifa.spring.model.UserCreditCardDto;
+import rocks.ifa.spring.dto.UserCreditCardDto;
 import rocks.ifa.spring.service.UserCreditCardService;
 import rocks.ifa.spring.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;

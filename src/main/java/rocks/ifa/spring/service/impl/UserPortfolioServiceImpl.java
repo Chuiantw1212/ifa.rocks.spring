@@ -2,9 +2,9 @@ package rocks.ifa.spring.service.impl;
 
 import rocks.ifa.spring.entity.UserPortfolio;
 import rocks.ifa.spring.mapper.UserPortfolioMapper;
-import rocks.ifa.spring.model.UserPortfolioCreateReq;
-import rocks.ifa.spring.model.UserPortfolioDto;
-import rocks.ifa.spring.model.UserPortfolioUpdateReq;
+import rocks.ifa.spring.dto.UserPortfolioCreateReq;
+import rocks.ifa.spring.dto.UserPortfolioDto;
+import rocks.ifa.spring.dto.UserPortfolioUpdateReq;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;

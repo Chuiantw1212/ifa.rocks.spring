@@ -1,6 +1,6 @@
 package rocks.ifa.spring.service;
 
-import rocks.ifa.spring.model.UserCreditCardDto;
+import rocks.ifa.spring.dto.UserCreditCardDto;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package rocks.ifa.spring.model;
+package rocks.ifa.spring.dto;
 
 import java.math.BigDecimal;
 import io.swagger.v3.oas.annotations.media.Schema;

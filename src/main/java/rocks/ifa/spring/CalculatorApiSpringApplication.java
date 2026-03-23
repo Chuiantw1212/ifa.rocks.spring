@@ -11,7 +11,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
  */
 @SpringBootApplication
 @EnableConfigurationProperties(AppProperties.class)
-@MapperScan("com.en_chu.calculator_api_spring.mapper")
+@MapperScan("rocks.ifa.spring.mapper")
 public class CalculatorApiSpringApplication {
 
 	public static void main(String[] args) {

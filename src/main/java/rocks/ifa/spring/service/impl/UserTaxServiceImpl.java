@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rocks.ifa.spring.entity.UserTax;
 import rocks.ifa.spring.mapper.UserTaxMapper;
-import rocks.ifa.spring.model.UserTaxDto;
-import rocks.ifa.spring.model.UserTaxUpdateReq;
+import rocks.ifa.spring.dto.UserTaxDto;
+import rocks.ifa.spring.dto.UserTaxUpdateReq;
 import rocks.ifa.spring.service.UserTaxService;
 
 @Slf4j

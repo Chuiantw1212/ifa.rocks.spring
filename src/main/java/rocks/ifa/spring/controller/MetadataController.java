@@ -1,6 +1,6 @@
 package rocks.ifa.spring.controller;
 
-import rocks.ifa.spring.model.LifeExpectancyRes;
+import rocks.ifa.spring.dto.LifeExpectancyRes;
 import rocks.ifa.spring.service.LifeExpectancyService;
 import rocks.ifa.spring.service.MetadataService;
 import io.swagger.v3.oas.annotations.Operation;

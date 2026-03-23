@@ -1,7 +1,7 @@
 package rocks.ifa.spring.controller;
 
-import rocks.ifa.spring.model.UserRetirementDto;
-import rocks.ifa.spring.model.UserRetirementUpdateReq;
+import rocks.ifa.spring.dto.UserRetirementDto;
+import rocks.ifa.spring.dto.UserRetirementUpdateReq;
 import rocks.ifa.spring.service.UserRetirementService;
 import rocks.ifa.spring.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;

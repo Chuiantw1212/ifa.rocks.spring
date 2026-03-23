@@ -1,6 +1,6 @@
 package rocks.ifa.spring.exception;
 
-import rocks.ifa.spring.model.ErrorResponse;
+import rocks.ifa.spring.dto.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;

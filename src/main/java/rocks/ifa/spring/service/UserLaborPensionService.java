@@ -1,7 +1,7 @@
 package rocks.ifa.spring.service;
 
-import rocks.ifa.spring.model.UserLaborPensionDto;
-import rocks.ifa.spring.model.UserLaborPensionUpdateReq;
+import rocks.ifa.spring.dto.UserLaborPensionDto;
+import rocks.ifa.spring.dto.UserLaborPensionUpdateReq;
 
 public interface UserLaborPensionService {
     UserLaborPensionDto getLaborPension(String uid);
