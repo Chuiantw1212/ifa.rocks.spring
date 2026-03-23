@@ -19,7 +19,7 @@ import rocks.ifa.spring.domain.clientTax.ClientTaxService;
 import rocks.ifa.spring.infra.SecurityUtils;
 
 @RestController
-@RequestMapping("/api/v1/client")
+@RequestMapping("/api/v1/clients")
 @Tag(name = "Client API", description = "客戶理財檔案管理")
 @RequiredArgsConstructor
 public class ClientController {
