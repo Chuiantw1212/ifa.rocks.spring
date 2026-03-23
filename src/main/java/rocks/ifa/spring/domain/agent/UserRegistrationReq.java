@@ -1,4 +1,4 @@
-package rocks.ifa.spring.domain.user;
+package rocks.ifa.spring.domain.agent;
 
 import lombok.Data;
 

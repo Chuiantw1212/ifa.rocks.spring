@@ -4,7 +4,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-public class UserLaborInsuranceUpdateReq {
+public class ClientLaborInsuranceUpdateReq {
     private Integer expectedClaimAge;
     private BigDecimal averageMonthlySalary;
     private Integer insuranceSeniority;

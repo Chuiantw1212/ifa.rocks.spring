@@ -4,7 +4,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-public class UserCareerRes {
+public class ClientCareerRes {
     private BigDecimal baseSalary;
     private BigDecimal otherAllowance;
     private BigDecimal laborInsurance;

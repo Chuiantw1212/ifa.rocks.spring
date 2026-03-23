@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
 @Data
-public class UserRetirementRes {
+public class ClientRetirementRes {
     private Long id;
     private OffsetDateTime updatedAt;
     private String householdType;

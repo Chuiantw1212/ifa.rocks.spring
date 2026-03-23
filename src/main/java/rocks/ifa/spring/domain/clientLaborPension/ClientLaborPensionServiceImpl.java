@@ -5,13 +5,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class ClientLaborPensionServiceImpl implements ClientLaborPensionService {
     @Override
-    public void updateLaborPension(String uid, UserLaborPensionUpdateReq req) {
+    public void updateLaborPension(String uid, ClientLaborPensionUpdateReq req) {
         // This is a placeholder. You should implement your own logic here.
     }
 
     @Override
-    public UserLaborPensionRes getLaborPension(String uid) {
+    public ClientLaborPensionRes getLaborPension(String uid) {
         // This is a placeholder. You should implement your own logic here.
-        return new UserLaborPensionRes();
+        return new ClientLaborPensionRes();
     }
 }

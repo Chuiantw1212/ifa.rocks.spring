@@ -17,7 +17,7 @@ public class ClientProfileServiceImpl implements ClientProfileService {
     private final ClientProfileRepository clientProfileRepository;
 
     @Override
-    public UserProfileDto getProfile(String uid) {
+    public ClientProfileDto getProfile(String uid) {
         return clientProfileRepository.findByFirebaseUid(uid)
                 .map(this::convertToDto)
                 .orElseGet(() -> createDefaultProfile(uid));
@@ -25,7 +25,7 @@ public class ClientProfileServiceImpl implements ClientProfileService {
 
     @Override
     @Transactional
-    public void updateProfile(String uid, UserProfileUpdateReq req) {
+    public void updateProfile(String uid, ClientProfileUpdateReq req) {
         ClientProfile entity = clientProfileRepository.findByFirebaseUid(uid)
                 .orElseGet(() -> {
                     log.info("No existing profile for update, creating new one for UID: {}", uid);
@@ -44,7 +44,7 @@ public class ClientProfileServiceImpl implements ClientProfileService {
         log.info("✅ [Profile] Updated for user: {}", uid);
     }
 
-    private UserProfileDto createDefaultProfile(String uid) {
+    private ClientProfileDto createDefaultProfile(String uid) {
         ClientProfile newProfile = new ClientProfile();
         newProfile.setFirebaseUid(uid);
         clientProfileRepository.save(newProfile);
@@ -52,8 +52,8 @@ public class ClientProfileServiceImpl implements ClientProfileService {
         return convertToDto(newProfile);
     }
 
-    private UserProfileDto convertToDto(ClientProfile entity) {
-        UserProfileDto dto = new UserProfileDto();
+    private ClientProfileDto convertToDto(ClientProfile entity) {
+        ClientProfileDto dto = new ClientProfileDto();
         BeanUtils.copyProperties(entity, dto);
         return dto;
     }

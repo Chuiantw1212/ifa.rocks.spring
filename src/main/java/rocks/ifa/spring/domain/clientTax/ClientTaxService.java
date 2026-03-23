@@ -1,6 +1,6 @@
 package rocks.ifa.spring.domain.clientTax;
 
 public interface ClientTaxService {
-    void updateTax(String uid, UserTaxUpdateReq req);
-    UserTaxRes getTax(String uid);
+    void updateTax(String uid, ClientTaxUpdateReq req);
+    ClientTaxRes getTax(String uid);
 }

@@ -4,6 +4,6 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-public class UserTaxUpdateReq {
+public class ClientTaxRes {
     private BigDecimal estimatedOtherIncome;
 }
