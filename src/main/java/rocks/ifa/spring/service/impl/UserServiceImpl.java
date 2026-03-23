@@ -94,6 +94,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void registerUser(UserRegistrationReq req) {
         // This is a placeholder. You should implement your own logic here.
+
     }
 
     @Transactional

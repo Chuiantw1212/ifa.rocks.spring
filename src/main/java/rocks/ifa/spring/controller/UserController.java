@@ -26,14 +26,14 @@ public class UserController {
     private final UserTaxService userTaxService;
 
     @Operation(summary = "註冊新使用者")
-    @PostMapping("/me")
+    @PostMapping("/")
     public ResponseEntity<String> registerUser(@RequestBody @Valid UserRegistrationReq req) {
         userService.registerUser(req);
         return ResponseEntity.ok("註冊成功");
     }
 
     @Operation(summary = "獲取當前使用者所有資料")
-    @GetMapping("/me")
+    @GetMapping("/")
     public ResponseEntity<UserFullDataRes> getMe() {
         String uid = SecurityUtils.getCurrentUserUid();
         return ResponseEntity.ok(userService.getFullUserData(uid));
