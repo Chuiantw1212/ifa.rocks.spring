@@ -10,6 +10,8 @@ import rocks.ifa.spring.domain.clientLaborInsurance.ClientLaborInsuranceService;
 import rocks.ifa.spring.domain.clientLaborPension.ClientLaborPensionContracts;
 import rocks.ifa.spring.domain.clientLaborPension.ClientLaborPensionService;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileContracts;
+import rocks.ifa.spring.domain.clientProfile.ClientProfileEntity;
+import rocks.ifa.spring.domain.clientProfile.ClientProfileRepository;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileService;
 import rocks.ifa.spring.domain.clientRetirement.ClientRetirementContracts;
 import rocks.ifa.spring.domain.clientRetirement.ClientRetirementService;
@@ -54,5 +56,36 @@ public class ClientServiceImpl implements ClientService {
 
         log.info("✅ [Aggregate Service] Full client data assembled successfully for UID: {}", uid);
         return response;
+    }
+
+    @Override
+    public ClientProfileContracts.ProfileRes createClient(ClientContracts.CreateClientReq req) {
+        log.info("Creating new client with email: {}", req.email());
+
+        // Here you might want to check if a client with this email already exists
+        // if (clientProfileRepository.existsByEmail(req.email())) {
+        //     throw new IllegalStateException("Client with this email already exists.");
+        // }
+
+        ClientProfileEntity newProfile = new ClientProfileEntity();
+        // In a real app, you would link this to an agent, not a firebaseUid
+        // newProfile.setFirebaseUid( ... );
+        // newProfile.setName(req.name());
+        // newProfile.setEmail(req.email());
+
+        ClientProfileEntity savedProfile = clientProfileRepository.save(newProfile);
+        log.info("✅ Successfully created new client with ID: {}", savedProfile.getId());
+
+        // Convert entity to response DTO
+        return new ClientProfileContracts.ProfileRes(
+                savedProfile.getId(),
+                savedProfile.getBirthDate(),
+                savedProfile.getGender(),
+                savedProfile.getCurrentAge(),
+                savedProfile.getLifeExpectancy(),
+                savedProfile.getMarriageYear(),
+                savedProfile.getCareerInsuranceType(),
+                savedProfile.getBiography()
+        );
     }
 }

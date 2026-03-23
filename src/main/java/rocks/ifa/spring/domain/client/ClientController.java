@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import rocks.ifa.spring.domain.clientCareer.ClientCareerContracts;
@@ -30,6 +31,13 @@ public class ClientController {
     private final ClientLaborPensionService clientLaborPensionService;
     private final ClientLaborInsuranceService clientLaborInsuranceService;
     private final ClientTaxService clientTaxService;
+
+    @Operation(summary = "建立新客戶")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ClientProfileContracts.ProfileRes createClient(@RequestBody @Valid ClientContracts.CreateClientReq req) {
+        return clientService.createClient(req);
+    }
 
     @Operation(summary = "獲取當前客戶所有理財資料")
     @GetMapping("/")
