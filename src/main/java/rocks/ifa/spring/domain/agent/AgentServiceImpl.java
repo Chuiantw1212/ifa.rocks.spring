@@ -10,9 +10,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.time.ZoneOffset;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -80,9 +77,7 @@ public class AgentServiceImpl implements AgentService {
                 userRecord.getUid(),
                 userRecord.getEmail(),
                 userRecord.getDisplayName(),
-                userRecord.isDisabled(),
-                Instant.ofEpochMilli(userRecord.getUserMetaData().getCreationTimestamp()).atOffset(ZoneOffset.UTC),
-                Instant.ofEpochMilli(userRecord.getUserMetaData().getLastSignInTimestamp()).atOffset(ZoneOffset.UTC)
+                userRecord.isDisabled()
         );
     }
 }

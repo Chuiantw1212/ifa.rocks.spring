@@ -2,7 +2,6 @@ package rocks.ifa.spring.domain.agent;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import java.time.OffsetDateTime;
 
 /**
  * A container interface for all Data Transfer Objects (DTOs) related to the Agent domain.
@@ -32,9 +31,7 @@ public interface AgentContracts {
         String uid,
         String email,
         String displayName,
-        boolean disabled,
-        OffsetDateTime creationTimestamp,
-        OffsetDateTime lastSignInTimestamp
+        boolean disabled
     ) {}
 
     record AuthRes(
