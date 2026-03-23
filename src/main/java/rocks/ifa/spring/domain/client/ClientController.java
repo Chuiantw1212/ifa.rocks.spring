@@ -7,16 +7,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import rocks.ifa.spring.domain.clientCareer.ClientCareerService;
-import rocks.ifa.spring.domain.clientCareer.UserCareerUpdateReq;
+import rocks.ifa.spring.domain.clientCareer.ClientCareerUpdateReq;
 import rocks.ifa.spring.domain.clientLaborInsurance.ClientLaborInsuranceService;
-import rocks.ifa.spring.domain.clientLaborInsurance.UserLaborInsuranceUpdateReq;
+import rocks.ifa.spring.domain.clientLaborInsurance.ClientLaborInsuranceUpdateReq;
 import rocks.ifa.spring.domain.clientLaborPension.ClientLaborPensionService;
-import rocks.ifa.spring.domain.clientLaborPension.UserLaborPensionUpdateReq;
+import rocks.ifa.spring.domain.clientLaborPension.ClientLaborPensionUpdateReq;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileService;
-import rocks.ifa.spring.domain.clientProfile.UserProfileUpdateReq;
+import rocks.ifa.spring.domain.clientProfile.ClientProfileUpdateReq;
 import rocks.ifa.spring.domain.clientTax.ClientTaxService;
-import rocks.ifa.spring.domain.clientTax.UserTaxUpdateReq;
-import rocks.ifa.spring.infra.util.SecurityUtils;
+import rocks.ifa.spring.domain.clientTax.ClientTaxUpdateReq;
+import rocks.ifa.spring.infra.SecurityUtils;
 
 @RestController
 @RequestMapping("/api/v1/client")
@@ -40,7 +40,7 @@ public class ClientController {
 
     @Operation(summary = "更新客戶個人資料")
     @PutMapping("/profile")
-    public ResponseEntity<String> updateProfile(@RequestBody @Valid UserProfileUpdateReq req) {
+    public ResponseEntity<String> updateProfile(@RequestBody @Valid ClientProfileUpdateReq req) {
         String uid = SecurityUtils.getCurrentUserUid();
         clientProfileService.updateProfile(uid, req);
         return ResponseEntity.ok("更新成功");
@@ -48,7 +48,7 @@ public class ClientController {
 
     @Operation(summary = "更新客戶職涯資料")
     @PutMapping("/career")
-    public ResponseEntity<String> updateCareer(@RequestBody @Valid UserCareerUpdateReq req) {
+    public ResponseEntity<String> updateCareer(@RequestBody @Valid ClientCareerUpdateReq req) {
         String uid = SecurityUtils.getCurrentUserUid();
         clientCareerService.updateCareer(uid, req);
         return ResponseEntity.ok("更新成功");
@@ -56,7 +56,7 @@ public class ClientController {
 
     @Operation(summary = "更新客戶勞退資料")
     @PutMapping("/labor-pension")
-    public ResponseEntity<String> updateLaborPension(@RequestBody @Valid UserLaborPensionUpdateReq req) {
+    public ResponseEntity<String> updateLaborPension(@RequestBody @Valid ClientLaborPensionUpdateReq req) {
         String uid = SecurityUtils.getCurrentUserUid();
         clientLaborPensionService.updateLaborPension(uid, req);
         return ResponseEntity.ok("更新成功");
@@ -64,7 +64,7 @@ public class ClientController {
 
     @Operation(summary = "更新客戶勞保資料")
     @PutMapping("/labor-insurance")
-    public ResponseEntity<String> updateLaborInsurance(@RequestBody @Valid UserLaborInsuranceUpdateReq req) {
+    public ResponseEntity<String> updateLaborInsurance(@RequestBody @Valid ClientLaborInsuranceUpdateReq req) {
         String uid = SecurityUtils.getCurrentUserUid();
         clientLaborInsuranceService.updateLaborInsurance(uid, req);
         return ResponseEntity.ok("更新成功");
@@ -72,7 +72,7 @@ public class ClientController {
 
     @Operation(summary = "更新客戶稅務資料")
     @PutMapping("/tax")
-    public ResponseEntity<String> updateTax(@RequestBody @Valid UserTaxUpdateReq req) {
+    public ResponseEntity<String> updateTax(@RequestBody @Valid ClientTaxUpdateReq req) {
         String uid = SecurityUtils.getCurrentUserUid();
         clientTaxService.updateTax(uid, req);
         return ResponseEntity.ok("更新成功");
