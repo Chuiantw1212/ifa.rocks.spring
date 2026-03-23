@@ -29,6 +29,7 @@ public class ClientServiceImpl implements ClientService {
     private final ClientLaborInsuranceService clientLaborInsuranceService;
     private final ClientRetirementService clientRetirementService;
     private final ClientTaxService clientTaxService;
+    private final ClientProfileRepository clientProfileRepository; // Re-added the missing dependency
 
     @Override
     public ClientFullDataRes getClientFullData(String uid) {
@@ -62,30 +63,23 @@ public class ClientServiceImpl implements ClientService {
     public ClientProfileContracts.ProfileRes createClient(ClientContracts.CreateClientReq req) {
         log.info("Creating new client with email: {}", req.email());
 
-        // Here you might want to check if a client with this email already exists
-        // if (clientProfileRepository.existsByEmail(req.email())) {
-        //     throw new IllegalStateException("Client with this email already exists.");
-        // }
-
         ClientProfileEntity newProfile = new ClientProfileEntity();
-        // In a real app, you would link this to an agent, not a firebaseUid
-        // newProfile.setFirebaseUid( ... );
+        // In a real app, you would set the name and email from the request
         // newProfile.setName(req.name());
         // newProfile.setEmail(req.email());
-
+        
         ClientProfileEntity savedProfile = clientProfileRepository.save(newProfile);
         log.info("✅ Successfully created new client with ID: {}", savedProfile.getId());
 
-        // Convert entity to response DTO
         return new ClientProfileContracts.ProfileRes(
-                savedProfile.getId(),
-                savedProfile.getBirthDate(),
-                savedProfile.getGender(),
-                savedProfile.getCurrentAge(),
-                savedProfile.getLifeExpectancy(),
-                savedProfile.getMarriageYear(),
-                savedProfile.getCareerInsuranceType(),
-                savedProfile.getBiography()
+            savedProfile.getId(),
+            savedProfile.getBirthDate(),
+            savedProfile.getGender(),
+            savedProfile.getCurrentAge(),
+            savedProfile.getLifeExpectancy(),
+            savedProfile.getMarriageYear(),
+            savedProfile.getCareerInsuranceType(),
+            savedProfile.getBiography()
         );
     }
 }
