@@ -5,8 +5,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -44,12 +42,6 @@ public class AgentController {
     @GetMapping("/{id}")
     public AgentContracts.AgentRes getAgent(@PathVariable String id) throws FirebaseAuthException {
         return agentService.getAgent(id);
-    }
-
-    @Operation(summary = "取得所有使用者列表 (分頁)")
-    @GetMapping
-    public Page<AgentContracts.AgentRes> listAgents(Pageable pageable) {
-        return agentService.listAgents(pageable);
     }
 
     @Operation(summary = "更新使用者資訊")

@@ -5,8 +5,6 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,12 +44,6 @@ public class AgentServiceImpl implements AgentService {
     public AgentContracts.AgentRes getAgent(String agentId) throws FirebaseAuthException {
         UserRecord userRecord = firebaseAuth.getUser(agentId);
         return mapToAgentRes(userRecord);
-    }
-
-    @Override
-    public Page<AgentContracts.AgentRes> listAgents(Pageable pageable) {
-        log.warn("Paging for listAgents is not fully implemented.");
-        return Page.empty(pageable);
     }
 
     @Override
