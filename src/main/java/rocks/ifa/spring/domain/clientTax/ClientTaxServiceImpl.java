@@ -4,14 +4,15 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ClientTaxServiceImpl implements ClientTaxService {
+
     @Override
-    public void updateTax(String uid, ClientTaxUpdateReq req) {
-        // This is a placeholder. You should implement your own logic here.
+    public void updateTax(String uid, ClientTaxContracts.UpdateTaxReq req) {
+        // Placeholder
     }
 
     @Override
-    public ClientTaxRes getTax(String uid) {
-        // This is a placeholder. You should implement your own logic here.
-        return new ClientTaxRes();
+    public ClientTaxContracts.TaxRes getTax(String uid) {
+        // Placeholder
+        return new ClientTaxContracts.TaxRes(null);
     }
 }

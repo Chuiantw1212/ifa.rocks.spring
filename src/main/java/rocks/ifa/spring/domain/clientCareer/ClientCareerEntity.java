@@ -1,10 +1,24 @@
 package rocks.ifa.spring.domain.clientCareer;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import rocks.ifa.spring.domain.common.ClientBaseEntity;
+
 import java.math.BigDecimal;
 
 @Data
-public class ClientCareerRes {
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Entity
+@Table(name = "user_careers")
+public class ClientCareerEntity extends ClientBaseEntity {
     private BigDecimal baseSalary;
     private BigDecimal otherAllowance;
     private BigDecimal laborInsurance;

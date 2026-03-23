@@ -4,14 +4,15 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ClientLaborInsuranceServiceImpl implements ClientLaborInsuranceService {
+
     @Override
-    public void updateLaborInsurance(String uid, ClientLaborInsuranceUpdateReq req) {
-        // This is a placeholder. You should implement your own logic here.
+    public void updateLaborInsurance(String uid, ClientLaborInsuranceContracts.UpdateLaborInsuranceReq req) {
+        // Placeholder
     }
 
     @Override
-    public ClientLaborInsuranceRes getLaborInsurance(String uid) {
-        // This is a placeholder. You should implement your own logic here.
-        return new ClientLaborInsuranceRes();
+    public ClientLaborInsuranceContracts.LaborInsuranceRes getLaborInsurance(String uid) {
+        // Placeholder
+        return new ClientLaborInsuranceContracts.LaborInsuranceRes(null, null, null, null, null);
     }
 }

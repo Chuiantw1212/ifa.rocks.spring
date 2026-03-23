@@ -1,13 +1,24 @@
 package rocks.ifa.spring.domain.clientRetirement;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import rocks.ifa.spring.domain.common.ClientBaseEntity;
+
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
 
 @Data
-public class ClientRetirementRes {
-    private Long id;
-    private OffsetDateTime updatedAt;
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Entity
+@Table(name = "user_retirements")
+public class ClientRetirementEntity extends ClientBaseEntity {
     private String householdType;
     private String housingMode;
     private BigDecimal housingCost;

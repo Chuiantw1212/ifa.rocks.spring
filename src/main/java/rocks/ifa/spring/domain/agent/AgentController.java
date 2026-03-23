@@ -1,33 +1,67 @@
 package rocks.ifa.spring.domain.agent;
 
+import com.google.firebase.auth.FirebaseAuthException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import rocks.ifa.spring.infra.SecurityUtils;
 
 @RestController
-@RequestMapping("/api/v1/agent")
-@Tag(name = "Agent API", description = "使用者帳號管理 (註冊/刪除)")
+@RequestMapping("/api/v1/agents")
+@Tag(name = "Agent Management API", description = "IFA 顧問後台管理使用者帳號")
 @RequiredArgsConstructor
 public class AgentController {
 
     private final AgentService agentService;
 
-    @Operation(summary = "註冊新使用者 (同步 Firebase Token)")
-    @PostMapping("/")
-    public ResponseEntity<String> registerAgent(@RequestBody @Valid AgentRegistrationReq req) {
-        agentService.registerAgent(req);
-        return ResponseEntity.ok("註冊成功");
+    @Operation(summary = "顧問登入")
+    @PostMapping("/login")
+    public ResponseEntity<AgentContracts.AuthRes> login(@RequestBody @Valid AgentContracts.LoginReq req) {
+        return ResponseEntity.ok(agentService.login(req));
     }
 
-    @Operation(summary = "刪除當前使用者帳號及所有資料")
-    @DeleteMapping("/")
-    public ResponseEntity<Void> deleteAgent() {
-        String uid = SecurityUtils.getCurrentUserUid();
-        agentService.deleteAgent(uid);
-        return ResponseEntity.noContent().build();
+    @Operation(summary = "顧問登出")
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@RequestHeader("Authorization") String token) {
+        String agentId = "dummy-agent-id"; 
+        agentService.logout(agentId);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "建立新使用者")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public AgentContracts.AgentRes createAgent(@RequestBody @Valid AgentContracts.CreateAgentReq req) throws FirebaseAuthException {
+        return agentService.createAgent(req);
+    }
+
+    @Operation(summary = "取得單一使用者資訊")
+    @GetMapping("/{id}")
+    public AgentContracts.AgentRes getAgent(@PathVariable String id) throws FirebaseAuthException {
+        return agentService.getAgent(id);
+    }
+
+    @Operation(summary = "取得所有使用者列表 (分頁)")
+    @GetMapping
+    public Page<AgentContracts.AgentRes> listAgents(Pageable pageable) {
+        return agentService.listAgents(pageable);
+    }
+
+    @Operation(summary = "更新使用者資訊")
+    @PutMapping("/{id}")
+    public AgentContracts.AgentRes updateAgent(@PathVariable String id, @RequestBody @Valid AgentContracts.UpdateAgentReq req) throws FirebaseAuthException {
+        return agentService.updateAgent(id, req);
+    }
+
+    @Operation(summary = "刪除使用者")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteAgent(@PathVariable String id) throws FirebaseAuthException {
+        agentService.deleteAgent(id);
     }
 }

@@ -3,17 +3,17 @@ package rocks.ifa.spring.domain.client;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import rocks.ifa.spring.domain.clientCareer.ClientCareerRes;
+import rocks.ifa.spring.domain.clientCareer.ClientCareerContracts;
 import rocks.ifa.spring.domain.clientCareer.ClientCareerService;
-import rocks.ifa.spring.domain.clientLaborInsurance.ClientLaborInsuranceRes;
+import rocks.ifa.spring.domain.clientLaborInsurance.ClientLaborInsuranceContracts;
 import rocks.ifa.spring.domain.clientLaborInsurance.ClientLaborInsuranceService;
-import rocks.ifa.spring.domain.clientLaborPension.ClientLaborPensionRes;
+import rocks.ifa.spring.domain.clientLaborPension.ClientLaborPensionContracts;
 import rocks.ifa.spring.domain.clientLaborPension.ClientLaborPensionService;
-import rocks.ifa.spring.domain.clientProfile.ClientProfileDto;
+import rocks.ifa.spring.domain.clientProfile.ClientProfileContracts;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileService;
-import rocks.ifa.spring.domain.clientRetirement.ClientRetirementRes;
+import rocks.ifa.spring.domain.clientRetirement.ClientRetirementContracts;
 import rocks.ifa.spring.domain.clientRetirement.ClientRetirementService;
-import rocks.ifa.spring.domain.clientTax.ClientTaxRes;
+import rocks.ifa.spring.domain.clientTax.ClientTaxContracts;
 import rocks.ifa.spring.domain.clientTax.ClientTaxService;
 
 @Slf4j
@@ -34,12 +34,12 @@ public class ClientServiceImpl implements ClientService {
         
         ClientFullDataRes response = new ClientFullDataRes();
 
-        ClientProfileDto profile = clientProfileService.getProfile(uid);
-        ClientCareerRes career = clientCareerService.getCareer(uid);
-        ClientLaborPensionRes laborPension = clientLaborPensionService.getLaborPension(uid);
-        ClientLaborInsuranceRes laborInsurance = clientLaborInsuranceService.getLaborInsurance(uid);
-        ClientRetirementRes retirement = clientRetirementService.getRetirement(uid);
-        ClientTaxRes tax = clientTaxService.getTax(uid);
+        ClientProfileContracts.ProfileRes profile = clientProfileService.getProfile(uid);
+        ClientCareerContracts.CareerRes career = clientCareerService.getCareer(uid);
+        ClientLaborPensionContracts.LaborPensionRes laborPension = clientLaborPensionService.getLaborPension(uid);
+        ClientLaborInsuranceContracts.LaborInsuranceRes laborInsurance = clientLaborInsuranceService.getLaborInsurance(uid);
+        ClientRetirementContracts.RetirementRes retirement = clientRetirementService.getRetirement(uid);
+        ClientTaxContracts.TaxRes tax = clientTaxService.getTax(uid);
 
         response.setProfile(profile);
         response.setCareer(career);
@@ -49,7 +49,7 @@ public class ClientServiceImpl implements ClientService {
         response.setTax(tax);
 
         if (profile != null) {
-            response.setId(profile.getId());
+            response.setId(profile.id());
         }
 
         log.info("✅ [Aggregate Service] Full client data assembled successfully for UID: {}", uid);
