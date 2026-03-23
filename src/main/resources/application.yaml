@@ -18,10 +18,6 @@ spring:
     password: ${DB_PASSWORD:?DB_PASSWORD environment variable is not set}
     driver-class-name: org.postgresql.Driver
 
-mybatis:
-  mapper-locations: classpath:mapper/*.xml
-  type-aliases-package: rocks.ifa.spring.model
-
 # Production CORS settings
 app:
   cors:

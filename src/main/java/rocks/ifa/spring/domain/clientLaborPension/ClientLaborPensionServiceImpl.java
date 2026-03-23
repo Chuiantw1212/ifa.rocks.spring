@@ -1,0 +1,17 @@
+package rocks.ifa.spring.domain.clientLaborPension;
+
+import org.springframework.stereotype.Service;
+
+@Service
+public class ClientLaborPensionServiceImpl implements ClientLaborPensionService {
+    @Override
+    public void updateLaborPension(String uid, UserLaborPensionUpdateReq req) {
+        // This is a placeholder. You should implement your own logic here.
+    }
+
+    @Override
+    public UserLaborPensionRes getLaborPension(String uid) {
+        // This is a placeholder. You should implement your own logic here.
+        return new UserLaborPensionRes();
+    }
+}
