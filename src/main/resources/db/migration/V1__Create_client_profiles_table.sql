@@ -11,6 +11,8 @@ CREATE TABLE client_profiles (
 
     -- Core client information
     name VARCHAR(255) NOT NULL,
+    phone VARCHAR(255) NOT NULL,
+    lineId VARCHAR(255) NOT NULL,
 
     -- Business rule: The email must be unique across all clients in the system.
     email VARCHAR(255) NOT NULL UNIQUE,
