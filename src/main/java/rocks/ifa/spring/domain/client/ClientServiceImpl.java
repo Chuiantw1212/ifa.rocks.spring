@@ -30,48 +30,43 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public PageResponse<ClientFullDataRes> listClientsByAgent(String agentUid, Pageable pageable) {
-        log.info("Listing clients for agent UID: {}", agentUid);
-
-        // 1. Get the paginated data from the repository
-        Page<ClientProfileEntity> clientPage = clientProfileRepository.findAllByAgentFirebaseUid(agentUid, pageable);
-
-        // 2. Convert the list of entities to a list of DTOs
-        List<ClientFullDataRes> dtoList = clientPage.getContent().stream()
-                .map(this::mapToFullDataRes)
-                .collect(Collectors.toList());
-
-        // 3. Create and return the custom PageResponse
-        return new PageResponse<>(
-                dtoList,
-                clientPage.getTotalElements(),
-                clientPage.getNumber(),
-                clientPage.getSize()
-        );
+        // ...
+        return null;
     }
 
     @Override
     @Transactional
     public ClientProfileContracts.ProfileRes createClient(ClientContracts.CreateClientReq req) {
+        String agentFirebaseUid = SecurityUtils.getCurrentUserUid();
+        log.info("Agent [{}] is creating a new client with email: {}", agentFirebaseUid, req.email());
+
+        // You might want to check if this agent already has a client with the same email.
+        // if (clientProfileRepository.existsByAgentFirebaseUidAndEmail(agentFirebaseUid, req.email())) {
+        //     throw new IllegalStateException("This agent already has a client with the same email.");
+        // }
+
+        ClientProfileEntity newProfile = new ClientProfileEntity();
+        newProfile.setAgentFirebaseUid(agentFirebaseUid);
+        newProfile.setName(req.name());
+        newProfile.setEmail(req.email());
+        
+        ClientProfileEntity savedProfile = clientProfileRepository.save(newProfile);
+        log.info("✅ Successfully created new client with ID: {} for Agent UID: {}", savedProfile.getId(), agentFirebaseUid);
+
+        return new ClientProfileContracts.ProfileRes(
+            savedProfile.getId(),
+            savedProfile.getBirthDate(),
+            savedProfile.getGender(),
+            savedProfile.getCurrentAge(),
+            savedProfile.getLifeExpectancy(),
+            savedProfile.getMarriageYear(),
+            savedProfile.getCareerInsuranceType(),
+            savedProfile.getBiography()
+        );
+    }
+    
+    private ClientFullDataRes mapToFullDataRes(ClientProfileEntity entity) {
         // ...
         return null;
-    }
-
-    // Helper method to convert a single entity to the full DTO
-    private ClientFullDataRes mapToFullDataRes(ClientProfileEntity entity) {
-        ClientFullDataRes res = new ClientFullDataRes();
-        // In a real app, you would fetch and set data from other services here
-        // For now, we just set the profile part
-        res.setProfile(new ClientProfileContracts.ProfileRes(
-                entity.getId(),
-                entity.getBirthDate(),
-                entity.getGender(),
-                entity.getCurrentAge(),
-                entity.getLifeExpectancy(),
-                entity.getMarriageYear(),
-                entity.getCareerInsuranceType(),
-                entity.getBiography()
-        ));
-        res.setId(entity.getId());
-        return res;
     }
 }

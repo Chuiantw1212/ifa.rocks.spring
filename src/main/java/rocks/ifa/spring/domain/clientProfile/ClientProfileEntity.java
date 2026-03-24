@@ -1,5 +1,6 @@
 package rocks.ifa.spring.domain.clientProfile;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -19,6 +20,12 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "client_profiles")
 public class ClientProfileEntity extends ClientBaseEntity {
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false)
+    private String email;
 
     private LocalDate birthDate;
     private String gender;
