@@ -2,11 +2,16 @@ package rocks.ifa.spring.domain.clientProfile;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import rocks.ifa.spring.infra.common.PageResponse;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -33,7 +38,6 @@ public class ClientProfileServiceImpl implements ClientProfileService {
                     return newProfile;
                 });
 
-        // Manual mapping from record to entity
         entity.setBirthDate(req.birthDate());
         entity.setGender(req.gender());
         entity.setMarriageYear(req.marriageYear());
@@ -46,6 +50,24 @@ public class ClientProfileServiceImpl implements ClientProfileService {
 
         clientProfileRepository.save(entity);
         log.info("✅ [Profile] Updated for user: {}", uid);
+    }
+
+    @Override
+    public PageResponse<ClientProfileContracts.ProfileRes> listClientProfilesByAgent(String agentUid, Pageable pageable) {
+        log.info("Listing client profiles for agent UID: {}", agentUid);
+
+        Page<ClientProfileEntity> profilePage = clientProfileRepository.findAllByAgentFirebaseUid(agentUid, pageable);
+
+        List<ClientProfileContracts.ProfileRes> dtoList = profilePage.getContent().stream()
+                .map(this::convertToRes)
+                .collect(Collectors.toList());
+
+        return new PageResponse<>(
+                dtoList,
+                profilePage.getTotalElements(),
+                profilePage.getNumber(),
+                profilePage.getSize()
+        );
     }
 
     private ClientProfileContracts.ProfileRes createDefaultProfile(String uid) {
