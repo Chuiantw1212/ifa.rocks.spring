@@ -40,7 +40,22 @@ public interface ClientProfileContracts {
 
     @Schema(description = "用於更新客戶個人資料的請求")
     record UpdateProfileReq(
-            // ... fields remain the same
+            @Schema(description = "出生日期 (ISO 8601 格式)", example = "1990-12-12")
+            @Past(message = "Birth date must be in the past")
+            LocalDate birthDate,
+
+            @Schema(description = "性別", example = "FEMALE")
+            String gender,
+
+            @Schema(description = "結婚年份", example = "2020")
+            Integer marriageYear,
+
+            @Schema(description = "個人簡介或理財故事")
+            String biography,
+
+            @Schema(description = "職業保險類別", example = "LABOR")
+            @NotBlank(message = "Career insurance type cannot be blank")
+            String careerInsuranceType
     ) {
     }
 }
