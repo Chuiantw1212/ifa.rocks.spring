@@ -8,10 +8,12 @@ import rocks.ifa.spring.domain.clientProfile.ClientProfileContracts;
 import rocks.ifa.spring.domain.clientRetirement.ClientRetirementContracts;
 import rocks.ifa.spring.domain.clientTax.ClientTaxContracts;
 
+import java.util.UUID;
+
 @Data
 public class ClientFullDataRes {
     
-    private Long id;
+    private UUID id;
     private ClientProfileContracts.ProfileRes profile;
     private ClientCareerContracts.CareerRes career;
     private ClientLaborPensionContracts.LaborPensionRes laborPension;
