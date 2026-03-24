@@ -1,5 +1,7 @@
 package rocks.ifa.spring.domain.clientProfile;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
@@ -7,4 +9,5 @@ public interface ClientProfileRepository extends JpaRepository<ClientProfileEnti
     Optional<ClientProfileEntity> findByAgentFirebaseUid(String agentFirebaseUid);
     boolean existsByAgentFirebaseUid(String agentFirebaseUid);
     void deleteByAgentFirebaseUid(String agentFirebaseUid);
+    Page<ClientProfileEntity> findAllByAgentFirebaseUid(String agentFirebaseUid, Pageable pageable);
 }

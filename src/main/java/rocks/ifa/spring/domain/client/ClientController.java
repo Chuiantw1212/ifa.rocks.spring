@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,7 @@ import rocks.ifa.spring.domain.clientProfile.ClientProfileService;
 import rocks.ifa.spring.domain.clientTax.ClientTaxContracts;
 import rocks.ifa.spring.domain.clientTax.ClientTaxService;
 import rocks.ifa.spring.infra.SecurityUtils;
+import rocks.ifa.spring.infra.common.PageResponse;
 
 @RestController
 @RequestMapping("/api/v1/clients")
