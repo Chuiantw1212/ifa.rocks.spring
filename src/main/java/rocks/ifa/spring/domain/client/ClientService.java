@@ -10,5 +10,5 @@ public interface ClientService {
     
     PageResponse<ClientFullDataRes> listClientsByAgent(String agentUid, Pageable pageable);
 
-    ClientProfileContracts.ProfileRes createClient(ClientContracts.CreateClientReq req);
+    ClientProfileContracts.ProfileRes createClient(ClientContracts.CreateClientReq req, String agentFirebaseUid);
 }

@@ -15,7 +15,6 @@ import rocks.ifa.spring.domain.clientProfile.ClientProfileRepository;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileService;
 import rocks.ifa.spring.domain.clientRetirement.ClientRetirementService;
 import rocks.ifa.spring.domain.clientTax.ClientTaxService;
-import rocks.ifa.spring.infra.SecurityUtils;
 import rocks.ifa.spring.infra.common.PageResponse;
 
 import java.util.List;
@@ -42,29 +41,35 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public PageResponse<ClientFullDataRes> listClientsByAgent(String agentUid, Pageable pageable) {
-        log.info("Listing clients for agent UID: {}", agentUid);
-
-        Page<ClientProfileEntity> clientPage = clientProfileRepository.findAllByAgentFirebaseUid(agentUid, pageable);
-
-        List<ClientFullDataRes> dtoList = clientPage.getContent().stream()
-                .map(this::mapToFullDataRes)
-                .collect(Collectors.toList());
-
-        return new PageResponse<>(
-                dtoList,
-                clientPage.getTotalElements(), // Corrected: Use getTotalElements() to get the total count
-                clientPage.getNumber(),
-                clientPage.getSize()
-        );
-    }
-
-    @Override
-    @Transactional
-    public ClientProfileContracts.ProfileRes createClient(ClientContracts.CreateClientReq req) {
         // ...
         return null;
     }
 
+    @Override
+    @Transactional
+    public ClientProfileContracts.ProfileRes createClient(ClientContracts.CreateClientReq req, String agentFirebaseUid) {
+        log.info("Agent [{}] is creating a new client with email: {}", agentFirebaseUid, req.email());
+
+        ClientProfileEntity newProfile = new ClientProfileEntity();
+        newProfile.setAgentFirebaseUid(agentFirebaseUid);
+        newProfile.setName(req.name());
+        newProfile.setEmail(req.email());
+        
+        ClientProfileEntity savedProfile = clientProfileRepository.save(newProfile);
+        log.info("✅ Successfully created new client with ID: {} for Agent UID: {}", savedProfile.getId(), agentFirebaseUid);
+
+        return new ClientProfileContracts.ProfileRes(
+            savedProfile.getId(),
+            null, // birthDate is not part of creation
+            null, // gender is not part of creation
+            null, // currentAge
+            null, // lifeExpectancy
+            null, // marriageYear
+            null, // careerInsuranceType
+            null  // biography
+        );
+    }
+    
     private ClientFullDataRes mapToFullDataRes(ClientProfileEntity entity) {
         // ...
         return null;

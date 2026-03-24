@@ -19,7 +19,7 @@ public class ClientProfileController {
     @Operation(summary = "更新客戶個人資料")
     @PutMapping
     public ResponseEntity<String> updateProfile(@PathVariable Long clientId, @RequestBody @Valid ClientProfileContracts.UpdateProfileReq req) {
-        String agentUid = SecurityUtils.getCurrentUserUid();
+        String agentUid = SecurityUtils.getCurrentAgentUid();
         // The service should verify that the agent has permission for this client
         clientProfileService.updateProfile(String.valueOf(clientId), req);
         return ResponseEntity.ok("更新成功");

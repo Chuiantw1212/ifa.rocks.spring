@@ -29,7 +29,7 @@ public class ClientController {
     @Operation(summary = "獲取當前顧問的所有客戶列表 (分頁)")
     @GetMapping
     public PageResponse<ClientFullDataRes> listClients(Pageable pageable) {
-        String agentUid = SecurityUtils.getCurrentUserUid();
+        String agentUid = SecurityUtils.getCurrentAgentUid();
         return clientService.listClientsByAgent(agentUid, pageable);
     }
 
