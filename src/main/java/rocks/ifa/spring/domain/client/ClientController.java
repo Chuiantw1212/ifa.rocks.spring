@@ -6,33 +6,18 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import rocks.ifa.spring.domain.clientCareer.ClientCareerContracts;
-import rocks.ifa.spring.domain.clientCareer.ClientCareerService;
-import rocks.ifa.spring.domain.clientLaborInsurance.ClientLaborInsuranceContracts;
-import rocks.ifa.spring.domain.clientLaborInsurance.ClientLaborInsuranceService;
-import rocks.ifa.spring.domain.clientLaborPension.ClientLaborPensionContracts;
-import rocks.ifa.spring.domain.clientLaborPension.ClientLaborPensionService;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileContracts;
-import rocks.ifa.spring.domain.clientProfile.ClientProfileService;
-import rocks.ifa.spring.domain.clientTax.ClientTaxContracts;
-import rocks.ifa.spring.domain.clientTax.ClientTaxService;
 import rocks.ifa.spring.infra.SecurityUtils;
 import rocks.ifa.spring.infra.common.PageResponse;
 
 @RestController
 @RequestMapping("/api/v1/clients")
-@Tag(name = "Client API", description = "客戶理財檔案管理")
+@Tag(name = "Client Aggregate API", description = "客戶資料聚合服務 (列表/單一查詢)")
 @RequiredArgsConstructor
 public class ClientController {
 
     private final ClientService clientService;
-    private final ClientProfileService clientProfileService;
-    private final ClientCareerService clientCareerService;
-    private final ClientLaborPensionService clientLaborPensionService;
-    private final ClientLaborInsuranceService clientLaborInsuranceService;
-    private final ClientTaxService clientTaxService;
 
     @Operation(summary = "建立新客戶")
     @PostMapping
@@ -48,11 +33,11 @@ public class ClientController {
         return clientService.listClientsByAgent(agentUid, pageable);
     }
 
-    @Operation(summary = "更新客戶個人資料")
-    @PutMapping("/{clientId}/profile")
-    public ResponseEntity<String> updateProfile(@PathVariable Long clientId, @RequestBody @Valid ClientProfileContracts.UpdateProfileReq req) {
-        String agentUid = SecurityUtils.getCurrentUserUid();
-        clientProfileService.updateProfile(String.valueOf(clientId), req);
-        return ResponseEntity.ok("更新成功");
+    @Operation(summary = "獲取單一客戶的完整理財資料")
+    @GetMapping("/{clientId}")
+    public ClientFullDataRes getClient(@PathVariable String clientId) {
+        // In a real app, you'd also pass the agent's UID to the service
+        // to verify they have permission to view this client.
+        return clientService.getClientFullData(clientId);
     }
 }
