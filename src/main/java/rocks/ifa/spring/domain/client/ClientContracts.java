@@ -15,6 +15,12 @@ public interface ClientContracts {
         @Schema(description = "客戶 Email", example = "david.wang@example.com")
         @NotBlank(message = "Email 不能為空")
         @Email(message = "Email 格式不正確")
-        String email
+        String email,
+
+        @Schema(description = "客戶電話", example = "0912345678")
+        String phone,
+
+        @Schema(description = "客戶 Line ID", example = "david_wang")
+        String lineId
     ) {}
 }

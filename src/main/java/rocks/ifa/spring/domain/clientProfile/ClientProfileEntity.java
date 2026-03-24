@@ -24,8 +24,11 @@ public class ClientProfileEntity extends ClientBaseEntity {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
+
+    private String phone;
+    private String lineId;
 
     private LocalDate birthDate;
     private String gender;
