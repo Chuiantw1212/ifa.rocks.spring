@@ -41,50 +41,18 @@ public class ClientController {
         return clientService.createClient(req);
     }
 
-    @Operation(summary = "獲取當前客戶所有理財資料")
-    @GetMapping("/")
-    public ResponseEntity<ClientFullDataRes> getClientData() {
-        String uid = SecurityUtils.getCurrentUserUid();
-        return ResponseEntity.ok(clientService.getClientFullData(uid));
+    @Operation(summary = "獲取當前顧問的所有客戶列表 (分頁)")
+    @GetMapping
+    public PageResponse<ClientFullDataRes> listClients(Pageable pageable) {
+        String agentUid = SecurityUtils.getCurrentUserUid();
+        return clientService.listClientsByAgent(agentUid, pageable);
     }
 
     @Operation(summary = "更新客戶個人資料")
-    @PutMapping("/profile")
-    public ResponseEntity<String> updateProfile(@RequestBody @Valid ClientProfileContracts.UpdateProfileReq req) {
-        String uid = SecurityUtils.getCurrentUserUid();
-        clientProfileService.updateProfile(uid, req);
-        return ResponseEntity.ok("更新成功");
-    }
-
-    @Operation(summary = "更新客戶職涯資料")
-    @PutMapping("/career")
-    public ResponseEntity<String> updateCareer(@RequestBody @Valid ClientCareerContracts.UpdateCareerReq req) {
-        String uid = SecurityUtils.getCurrentUserUid();
-        clientCareerService.updateCareer(uid, req);
-        return ResponseEntity.ok("更新成功");
-    }
-
-    @Operation(summary = "更新客戶勞退資料")
-    @PutMapping("/labor-pension")
-    public ResponseEntity<String> updateLaborPension(@RequestBody @Valid ClientLaborPensionContracts.UpdateLaborPensionReq req) {
-        String uid = SecurityUtils.getCurrentUserUid();
-        clientLaborPensionService.updateLaborPension(uid, req);
-        return ResponseEntity.ok("更新成功");
-    }
-
-    @Operation(summary = "更新客戶勞保資料")
-    @PutMapping("/labor-insurance")
-    public ResponseEntity<String> updateLaborInsurance(@RequestBody @Valid ClientLaborInsuranceContracts.UpdateLaborInsuranceReq req) {
-        String uid = SecurityUtils.getCurrentUserUid();
-        clientLaborInsuranceService.updateLaborInsurance(uid, req);
-        return ResponseEntity.ok("更新成功");
-    }
-
-    @Operation(summary = "更新客戶稅務資料")
-    @PutMapping("/tax")
-    public ResponseEntity<String> updateTax(@RequestBody @Valid ClientTaxContracts.UpdateTaxReq req) {
-        String uid = SecurityUtils.getCurrentUserUid();
-        clientTaxService.updateTax(uid, req);
+    @PutMapping("/{clientId}/profile")
+    public ResponseEntity<String> updateProfile(@PathVariable Long clientId, @RequestBody @Valid ClientProfileContracts.UpdateProfileReq req) {
+        String agentUid = SecurityUtils.getCurrentUserUid();
+        clientProfileService.updateProfile(String.valueOf(clientId), req);
         return ResponseEntity.ok("更新成功");
     }
 }
