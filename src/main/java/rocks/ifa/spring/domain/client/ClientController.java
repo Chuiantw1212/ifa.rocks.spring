@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileContracts;
-import rocks.ifa.spring.infra.SecurityUtils;
+import rocks.ifa.spring.infra.security.SecurityUtils;
 import rocks.ifa.spring.infra.common.PageResponse;
 
 @RestController
@@ -23,7 +23,8 @@ public class ClientController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ClientProfileContracts.ProfileRes createClient(@RequestBody @Valid ClientContracts.CreateClientReq req) {
-        return clientService.createClient(req);
+        String agentFirebaseUid = SecurityUtils.getCurrentAgentUid();
+        return clientService.createClient(req, agentFirebaseUid);
     }
 
     @Operation(summary = "獲取當前顧問的所有客戶列表 (分頁)")

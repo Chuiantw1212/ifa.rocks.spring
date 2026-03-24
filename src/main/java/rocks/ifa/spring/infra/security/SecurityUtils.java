@@ -1,4 +1,4 @@
-package rocks.ifa.spring.infra;
+package rocks.ifa.spring.infra.security;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;

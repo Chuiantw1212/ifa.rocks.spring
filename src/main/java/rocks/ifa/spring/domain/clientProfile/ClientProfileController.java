@@ -6,7 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import rocks.ifa.spring.infra.SecurityUtils;
+import rocks.ifa.spring.infra.security.SecurityUtils;
 
 @RestController
 @RequestMapping("/api/v1/clients/{clientId}/profile")

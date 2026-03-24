@@ -35,14 +35,27 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public ClientFullDataRes getClientFullData(String clientUid) {
-        // ...
-        return null;
+        return clientProfileRepository.findById(Long.parseLong(clientUid))
+                .map(this::mapToFullDataRes)
+                .orElse(null);
     }
 
     @Override
     public PageResponse<ClientFullDataRes> listClientsByAgent(String agentUid, Pageable pageable) {
-        // ...
-        return null;
+        log.info("Listing clients for agent UID: {}", agentUid);
+
+        Page<ClientProfileEntity> clientPage = clientProfileRepository.findAllByAgentFirebaseUid(agentUid, pageable);
+
+        List<ClientFullDataRes> dtoList = clientPage.getContent().stream()
+                .map(this::mapToFullDataRes)
+                .collect(Collectors.toList());
+
+        return new PageResponse<>(
+                dtoList,
+                clientPage.getTotalElements(),
+                clientPage.getNumber(),
+                clientPage.getSize()
+        );
     }
 
     @Override
@@ -69,9 +82,22 @@ public class ClientServiceImpl implements ClientService {
             null  // biography
         );
     }
-    
+
     private ClientFullDataRes mapToFullDataRes(ClientProfileEntity entity) {
-        // ...
-        return null;
+        ClientFullDataRes res = new ClientFullDataRes();
+        res.setProfile(new ClientProfileContracts.ProfileRes(
+                entity.getId(),
+                entity.getBirthDate(),
+                entity.getGender(),
+                entity.getCurrentAge(),
+                entity.getLifeExpectancy(),
+                entity.getMarriageYear(),
+                entity.getCareerInsuranceType(),
+                entity.getBiography()
+        ));
+        res.setId(entity.getId());
+        // In a real app, you would also fetch and set other parts like career, tax etc.
+        // res.setCareer(clientCareerService.getCareer(entity.getAgentFirebaseUid()));
+        return res;
     }
 }
