@@ -17,7 +17,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "user_profiles")
+@Table(name = "client_profiles")
 public class ClientProfileEntity extends ClientBaseEntity {
 
     private LocalDate birthDate;
