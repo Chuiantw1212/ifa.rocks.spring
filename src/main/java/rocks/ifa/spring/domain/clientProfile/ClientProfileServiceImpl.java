@@ -17,7 +17,7 @@ public class ClientProfileServiceImpl implements ClientProfileService {
 
     @Override
     public ClientProfileContracts.ProfileRes getProfile(String uid) {
-        return clientProfileRepository.findByFirebaseUid(uid)
+        return clientProfileRepository.findByAgentFirebaseUid(uid)
                 .map(this::convertToRes)
                 .orElseGet(() -> createDefaultProfile(uid));
     }
@@ -25,11 +25,11 @@ public class ClientProfileServiceImpl implements ClientProfileService {
     @Override
     @Transactional
     public void updateProfile(String uid, ClientProfileContracts.UpdateProfileReq req) {
-        ClientProfileEntity entity = clientProfileRepository.findByFirebaseUid(uid)
+        ClientProfileEntity entity = clientProfileRepository.findByAgentFirebaseUid(uid)
                 .orElseGet(() -> {
                     log.info("No existing profile for update, creating new one for UID: {}", uid);
                     ClientProfileEntity newProfile = new ClientProfileEntity();
-                    newProfile.setFirebaseUid(uid);
+                    newProfile.setAgentFirebaseUid(uid);
                     return newProfile;
                 });
 
@@ -50,7 +50,7 @@ public class ClientProfileServiceImpl implements ClientProfileService {
 
     private ClientProfileContracts.ProfileRes createDefaultProfile(String uid) {
         ClientProfileEntity newProfile = new ClientProfileEntity();
-        newProfile.setFirebaseUid(uid);
+        newProfile.setAgentFirebaseUid(uid);
         clientProfileRepository.save(newProfile);
         log.info("✅ Minimal default profile created for UID: {}", uid);
         return convertToRes(newProfile);

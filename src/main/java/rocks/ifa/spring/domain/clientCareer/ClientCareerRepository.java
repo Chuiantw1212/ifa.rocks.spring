@@ -7,5 +7,5 @@ import java.util.Optional;
 
 @Repository
 public interface ClientCareerRepository extends JpaRepository<ClientCareerEntity, Long> {
-    Optional<ClientCareerEntity> findByFirebaseUid(String firebaseUid);
+    Optional<ClientCareerEntity> findByAgentFirebaseUid(String agentFirebaseUid);
 }

@@ -7,5 +7,5 @@ import java.util.Optional;
 
 @Repository
 public interface ClientLaborInsuranceRepository extends JpaRepository<ClientLaborInsuranceEntity, Long> {
-    Optional<ClientLaborInsuranceEntity> findByFirebaseUid(String firebaseUid);
+    Optional<ClientLaborInsuranceEntity> findByAgentFirebaseUid(String agentFirebaseUid);
 }
