@@ -15,26 +15,27 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
-        String rootCauseMessage = ex.getMostSpecificCause().getMessage();
-        log.warn("⚠️ Data integrity violation: {}", rootCauseMessage);
-
-        if (rootCauseMessage != null && rootCauseMessage.contains("client_profiles_email_key")) {
-            String errorMessage = "This email is already registered.";
-            ErrorResponse errorResponse = new ErrorResponse(HttpStatus.CONFLICT.value(), errorMessage);
-            return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
-        }
-
-        // For other integrity violations, return a generic bad request
-        String errorMessage = "The request violates a database constraint.";
-        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), errorMessage);
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<ErrorResponse> handleDataAccessException(DataAccessException ex) {
-        log.error("❌ Database access exception, detailed stack trace: ", ex);
+        // First, check for the more specific data integrity violation
+        if (ex instanceof DataIntegrityViolationException) {
+            String rootCauseMessage = ex.getMostSpecificCause().getMessage();
+            log.warn("⚠️ Data integrity violation: {}", rootCauseMessage);
+
+            if (rootCauseMessage != null && rootCauseMessage.contains("client_profiles_email_key")) {
+                String errorMessage = "This email is already registered.";
+                ErrorResponse errorResponse = new ErrorResponse(HttpStatus.CONFLICT.value(), errorMessage);
+                return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+            }
+            
+            // For other integrity violations, return a generic bad request
+            String errorMessage = "The request violates a database constraint.";
+            ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), errorMessage);
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+
+        // For all other data access exceptions, return 503
+        log.error("❌ Database access exception: ", ex);
         String errorMessage = "The database service is temporarily unavailable. Please check the logs.";
         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.SERVICE_UNAVAILABLE.value(), errorMessage);
         return new ResponseEntity<>(errorResponse, HttpStatus.SERVICE_UNAVAILABLE);
