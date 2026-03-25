@@ -1,0 +1,6 @@
+{
+  "id": "cfg_financial",
+  "name": "台灣金融指標",
+  "bond_yield_2y": 1.45,
+  "unit": "percentage"
+}

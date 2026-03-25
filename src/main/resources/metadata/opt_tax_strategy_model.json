@@ -1,0 +1,111 @@
+{
+  "id": "opt_tax_strategy_model",
+  "name": "2026 稅務級距與投資策略模型 (Housing & Efficiency)",
+  "list": [
+    {
+      "rangeMin": 0,
+      "rangeMax": 610000,
+      "taxRate": 0.05,
+      "strategyName": "資本擴張與防禦",
+      "description": "利用「股利8.5%抵減稅額」創造優於定存的實質收益，並透過市值型ETF追求長期成長。",
+      "recommendations": [
+        {
+          "name": "投資自己",
+          "type": "Education",
+          "reason": "將資金投入技能學習，創造薪資漲幅。薪資所得具有特別扣除額之稅務優惠。"
+        },
+        {
+          "name": "台股市值型底倉",
+          "type": "Investment",
+          "reason": "配置 006208/0050。配息適用 8.5% 抵減稅額，對於低稅率族群具有節稅與累積資產雙重效益。"
+        },
+        {
+          "name": "台股特別股",
+          "type": "Investment",
+          "reason": "針對不敢重壓市值型的新手。利用 8.5% 抵減稅額與 5% 稅率之利差 (實質退稅 3.5%)，創造優於銀行定存的穩定現金流。"
+        }
+      ]
+    },
+    {
+      "rangeMin": 610001,
+      "rangeMax": 1380000,
+      "taxRate": 0.12,
+      "strategyName": "全球成長",
+      "description": "利用海外所得 750 萬免稅額度，配置全球累積型標的，達成實質零稅負之資本成長。",
+      "recommendations": [
+        {
+          "name": "海外複委託",
+          "type": "Investment",
+          "reason": "利用最低稅負制(AMT)免稅額，配置全球累積型標的(如VWRA或VTI)。資本利得不計入綜合所得稅。"
+        },
+        {
+          "name": "稅務防禦",
+          "type": "Management",
+          "reason": "善用列舉扣除額規定，包含捐贈、人身保險費、醫藥及生育費等項目進行稅務優化。"
+        }
+      ]
+    },
+    {
+      "rangeMin": 1380001,
+      "rangeMax": 2770000,
+      "taxRate": 0.20,
+      "strategyName": "高效率收益",
+      "description": "策略轉向「低稅負現金流」。透過 QI 券商投資海外債券/ETF，或參與再生能源售電。",
+      "recommendations": [
+        {
+          "name": "債券 ETF (QI)",
+          "type": "Investment",
+          "reason": "透過具QI資格券商投資 TLT/LQD。依美台稅務互惠或內國法規免除 30% 預扣稅，並利用 AMT 免稅額達成 0% 稅負。"
+        },
+        {
+          "name": "太陽能售電",
+          "type": "Alternative",
+          "reason": "依財政部解釋令，個人售電屬一時貿易所得，實質稅率僅 1.2%。"
+        },
+        {
+          "name": "自用住宅設籍",
+          "type": "RealEstate",
+          "reason": "依房屋稅條例，本人、配偶及未成年子女全國僅持有一戶且供自住使用者，適用 1% 優惠稅率，有效降低居住持有成本。"
+        }
+      ]
+    },
+    {
+      "rangeMin": 2770001,
+      "rangeMax": 5190000,
+      "taxRate": 0.30,
+      "strategyName": "法人避險與分離",
+      "description": "針對 30% 高稅率族群的雙軌策略：採「分離課稅」快速止血，或成立「投資公司」徹底阻斷累進稅率。",
+      "recommendations": [
+        {
+          "name": "股利分離課稅",
+          "type": "TaxAction",
+          "reason": "邊際稅率 (30%) 已高於分離課稅率 (28%)。勾選分離課稅可直接鎖定 2% 稅差紅利，避免薪資被推升至 40% 級距。"
+        },
+        {
+          "name": "成立境內投資公司",
+          "type": "TaxAction",
+          "reason": "法人獲配國內股利不計入所得額。適合資金部位較大者，將高息資產轉入公司名下，完全免除 30% 綜所稅負擔。"
+        }
+      ]
+    },
+    {
+      "rangeMin": 5190001,
+      "rangeMax": null,
+      "taxRate": 0.40,
+      "strategyName": "資產傳承",
+      "description": "最高稅率級距。策略轉向極端抵減與資產移轉。",
+      "recommendations": [
+        {
+          "name": "天使投資",
+          "type": "Alternative",
+          "reason": "依產創條例 23-2，投資新創滿 2 年可抵減所得總額。"
+        },
+        {
+          "name": "藝術品投資",
+          "type": "Alternative",
+          "reason": "拍賣所得採分離課稅，不計入綜合所得總額。"
+        }
+      ]
+    }
+  ]
+}

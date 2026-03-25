@@ -1,0 +1,44 @@
+{
+  "id": "opt_retirement_gogo_housing_coliving",
+  "name": "退休居住選項 (共居模式-台北都會區 2026 TCO版)",
+  "source": "2026年退休居住經濟學：總體成本效益分析報告",
+  "currency": "TWD",
+  "list": [
+    {
+      "code": "COLIVING_PARTNER",
+      "label": "伴侶/配偶共居",
+      "monthlyCost": 12250,
+      "description": "最強財務避險：納入老屋修繕攤提後的人均成本。相較獨居負擔，伴侶共居可將居住效用最大化並大幅降低人均開支。"
+    },
+    {
+      "code": "COLIVING_BRAND_SHARED",
+      "label": "品牌共居-多人房",
+      "monthlyCost": 8000,
+      "description": "極致成本分攤：參考香蕉同居行情。適合預算有限且心態年輕的長者，可將資金轉向醫療或飲食營養。"
+    },
+    {
+      "code": "COLIVING_APT_SHARE",
+      "label": "家庭式合租 (3人)",
+      "monthlyCost": 14100,
+      "description": "租房紅利：3人合租整層住家。因不需承擔老屋折舊與適老化修繕費，財務效益通常優於持有老舊資產。"
+    },
+    {
+      "code": "COLIVING_INST_FAMILY",
+      "label": "養生村-三人家庭房",
+      "monthlyCost": 15000,
+      "description": "機構效應：參考樂陶居家庭房模式。享有一站式專業護理與社群服務，人均成本甚至低於台北市老舊公寓雅房。"
+    },
+    {
+      "code": "COLIVING_INST_DBL",
+      "label": "養生村-雙人入住",
+      "monthlyCost": 16750,
+      "description": "主流優選：參考長庚養生村。雙人入住的邊際成本極低，人均支出較單人入住大幅下降約39%。"
+    },
+    {
+      "code": "COLIVING_INST_LUX_DBL",
+      "label": "養生村-豪華雙人",
+      "monthlyCost": 38500,
+      "description": "高端共居：參考康寧生活會館。雙人分攤可將都會豪宅級服務的成本，壓低至中產階級可負擔的範圍。"
+    }
+  ]
+}
