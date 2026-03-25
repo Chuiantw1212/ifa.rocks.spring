@@ -67,9 +67,28 @@ public class ClientProfileServiceImpl implements ClientProfileService {
     }
 
     @Override
-    @Transactional
+    @Transactional // This annotation is crucial for write operations
     public void patchProfile(UUID clientId, ClientProfileContracts.PatchProfileReq req) {
-        // ... (Your existing logic is preserved)
+        log.info("Patching client profile for ID: {}", clientId);
+        ClientProfileEntity entity = clientProfileRepository.findById(clientId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client profile not found"));
+
+        // Check each field and update only if it's not null
+        if (req.name() != null) entity.setName(req.name());
+        if (req.email() != null) entity.setEmail(req.email());
+        if (req.phone() != null) entity.setPhone(req.phone());
+        if (req.lineId() != null) entity.setLineId(req.lineId());
+        if (req.birthDate() != null) {
+            entity.setBirthDate(req.birthDate());
+            entity.setCurrentAge(Period.between(req.birthDate(), LocalDate.now()).getYears());
+        }
+        if (req.gender() != null) entity.setGender(req.gender());
+        if (req.marriageYear() != null) entity.setMarriageYear(req.marriageYear());
+        if (req.careerInsuranceType() != null) entity.setCareerInsuranceType(req.careerInsuranceType());
+        if (req.biography() != null) entity.setBiography(req.biography());
+
+        clientProfileRepository.save(entity);
+        log.info("✅ [Profile] Patched for client ID: {}", clientId);
     }
 
     @Override
