@@ -116,6 +116,8 @@ public class ClientProfileServiceImpl implements ClientProfileService {
         newProfile.setEmail(uid + "@default.com");
         newProfile.setPhone("");
         newProfile.setLineId("");
+        newProfile.setRetirementAge(65); // Set default retirement age
+
         clientProfileRepository.save(newProfile);
         log.info("✅ Minimal default profile created for UID: {}", uid);
         return convertToRes(newProfile);

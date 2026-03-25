@@ -62,6 +62,7 @@ public class ClientServiceImpl implements ClientService {
         newProfile.setEmail(req.email());
         newProfile.setPhone(req.phone());
         newProfile.setLineId(req.lineId());
+        newProfile.setRetirementAge(65);
 
         ClientProfileEntity savedProfile = clientProfileRepository.save(newProfile);
         log.info("✅ Successfully created new client with ID: {} for Agent UID: {}", savedProfile.getId(), agentFirebaseUid);
@@ -75,7 +76,9 @@ public class ClientServiceImpl implements ClientService {
                 savedProfile.getBirthDate(),
                 savedProfile.getGender(),
                 savedProfile.getCurrentAge(),
+                savedProfile.getRetirementAge(),
                 savedProfile.getLifeExpectancy(),
+                savedProfile.getLifeExpectancyAtRetirement(),
                 savedProfile.getMarriageYear(),
                 savedProfile.getCareerInsuranceType(),
                 savedProfile.getBiography()
@@ -84,8 +87,6 @@ public class ClientServiceImpl implements ClientService {
 
     private ClientFullDataRes mapToFullDataRes(ClientProfileEntity entity) {
         ClientFullDataRes res = new ClientFullDataRes();
-        
-        // Correctly map all 12 fields to the ProfileRes record
         res.setProfile(new ClientProfileContracts.ProfileRes(
                 entity.getId(),
                 entity.getName(),
@@ -95,16 +96,14 @@ public class ClientServiceImpl implements ClientService {
                 entity.getBirthDate(),
                 entity.getGender(),
                 entity.getCurrentAge(),
+                entity.getRetirementAge(),
                 entity.getLifeExpectancy(),
-                entity.getLifeExpectancyAtRetirement(), // The missing parameter is now added
+                entity.getLifeExpectancyAtRetirement(),
                 entity.getMarriageYear(),
                 entity.getCareerInsuranceType(),
                 entity.getBiography()
         ));
-        
         res.setId(entity.getId());
-        // Here you would call other services to populate the rest of the ClientFullDataRes
-        
         return res;
     }
 }
