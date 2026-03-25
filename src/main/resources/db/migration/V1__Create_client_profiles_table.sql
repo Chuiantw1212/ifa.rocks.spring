@@ -12,7 +12,7 @@ CREATE TABLE client_profiles (
     -- Core client information
     name VARCHAR(255) NOT NULL,
     phone VARCHAR(255) NOT NULL,
-    lineId VARCHAR(255) NOT NULL,
+    line_id VARCHAR(255) NOT NULL, -- Corrected to snake_case
 
     -- Business rule: The email must be unique across all clients in the system.
     email VARCHAR(255) NOT NULL UNIQUE,
