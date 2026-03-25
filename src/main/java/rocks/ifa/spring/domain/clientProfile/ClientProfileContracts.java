@@ -38,24 +38,31 @@ public interface ClientProfileContracts {
     ) {
     }
 
-    @Schema(description = "用於更新客戶個人資料的請求")
+    @Schema(description = "用於更新客戶個人資料的請求 (PUT)")
     record UpdateProfileReq(
-            @Schema(description = "出生日期 (ISO 8601 格式)", example = "1990-12-12")
-            @Past(message = "Birth date must be in the past")
-            LocalDate birthDate,
-
-            @Schema(description = "性別", example = "FEMALE")
+            @NotBlank String name,
+            @NotBlank String email,
+            String phone,
+            String lineId,
+            @Past LocalDate birthDate,
             String gender,
-
-            @Schema(description = "結婚年份", example = "2020")
             Integer marriageYear,
+            String careerInsuranceType,
+            String biography
+    ) {
+    }
 
-            @Schema(description = "個人簡介或理財故事")
-            String biography,
-
-            @Schema(description = "職業保險類別", example = "LABOR")
-            @NotBlank(message = "Career insurance type cannot be blank")
-            String careerInsuranceType
+    @Schema(description = "用於部分更新客戶個人資料的請求 (PATCH)")
+    record PatchProfileReq(
+            String name,
+            String email,
+            String phone,
+            String lineId,
+            @Past LocalDate birthDate,
+            String gender,
+            Integer marriageYear,
+            String careerInsuranceType,
+            String biography
     ) {
     }
 }

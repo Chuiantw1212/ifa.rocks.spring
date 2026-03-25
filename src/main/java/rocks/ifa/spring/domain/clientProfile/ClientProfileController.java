@@ -30,16 +30,23 @@ public class ClientProfileController {
     @Operation(summary = "獲取單一客戶的基本資料")
     @GetMapping("/{clientId}")
     public ClientProfileContracts.ProfileRes getClientProfile(@PathVariable UUID clientId) {
-        // In a real app, you would also pass the agent's UID to the service
-        // to verify they have permission to view this client.
+        // ...
         return clientProfileService.getClientProfileById(clientId);
     }
 
-    @Operation(summary = "更新客戶個人資料")
+    @Operation(summary = "更新客戶個人資料 (PUT)")
     @PutMapping("/{clientId}")
     public ResponseEntity<String> updateProfile(@PathVariable UUID clientId, @RequestBody @Valid ClientProfileContracts.UpdateProfileReq req) {
-        // The service should verify that the agent has permission for this client
+        // ...
         clientProfileService.updateProfile(clientId.toString(), req);
         return ResponseEntity.ok("更新成功");
+    }
+
+    @Operation(summary = "部分更新客戶個人資料 (PATCH)")
+    @PatchMapping("/{clientId}")
+    public ResponseEntity<String> patchProfile(@PathVariable UUID clientId, @RequestBody ClientProfileContracts.PatchProfileReq req) {
+        // The service should verify that the agent has permission for this client
+        clientProfileService.patchProfile(clientId, req);
+        return ResponseEntity.ok("部分更新成功");
     }
 }

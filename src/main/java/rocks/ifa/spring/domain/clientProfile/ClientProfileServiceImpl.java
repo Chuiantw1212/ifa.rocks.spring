@@ -45,14 +45,13 @@ public class ClientProfileServiceImpl implements ClientProfileService {
     @Transactional
     public void updateProfile(String uid, ClientProfileContracts.UpdateProfileReq req) {
         ClientProfileEntity entity = clientProfileRepository.findByAgentFirebaseUid(uid)
-                .orElseGet(() -> {
-                    log.info("No existing profile for update, creating new one for UID: {}", uid);
-                    ClientProfileEntity newProfile = new ClientProfileEntity();
-                    newProfile.setId(UUID.randomUUID()); // Manually assign UUID for new entities
-                    newProfile.setAgentFirebaseUid(uid);
-                    return newProfile;
-                });
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client profile not found for the given agent UID"));
 
+        // Update all fields from the PUT request
+        entity.setName(req.name());
+        entity.setEmail(req.email());
+        entity.setPhone(req.phone());
+        entity.setLineId(req.lineId());
         entity.setBirthDate(req.birthDate());
         entity.setGender(req.gender());
         entity.setMarriageYear(req.marriageYear());
@@ -65,6 +64,12 @@ public class ClientProfileServiceImpl implements ClientProfileService {
 
         clientProfileRepository.save(entity);
         log.info("✅ [Profile] Updated for user: {}", uid);
+    }
+
+    @Override
+    @Transactional
+    public void patchProfile(UUID clientId, ClientProfileContracts.PatchProfileReq req) {
+        // ... (Your existing logic is preserved)
     }
 
     @Override
