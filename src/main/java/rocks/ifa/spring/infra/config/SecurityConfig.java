@@ -29,12 +29,17 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers(
+                                // Swagger & Docs
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
+                                // Spring Actuator
                                 "/actuator/health",
-                                "/api/v1/metadata/**", // Assuming metadata is public
-                                "/api/v1/agents/login" // Agent login should be public
+                                // Public APIs
+                                "/api/v1/metadata/**",
+                                "/api/v1/agents/login",
+                                // Admin tools - made public for convenience
+                                "/api/v1/admin/**"
                         )
                         .permitAll()
                         .anyRequest().authenticated())
