@@ -33,6 +33,7 @@ public class ClientProfileEntity extends ClientBaseEntity {
     private LocalDate birthDate;
     private String gender;
     private Integer currentAge;
+    private Integer retirementAge;
     private Integer lifeExpectancy;
     @Column(name = "life_expectancy_at_retirement")
     private Integer lifeExpectancyAtRetirement;

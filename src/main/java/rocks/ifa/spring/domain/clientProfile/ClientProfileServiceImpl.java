@@ -147,12 +147,11 @@ public class ClientProfileServiceImpl implements ClientProfileService {
         ClientProfileEntity entity = clientProfileRepository.findById(clientId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client profile not found"));
 
-        // ... (update other fields from req)
+        // ... update other fields
+        entity.setRetirementAge(req.retirementAge());
 
-        updateLifeExpectancy(entity); // Call the new helper method
-
+        updateLifeExpectancy(entity);
         ClientProfileEntity savedEntity = clientProfileRepository.save(entity);
-        log.info("✅ [Profile] Updated for client ID: {}", clientId);
         return convertToRes(savedEntity);
     }
 
@@ -163,43 +162,38 @@ public class ClientProfileServiceImpl implements ClientProfileService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client profile not found"));
 
         boolean needsLifeExpectancyUpdate = false;
-        if (req.birthDate() != null) {
-            entity.setBirthDate(req.birthDate());
+        // ... update other fields
+        if (req.retirementAge() != null) {
+            entity.setRetirementAge(req.retirementAge());
             needsLifeExpectancyUpdate = true;
         }
-        if (req.gender() != null) {
-            entity.setGender(req.gender());
+        if (req.birthDate() != null || req.gender() != null) {
             needsLifeExpectancyUpdate = true;
         }
-        // ... (update other fields from req)
 
         if (needsLifeExpectancyUpdate) {
             updateLifeExpectancy(entity);
         }
 
         ClientProfileEntity savedEntity = clientProfileRepository.save(entity);
-        log.info("✅ [Profile] Patched for client ID: {}", clientId);
         return convertToRes(savedEntity);
     }
 
     private void updateLifeExpectancy(ClientProfileEntity entity) {
         if (entity.getBirthDate() == null || entity.getGender() == null) {
-            return; // Not enough info to calculate
+            return;
         }
-
         int currentAge = Period.between(entity.getBirthDate(), LocalDate.now()).getYears();
         entity.setCurrentAge(currentAge);
 
-        // Assuming retirement age is 65 for this calculation
-        int retirementAge = 65; 
+        // Use the entity's retirement age, with a default of 65
+        int retirementAge = (entity.getRetirementAge() != null) ? entity.getRetirementAge() : 65;
 
-        // Get current life expectancy
         var currentLifeExp = metadataService.getLifeExpectancy(LocalDate.now().getYear(), entity.getGender(), currentAge);
         if (currentLifeExp != null) {
             entity.setLifeExpectancy(currentLifeExp.expectedLifespan().intValue());
         }
 
-        // Get remaining life expectancy at retirement
         var retirementLifeExp = metadataService.getLifeExpectancy(LocalDate.now().getYear(), entity.getGender(), retirementAge);
         if (retirementLifeExp != null) {
             entity.setLifeExpectancyAtRetirement(retirementLifeExp.expectedLifespan().intValue());
@@ -208,19 +202,12 @@ public class ClientProfileServiceImpl implements ClientProfileService {
 
     private ClientProfileContracts.ProfileRes convertToRes(ClientProfileEntity entity) {
         return new ClientProfileContracts.ProfileRes(
-            entity.getId(),
-            entity.getName(),
-            entity.getEmail(),
-            entity.getPhone(),
-            entity.getLineId(),
-            entity.getBirthDate(),
-            entity.getGender(),
-            entity.getCurrentAge(),
+            entity.getId(), entity.getName(), entity.getEmail(), entity.getPhone(), entity.getLineId(),
+            entity.getBirthDate(), entity.getGender(), entity.getCurrentAge(),
+            entity.getRetirementAge(), // Added new field
             entity.getLifeExpectancy(),
             entity.getLifeExpectancyAtRetirement(),
-            entity.getMarriageYear(),
-            entity.getCareerInsuranceType(),
-            entity.getBiography()
+            entity.getMarriageYear(), entity.getCareerInsuranceType(), entity.getBiography()
         );
     }
     

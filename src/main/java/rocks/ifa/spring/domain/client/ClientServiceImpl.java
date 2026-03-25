@@ -96,6 +96,7 @@ public class ClientServiceImpl implements ClientService {
                 entity.getGender(),
                 entity.getCurrentAge(),
                 entity.getLifeExpectancy(),
+                entity.getLifeExpectancyAtRetirement(), // The missing parameter is now added
                 entity.getMarriageYear(),
                 entity.getCareerInsuranceType(),
                 entity.getBiography()
@@ -103,7 +104,6 @@ public class ClientServiceImpl implements ClientService {
         
         res.setId(entity.getId());
         // Here you would call other services to populate the rest of the ClientFullDataRes
-        // res.setCareer(clientCareerService.getCareer(...));
         
         return res;
     }

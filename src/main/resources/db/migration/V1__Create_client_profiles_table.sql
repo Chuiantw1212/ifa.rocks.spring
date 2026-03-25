@@ -14,8 +14,9 @@ CREATE TABLE client_profiles (
     birth_date DATE,
     gender VARCHAR(255),
     current_age INTEGER,
+    retirement_age INTEGER, -- New field
     life_expectancy INTEGER,
-    life_expectancy_at_retirement INTEGER, -- New field
+    life_expectancy_at_retirement INTEGER,
     marriage_year INTEGER,
     career_insurance_type VARCHAR(255),
     biography TEXT,
