@@ -44,13 +44,24 @@ public class MetadataController {
     }
 
     @PostMapping("/sync")
-    @Operation(summary = "同步所有本地 metadata JSON 檔案到 Firestore", description = "這是一個管理用 API，用於將 `resources/metadata` 下的 JSON 檔案上傳到 Firestore。")
+    @Operation(summary = "同步所有本地 metadata JSON 檔案到 Firestore (排除生命表)")
     public ResponseEntity<String> syncMetadata() {
         try {
             metadataService.syncMetadata();
             return ResponseEntity.ok("Metadata sync process started successfully.");
         } catch (IOException e) {
             return ResponseEntity.internalServerError().body("Failed to read metadata files: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/sync/life-table")
+    @Operation(summary = "同步生命表 (Life Table) 到 Firestore", description = "專門用於上傳 `opt_life_table.json`，使用批次寫入以提升性能。")
+    public ResponseEntity<String> syncLifeTable() {
+        try {
+            metadataService.syncLifeTable();
+            return ResponseEntity.ok("Life table sync process started successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Failed to sync life table: " + e.getMessage());
         }
     }
 }

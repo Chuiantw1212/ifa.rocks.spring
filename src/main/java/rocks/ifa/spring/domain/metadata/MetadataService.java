@@ -9,9 +9,11 @@ public interface MetadataService {
 
     MetadataContracts.LifeExpectancyRes getLifeExpectancy(Integer year, String gender, Integer age);
 
-    /**
-     * Syncs all local JSON files from `resources/metadata` to the Firestore 'metadata' collection.
-     * @throws IOException if the resource files cannot be read.
-     */
     void syncMetadata() throws IOException;
+
+    /**
+     * Finds and syncs the life table data from a specific JSON file
+     * in `resources/metadata` to its own collection in Firestore using batch writes.
+     */
+    void syncLifeTable();
 }
