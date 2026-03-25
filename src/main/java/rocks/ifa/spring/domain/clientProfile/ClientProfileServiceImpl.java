@@ -54,14 +54,10 @@ public class ClientProfileServiceImpl implements ClientProfileService {
 
     @Override
     public PageResponse<ClientProfileContracts.ProfileRes> listClientProfilesByAgent(String agentUid, Pageable pageable) {
-        log.info("Listing client profiles for agent UID: {}", agentUid);
-
         Page<ClientProfileEntity> profilePage = clientProfileRepository.findAllByAgentFirebaseUid(agentUid, pageable);
-
         List<ClientProfileContracts.ProfileRes> dtoList = profilePage.getContent().stream()
                 .map(this::convertToRes)
                 .collect(Collectors.toList());
-
         return new PageResponse<>(
                 dtoList,
                 profilePage.getTotalElements(),
@@ -73,6 +69,9 @@ public class ClientProfileServiceImpl implements ClientProfileService {
     private ClientProfileContracts.ProfileRes createDefaultProfile(String uid) {
         ClientProfileEntity newProfile = new ClientProfileEntity();
         newProfile.setAgentFirebaseUid(uid);
+        // You might want to set default non-null values here if needed
+        // newProfile.setName("Default Name");
+        // newProfile.setEmail("default@example.com");
         clientProfileRepository.save(newProfile);
         log.info("✅ Minimal default profile created for UID: {}", uid);
         return convertToRes(newProfile);
@@ -80,14 +79,18 @@ public class ClientProfileServiceImpl implements ClientProfileService {
 
     private ClientProfileContracts.ProfileRes convertToRes(ClientProfileEntity entity) {
         return new ClientProfileContracts.ProfileRes(
-            entity.getId(),
-            entity.getBirthDate(),
-            entity.getGender(),
-            entity.getCurrentAge(),
-            entity.getLifeExpectancy(),
-            entity.getMarriageYear(),
-            entity.getCareerInsuranceType(),
-            entity.getBiography()
+                entity.getId(),
+                entity.getName(),
+                entity.getEmail(),
+                entity.getPhone(),
+                entity.getLineId(),
+                entity.getBirthDate(),
+                entity.getGender(),
+                entity.getCurrentAge(),
+                entity.getLifeExpectancy(),
+                entity.getMarriageYear(),
+                entity.getCareerInsuranceType(),
+                entity.getBiography()
         );
     }
 }

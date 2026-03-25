@@ -67,32 +67,43 @@ public class ClientServiceImpl implements ClientService {
         log.info("✅ Successfully created new client with ID: {} for Agent UID: {}", savedProfile.getId(), agentFirebaseUid);
 
         return new ClientProfileContracts.ProfileRes(
-            savedProfile.getId(),
-            savedProfile.getName(),
-            savedProfile.getEmail(),
-            savedProfile.getPhone(),
-            savedProfile.getLineId(),
-            savedProfile.getBirthDate(),
-            savedProfile.getGender(),
-            savedProfile.getCurrentAge(),
-            savedProfile.getLifeExpectancy(),
-            savedProfile.getMarriageYear(),
-            savedProfile.getCareerInsuranceType(),
-            savedProfile.getBiography()
+                savedProfile.getId(),
+                savedProfile.getName(),
+                savedProfile.getEmail(),
+                savedProfile.getPhone(),
+                savedProfile.getLineId(),
+                savedProfile.getBirthDate(),
+                savedProfile.getGender(),
+                savedProfile.getCurrentAge(),
+                savedProfile.getLifeExpectancy(),
+                savedProfile.getMarriageYear(),
+                savedProfile.getCareerInsuranceType(),
+                savedProfile.getBiography()
         );
     }
 
     private ClientFullDataRes mapToFullDataRes(ClientProfileEntity entity) {
         ClientFullDataRes res = new ClientFullDataRes();
-        String clientUid = entity.getAgentFirebaseUid(); // This seems incorrect, should be client's own identifier if they had one. Let's assume we use the agent's UID for now.
-
-        res.setProfile(clientProfileService.getProfile(clientUid));
-        res.setCareer(clientCareerService.getCareer(clientUid));
-        res.setLaborPension(clientLaborPensionService.getLaborPension(clientUid));
-        res.setLaborInsurance(clientLaborInsuranceService.getLaborInsurance(clientUid));
-        res.setRetirement(clientRetirementService.getRetirement(clientUid));
-        res.setTax(clientTaxService.getTax(clientUid));
+        
+        // Correctly map all 12 fields to the ProfileRes record
+        res.setProfile(new ClientProfileContracts.ProfileRes(
+                entity.getId(),
+                entity.getName(),
+                entity.getEmail(),
+                entity.getPhone(),
+                entity.getLineId(),
+                entity.getBirthDate(),
+                entity.getGender(),
+                entity.getCurrentAge(),
+                entity.getLifeExpectancy(),
+                entity.getMarriageYear(),
+                entity.getCareerInsuranceType(),
+                entity.getBiography()
+        ));
+        
         res.setId(entity.getId());
+        // Here you would call other services to populate the rest of the ClientFullDataRes
+        // res.setCareer(clientCareerService.getCareer(...));
         
         return res;
     }
