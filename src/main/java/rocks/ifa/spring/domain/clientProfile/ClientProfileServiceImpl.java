@@ -4,13 +4,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import rocks.ifa.spring.infra.common.PageResponse;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -21,7 +24,18 @@ public class ClientProfileServiceImpl implements ClientProfileService {
     private final ClientProfileRepository clientProfileRepository;
 
     @Override
+    public ClientProfileContracts.ProfileRes getClientProfileById(UUID clientId) {
+        log.info("Fetching client profile by ID: {}", clientId);
+        return clientProfileRepository.findById(clientId)
+                .map(this::convertToRes)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client profile not found"));
+    }
+
+    @Override
     public ClientProfileContracts.ProfileRes getProfile(String uid) {
+        // This method's purpose seems to be finding a profile by agent UID,
+        // which might not be what's intended for all use cases.
+        // It's kept for now but might need re-evaluation.
         return clientProfileRepository.findByAgentFirebaseUid(uid)
                 .map(this::convertToRes)
                 .orElseGet(() -> createDefaultProfile(uid));
@@ -34,6 +48,7 @@ public class ClientProfileServiceImpl implements ClientProfileService {
                 .orElseGet(() -> {
                     log.info("No existing profile for update, creating new one for UID: {}", uid);
                     ClientProfileEntity newProfile = new ClientProfileEntity();
+                    newProfile.setId(UUID.randomUUID()); // Manually assign UUID for new entities
                     newProfile.setAgentFirebaseUid(uid);
                     return newProfile;
                 });
@@ -68,10 +83,14 @@ public class ClientProfileServiceImpl implements ClientProfileService {
 
     private ClientProfileContracts.ProfileRes createDefaultProfile(String uid) {
         ClientProfileEntity newProfile = new ClientProfileEntity();
+        newProfile.setId(UUID.randomUUID()); // Manually assign UUID for new entities
         newProfile.setAgentFirebaseUid(uid);
-        // You might want to set default non-null values here if needed
-        // newProfile.setName("Default Name");
-        // newProfile.setEmail("default@example.com");
+        // Set default non-null values to avoid database errors
+        newProfile.setName("New Client");
+        newProfile.setEmail(uid + "@default.com"); // Use UID to ensure uniqueness
+        newProfile.setPhone("");
+        newProfile.setLineId("");
+
         clientProfileRepository.save(newProfile);
         log.info("✅ Minimal default profile created for UID: {}", uid);
         return convertToRes(newProfile);
