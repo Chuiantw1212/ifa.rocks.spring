@@ -26,7 +26,7 @@ public class ClientProfileController {
         String agentUid = SecurityUtils.getCurrentAgentUid();
         return clientProfileService.listClientProfilesByAgent(agentUid, pageable);
     }
-    
+
     @Operation(summary = "獲取單一客戶的基本資料")
     @GetMapping("/{clientId}")
     public ClientProfileContracts.ProfileRes getClientProfile(@PathVariable UUID clientId) {
@@ -36,17 +36,15 @@ public class ClientProfileController {
 
     @Operation(summary = "更新客戶個人資料 (PUT)")
     @PutMapping("/{clientId}")
-    public ResponseEntity<String> updateProfile(@PathVariable UUID clientId, @RequestBody @Valid ClientProfileContracts.UpdateProfileReq req) {
-        // ...
-        clientProfileService.updateProfile(clientId.toString(), req);
-        return ResponseEntity.ok("更新成功");
+    public ClientProfileContracts.ProfileRes updateProfile(@PathVariable UUID clientId, @RequestBody @Valid ClientProfileContracts.UpdateProfileReq req) {
+        // The service should verify that the agent has permission for this client
+        return clientProfileService.updateProfile(clientId, req);
     }
 
     @Operation(summary = "部分更新客戶個人資料 (PATCH)")
     @PatchMapping("/{clientId}")
-    public ResponseEntity<String> patchProfile(@PathVariable UUID clientId, @RequestBody ClientProfileContracts.PatchProfileReq req) {
+    public ClientProfileContracts.ProfileRes patchProfile(@PathVariable UUID clientId, @RequestBody ClientProfileContracts.PatchProfileReq req) {
         // The service should verify that the agent has permission for this client
-        clientProfileService.patchProfile(clientId, req);
-        return ResponseEntity.ok("部分更新成功");
+        return clientProfileService.patchProfile(clientId, req);
     }
 }
