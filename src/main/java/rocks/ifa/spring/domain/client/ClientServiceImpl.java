@@ -106,4 +106,20 @@ public class ClientServiceImpl implements ClientService {
         res.setId(entity.getId());
         return res;
     }
+
+    public void deleteClient(UUID clientId) {
+        // Optional: Check if the client exists before deleting
+        if (!clientProfileRepository.existsById(clientId)) {
+            log.warn("Attempted to delete a non-existent client with ID: {}", clientId);
+            // You might want to throw a 404 Not Found exception here
+            return;
+        }
+
+        // In a real application with related data (career, tax, etc.),
+        // you would need to delete those records here first to avoid
+        // foreign key constraint violations.
+
+        clientProfileRepository.deleteById(clientId);
+        log.info("✅ Successfully deleted client with ID: {}", clientId);
+    }
 }

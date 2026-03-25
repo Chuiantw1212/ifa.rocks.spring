@@ -11,6 +11,8 @@ import rocks.ifa.spring.domain.clientProfile.ClientProfileContracts;
 import rocks.ifa.spring.infra.security.SecurityUtils;
 import rocks.ifa.spring.infra.common.PageResponse;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/v1/clients")
 @Tag(name = "Client Aggregate API", description = "客戶資料聚合服務 (列表/單一查詢)")
@@ -36,9 +38,16 @@ public class ClientController {
 
     @Operation(summary = "獲取單一客戶的完整理財資料")
     @GetMapping("/{clientId}")
-    public ClientFullDataRes getClient(@PathVariable String clientId) {
-        // In a real app, you'd also pass the agent's UID to the service
-        // to verify they have permission to view this client.
-        return clientService.getClientFullData(clientId);
+    public ClientFullDataRes getClient(@PathVariable UUID clientId) {
+        return clientService.getClientFullData(clientId.toString());
+    }
+
+    @Operation(summary = "刪除客戶")
+    @DeleteMapping("/{clientId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteClient(@PathVariable UUID clientId) {
+        // In a real app, you would also pass the agent's UID to the service
+        // to verify they have permission to delete this client.
+        clientService.deleteClient(clientId);
     }
 }
