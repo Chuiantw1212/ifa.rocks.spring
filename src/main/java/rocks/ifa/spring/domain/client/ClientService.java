@@ -8,9 +8,9 @@ import java.util.UUID;
 
 public interface ClientService {
 
-    ClientFullDataRes getClientFullData(String clientUid);
+    ClientContracts.ClientFullDataRes getClientFullData(String clientUid);
     
-    PageResponse<ClientFullDataRes> listClientsByAgent(String agentUid, Pageable pageable);
+    PageResponse<ClientContracts.ClientFullDataRes> listClientsByAgent(String agentUid, Pageable pageable);
 
     ClientProfileContracts.ProfileRes createClient(ClientContracts.CreateClientReq req, String agentFirebaseUid);
 

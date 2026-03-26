@@ -35,16 +35,16 @@ public class ClientServiceImpl implements ClientService {
     private final ClientProfileRepository clientProfileRepository;
 
     @Override
-    public ClientFullDataRes getClientFullData(String clientUid) {
+    public ClientContracts.ClientFullDataRes getClientFullData(String clientUid) {
         return clientProfileRepository.findById(UUID.fromString(clientUid))
                 .map(this::mapToFullDataRes)
                 .orElse(null);
     }
 
     @Override
-    public PageResponse<ClientFullDataRes> listClientsByAgent(String agentUid, Pageable pageable) {
+    public PageResponse<ClientContracts.ClientFullDataRes> listClientsByAgent(String agentUid, Pageable pageable) {
         Page<ClientProfileEntity> clientPage = clientProfileRepository.findAllByAgentFirebaseUid(agentUid, pageable);
-        List<ClientFullDataRes> dtoList = clientPage.getContent().stream()
+        List<ClientContracts.ClientFullDataRes> dtoList = clientPage.getContent().stream()
                 .map(this::mapToFullDataRes)
                 .collect(Collectors.toList());
         return new PageResponse<>(dtoList, clientPage.getTotalElements(), clientPage.getNumber(), clientPage.getSize());
@@ -83,6 +83,7 @@ public class ClientServiceImpl implements ClientService {
                 savedProfile.getCareerInsuranceType(),
                 savedProfile.getBiography()
         );
+        return null;
     }
 
     private ClientFullDataRes mapToFullDataRes(ClientProfileEntity entity) {
@@ -106,7 +107,7 @@ public class ClientServiceImpl implements ClientService {
         res.setId(entity.getId());
         return res;
     }
-
+    
     public void deleteClient(UUID clientId) {
         // Optional: Check if the client exists before deleting
         if (!clientProfileRepository.existsById(clientId)) {
@@ -121,5 +122,18 @@ public class ClientServiceImpl implements ClientService {
 
         clientProfileRepository.deleteById(clientId);
         log.info("✅ Successfully deleted client with ID: {}", clientId);
+    }
+
+    private ClientContracts.ClientFullDataRes mapToFullDataRes(ClientProfileEntity entity) {
+        String clientUid = entity.getId().toString(); // Use the client's own ID for fetching sub-domain data
+        return new ClientContracts.ClientFullDataRes(
+                entity.getId(),
+                clientProfileService.getProfile(clientUid),
+                clientCareerService.getCareer(clientUid),
+                clientLaborPensionService.getLaborPension(clientUid),
+                clientLaborInsuranceService.getLaborInsurance(clientUid),
+                clientRetirementService.getRetirement(clientUid),
+                clientTaxService.getTax(clientUid)
+        );
     }
 }

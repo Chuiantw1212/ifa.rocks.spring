@@ -31,14 +31,14 @@ public class ClientController {
 
     @Operation(summary = "獲取當前顧問的所有客戶列表 (分頁)")
     @GetMapping
-    public PageResponse<ClientFullDataRes> listClients(Pageable pageable) {
+    public PageResponse<ClientContracts.ClientFullDataRes> listClients(Pageable pageable) {
         String agentUid = SecurityUtils.getCurrentAgentUid();
         return clientService.listClientsByAgent(agentUid, pageable);
     }
 
     @Operation(summary = "獲取單一客戶的完整理財資料")
     @GetMapping("/{clientId}")
-    public ClientFullDataRes getClient(@PathVariable UUID clientId) {
+    public ClientContracts.ClientFullDataRes getClient(@PathVariable UUID clientId) {
         return clientService.getClientFullData(clientId.toString());
     }
 
@@ -46,8 +46,6 @@ public class ClientController {
     @DeleteMapping("/{clientId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteClient(@PathVariable UUID clientId) {
-        // In a real app, you would also pass the agent's UID to the service
-        // to verify they have permission to delete this client.
         clientService.deleteClient(clientId);
     }
 }
