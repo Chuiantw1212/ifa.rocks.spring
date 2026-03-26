@@ -16,7 +16,7 @@ import rocks.ifa.spring.domain.agent.contracts.*;
 @RequiredArgsConstructor
 public class AgentController {
 
-    private final AgentRepository.AgentService agentService;
+    private final AgentService agentService;
 
     @Operation(summary = "顧問登入")
     @PostMapping("/login")
