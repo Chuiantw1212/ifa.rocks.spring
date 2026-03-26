@@ -83,29 +83,6 @@ public class ClientServiceImpl implements ClientService {
                 savedProfile.getCareerInsuranceType(),
                 savedProfile.getBiography()
         );
-        return null;
-    }
-
-    private ClientFullDataRes mapToFullDataRes(ClientProfileEntity entity) {
-        ClientFullDataRes res = new ClientFullDataRes();
-        res.setProfile(new ClientProfileContracts.ProfileRes(
-                entity.getId(),
-                entity.getName(),
-                entity.getEmail(),
-                entity.getPhone(),
-                entity.getLineId(),
-                entity.getBirthDate(),
-                entity.getGender(),
-                entity.getCurrentAge(),
-                entity.getRetirementAge(),
-                entity.getLifeExpectancy(),
-                entity.getLifeExpectancyAtRetirement(),
-                entity.getMarriageYear(),
-                entity.getCareerInsuranceType(),
-                entity.getBiography()
-        ));
-        res.setId(entity.getId());
-        return res;
     }
     
     public void deleteClient(UUID clientId) {
