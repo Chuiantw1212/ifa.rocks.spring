@@ -1,16 +1,17 @@
 package rocks.ifa.spring.domain.agent;
 
 import com.google.firebase.auth.FirebaseAuthException;
+import rocks.ifa.spring.domain.agent.contracts.*;
 
 public interface AgentService {
 
     // === Authentication ===
-    AgentContracts.AuthRes login(AgentContracts.LoginReq req);
+    AuthRes login(LoginReq req);
     void logout(String agentId);
 
     // === CRUD Operations ===
-    AgentContracts.AgentRes createAgent(AgentContracts.CreateAgentReq req) throws FirebaseAuthException;
-    AgentContracts.AgentRes getAgent(String agentId) throws FirebaseAuthException;
-    AgentContracts.AgentRes updateAgent(String agentId, AgentContracts.UpdateAgentReq req) throws FirebaseAuthException;
+    AgentRes createAgent(CreateAgentReq req) throws FirebaseAuthException;
+    AgentRes getAgent(String agentId) throws FirebaseAuthException;
+    AgentRes updateAgent(String agentId, UpdateAgentReq req) throws FirebaseAuthException;
     void deleteAgent(String agentId) throws FirebaseAuthException;
 }

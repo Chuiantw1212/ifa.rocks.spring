@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import rocks.ifa.spring.domain.agent.contracts.*;
 
 @Slf4j
 @Service
@@ -16,10 +17,10 @@ public class AgentServiceImpl implements AgentService {
     private final FirebaseAuth firebaseAuth;
 
     @Override
-    public AgentContracts.AuthRes login(AgentContracts.LoginReq req) {
+    public AuthRes login(LoginReq req) {
         log.info("Agent login attempt with token: {}", req.firebaseToken());
         // Dummy implementation
-        return new AgentContracts.AuthRes("dummy-session-token", null);
+        return new AuthRes("dummy-session-token", null);
     }
 
     @Override
@@ -28,7 +29,7 @@ public class AgentServiceImpl implements AgentService {
     }
 
     @Override
-    public AgentContracts.AgentRes createAgent(AgentContracts.CreateAgentReq req) throws FirebaseAuthException {
+    public AgentRes createAgent(CreateAgentReq req) throws FirebaseAuthException {
         UserRecord.CreateRequest request = new UserRecord.CreateRequest()
                 .setEmail(req.email())
                 .setPassword(req.password())
@@ -41,13 +42,13 @@ public class AgentServiceImpl implements AgentService {
     }
 
     @Override
-    public AgentContracts.AgentRes getAgent(String agentId) throws FirebaseAuthException {
+    public AgentRes getAgent(String agentId) throws FirebaseAuthException {
         UserRecord userRecord = firebaseAuth.getUser(agentId);
         return mapToAgentRes(userRecord);
     }
 
     @Override
-    public AgentContracts.AgentRes updateAgent(String agentId, AgentContracts.UpdateAgentReq req) throws FirebaseAuthException {
+    public AgentRes updateAgent(String agentId, UpdateAgentReq req) throws FirebaseAuthException {
         UserRecord.UpdateRequest request = new UserRecord.UpdateRequest(agentId)
                 .setDisplayName(req.displayName())
                 .setDisabled(req.disabled());
@@ -64,8 +65,8 @@ public class AgentServiceImpl implements AgentService {
         log.info("Successfully deleted agent: {}", agentId);
     }
 
-    private AgentContracts.AgentRes mapToAgentRes(UserRecord userRecord) {
-        return new AgentContracts.AgentRes(
+    private AgentRes mapToAgentRes(UserRecord userRecord) {
+        return new AgentRes(
                 userRecord.getUid(),
                 userRecord.getEmail(),
                 userRecord.getDisplayName(),
