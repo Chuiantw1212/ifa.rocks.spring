@@ -1,4 +1,4 @@
-package rocks.ifa.spring.domain.agent.contracts;
+package rocks.ifa.spring.domain.agent.contracts.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
