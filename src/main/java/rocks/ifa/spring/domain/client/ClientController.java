@@ -7,7 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import rocks.ifa.spring.domain.clientProfile.ClientProfileContracts;
+import rocks.ifa.spring.domain.client.contracts.CreateClientReq;
+import rocks.ifa.spring.domain.client.contracts.ClientFullDataRes;
 import rocks.ifa.spring.infra.security.SecurityUtils;
 import rocks.ifa.spring.infra.common.PageResponse;
 
@@ -24,21 +25,21 @@ public class ClientController {
     @Operation(summary = "建立新客戶")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ClientProfileContracts.ProfileRes createClient(@RequestBody @Valid ClientContracts.CreateClientReq req) {
+    public ClientProfileContracts.ProfileRes createClient(@RequestBody @Valid CreateClientReq req) {
         String agentFirebaseUid = SecurityUtils.getCurrentAgentUid();
         return clientService.createClient(req, agentFirebaseUid);
     }
 
     @Operation(summary = "獲取當前顧問的所有客戶列表 (分頁)")
     @GetMapping
-    public PageResponse<ClientContracts.ClientFullDataRes> listClients(Pageable pageable) {
+    public PageResponse<ClientFullDataRes> listClients(Pageable pageable) {
         String agentUid = SecurityUtils.getCurrentAgentUid();
         return clientService.listClientsByAgent(agentUid, pageable);
     }
 
     @Operation(summary = "獲取單一客戶的完整理財資料")
     @GetMapping("/{clientId}")
-    public ClientContracts.ClientFullDataRes getClient(@PathVariable UUID clientId) {
+    public ClientFullDataRes getClient(@PathVariable UUID clientId) {
         return clientService.getClientFullData(clientId.toString());
     }
 

@@ -1,4 +1,4 @@
-package rocks.ifa.spring.domain.agent.contracts.dto;
+package rocks.ifa.spring.domain.agent.contracts;
 
 public record UpdateAgentReq(
     String displayName,
