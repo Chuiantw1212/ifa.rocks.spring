@@ -32,6 +32,7 @@ app:
       - http://localhost:5173
       # For production
       - https://ifa.rocks
+      - https://ifa-rocks.web.app
 
 management:
   endpoints:
