@@ -8,6 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import rocks.ifa.spring.domain.clientProfile.contracts.PatchProfileReq;
+import rocks.ifa.spring.domain.clientProfile.contracts.ProfileRes;
+import rocks.ifa.spring.domain.clientProfile.contracts.UpdateProfileReq;
 import rocks.ifa.spring.domain.metadata.MetadataService;
 import rocks.ifa.spring.infra.common.PageResponse;
 
@@ -26,14 +29,14 @@ public class ClientProfileServiceImpl implements ClientProfileService {
     private final MetadataService metadataService;
 
     @Override
-    public ClientProfileContracts.ProfileRes getClientProfileById(UUID clientId) {
+    public ProfileRes getClientProfileById(UUID clientId) {
         return clientProfileRepository.findById(clientId)
                 .map(this::convertToRes)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client profile not found"));
     }
 
     @Override
-    public ClientProfileContracts.ProfileRes getProfile(String uid) {
+    public ProfileRes getProfile(String uid) {
         return clientProfileRepository.findByAgentFirebaseUid(uid)
                 .map(this::convertToRes)
                 .orElseGet(() -> createDefaultProfile(uid));
@@ -41,7 +44,7 @@ public class ClientProfileServiceImpl implements ClientProfileService {
 
     @Override
     @Transactional
-    public ClientProfileContracts.ProfileRes updateProfile(UUID clientId, ClientProfileContracts.UpdateProfileReq req) {
+    public ProfileRes updateProfile(UUID clientId, UpdateProfileReq req) {
         ClientProfileEntity entity = clientProfileRepository.findById(clientId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client profile not found"));
 
@@ -65,7 +68,7 @@ public class ClientProfileServiceImpl implements ClientProfileService {
 
     @Override
     @Transactional
-    public ClientProfileContracts.ProfileRes patchProfile(UUID clientId, ClientProfileContracts.PatchProfileReq req) {
+    public ProfileRes patchProfile(UUID clientId, PatchProfileReq req) {
         ClientProfileEntity entity = clientProfileRepository.findById(clientId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client profile not found"));
 
@@ -100,15 +103,15 @@ public class ClientProfileServiceImpl implements ClientProfileService {
     }
 
     @Override
-    public PageResponse<ClientProfileContracts.ProfileRes> listClientProfilesByAgent(String agentUid, Pageable pageable) {
+    public PageResponse<ProfileRes> listClientProfilesByAgent(String agentUid, Pageable pageable) {
         Page<ClientProfileEntity> profilePage = clientProfileRepository.findAllByAgentFirebaseUid(agentUid, pageable);
-        List<ClientProfileContracts.ProfileRes> dtoList = profilePage.getContent().stream()
+        List<ProfileRes> dtoList = profilePage.getContent().stream()
                 .map(this::convertToRes)
                 .collect(Collectors.toList());
         return new PageResponse<>(dtoList, profilePage.getTotalElements(), profilePage.getNumber(), profilePage.getSize());
     }
 
-    private ClientProfileContracts.ProfileRes createDefaultProfile(String uid) {
+    private ProfileRes createDefaultProfile(String uid) {
         ClientProfileEntity newProfile = new ClientProfileEntity();
         newProfile.setId(UUID.randomUUID());
         newProfile.setAgentFirebaseUid(uid);
@@ -116,7 +119,7 @@ public class ClientProfileServiceImpl implements ClientProfileService {
         newProfile.setEmail(uid + "@default.com");
         newProfile.setPhone("");
         newProfile.setLineId("");
-        newProfile.setRetirementAge(65); // Set default retirement age
+        newProfile.setRetirementAge(65);
 
         clientProfileRepository.save(newProfile);
         log.info("✅ Minimal default profile created for UID: {}", uid);
@@ -140,8 +143,8 @@ public class ClientProfileServiceImpl implements ClientProfileService {
         }
     }
 
-    private ClientProfileContracts.ProfileRes convertToRes(ClientProfileEntity entity) {
-        return new ClientProfileContracts.ProfileRes(
+    private ProfileRes convertToRes(ClientProfileEntity entity) {
+        return new ProfileRes(
             entity.getId(), entity.getName(), entity.getEmail(), entity.getPhone(), entity.getLineId(),
             entity.getBirthDate(), entity.getGender(), entity.getCurrentAge(), entity.getRetirementAge(),
             entity.getLifeExpectancy(), entity.getLifeExpectancyAtRetirement(),
