@@ -14,6 +14,7 @@ import rocks.ifa.spring.domain.clientLaborPension.ClientLaborPensionService;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileEntity;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileRepository;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileService;
+import rocks.ifa.spring.domain.clientProfile.contracts.ProfileRes;
 import rocks.ifa.spring.domain.clientRetirement.ClientRetirementService;
 import rocks.ifa.spring.domain.clientTax.ClientTaxService;
 import rocks.ifa.spring.infra.common.PageResponse;
@@ -53,15 +54,48 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     @Transactional
-    public ClientProfileContracts.ProfileRes createClient(CreateClientReq req, String agentFirebaseUid) {
-        // ... (Your existing logic is preserved)
-        return null;
+    public ProfileRes createClient(CreateClientReq req, String agentFirebaseUid) {
+        log.info("Agent [{}] is creating a new client with email: {}", agentFirebaseUid, req.email());
+
+        ClientProfileEntity newProfile = new ClientProfileEntity();
+        newProfile.setId(UUID.randomUUID());
+        newProfile.setAgentFirebaseUid(agentFirebaseUid);
+        newProfile.setName(req.name());
+        newProfile.setEmail(req.email());
+        newProfile.setPhone(req.phone());
+        newProfile.setLineId(req.lineId());
+        newProfile.setRetirementAge(65);
+
+        ClientProfileEntity savedProfile = clientProfileRepository.save(newProfile);
+        log.info("✅ Successfully created new client with ID: {} for Agent UID: {}", savedProfile.getId(), agentFirebaseUid);
+
+        return new ProfileRes(
+                savedProfile.getId(),
+                savedProfile.getName(),
+                savedProfile.getEmail(),
+                savedProfile.getPhone(),
+                savedProfile.getLineId(),
+                savedProfile.getBirthDate(),
+                savedProfile.getGender(),
+                savedProfile.getCurrentAge(),
+                savedProfile.getRetirementAge(),
+                savedProfile.getLifeExpectancy(),
+                savedProfile.getLifeExpectancyAtRetirement(),
+                savedProfile.getMarriageYear(),
+                savedProfile.getCareerInsuranceType(),
+                savedProfile.getBiography()
+        );
     }
 
     @Override
     @Transactional
     public void deleteClient(UUID clientId) {
-        // ... (Your existing logic is preserved)
+        if (!clientProfileRepository.existsById(clientId)) {
+            log.warn("Attempted to delete a non-existent client with ID: {}", clientId);
+            return;
+        }
+        clientProfileRepository.deleteById(clientId);
+        log.info("✅ Successfully deleted client with ID: {}", clientId);
     }
 
     private ClientFullDataRes mapToFullDataRes(ClientProfileEntity entity) {
