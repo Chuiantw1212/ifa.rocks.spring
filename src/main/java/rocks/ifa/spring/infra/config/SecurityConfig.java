@@ -33,8 +33,8 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                // Status API
-                                "/api/v1/status",
+                                // Status API (root path)
+                                "/",
                                 // Public APIs
                                 "/api/v1/metadata/**",
                                 "/api/v1/agents/login",

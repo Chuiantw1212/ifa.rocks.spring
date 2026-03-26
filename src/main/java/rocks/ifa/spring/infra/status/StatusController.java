@@ -10,15 +10,15 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/status")
-@Tag(name = "Infra: Status", description = "伺服器狀態與健康檢查")
+@RequestMapping("/")
+@Tag(name = "Status API", description = "提供伺服器狀態與健康檢查")
 @RequiredArgsConstructor
 public class StatusController {
 
     private final StatusService statusService;
 
     @GetMapping
-    @Operation(summary = "獲取當前伺服器運行狀態")
+    @Operation(summary = "獲取伺服器資源狀態", description = "回傳一個包含當前記憶體、CPU等核心指標的JSON物件。")
     public Map<String, Object> getServerStatus() {
         return statusService.getServerStatus();
     }
