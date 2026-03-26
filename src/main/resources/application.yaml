@@ -18,14 +18,17 @@ spring:
     password: ${DB_PASSWORD:?DB_PASSWORD environment variable is not set}
     driver-class-name: org.postgresql.Driver
 
-mybatis:
-  mapper-locations: classpath:mapper/*.xml
-  type-aliases-package: rocks.ifa.spring.model
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
 
-# Production CORS settings
+# CORS settings
 app:
   cors:
     allowed-origins:
+      # For local development (e.g., Vite, React Dev Server)
+      - http://localhost:5173
+      # For production
       - https://ifa.rocks
 
 management:

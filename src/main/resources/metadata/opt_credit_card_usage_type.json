@@ -1,0 +1,56 @@
+{
+  "id": "opt_credit_card_usage_type",
+  "name": "信用卡資金用途分類配置",
+  "version": "1.0",
+  "list": [
+    { 
+      "code": "daily", 
+      "label": "日常生活", 
+      "color": "success", 
+      "desc": "超商餐飲、加油等日常開銷",
+      "sort": 1
+    },
+    { 
+      "code": "subscription", 
+      "label": "固定訂閱", 
+      "color": "warning", 
+      "desc": "水電保費、串流等自動扣款",
+      "sort": 2
+    },
+    { 
+      "code": "online", 
+      "label": "網購/行動支付", 
+      "color": "primary", 
+      "desc": "網購平台與行動支付專用",
+      "sort": 3
+    },
+    { 
+      "code": "travel", 
+      "label": "旅遊/海外", 
+      "color": "primary", 
+      "desc": "機票住宿、海外實體消費",
+      "sort": 4
+    },
+    { 
+      "code": "project", 
+      "label": "專案/代墊", 
+      "color": "danger", 
+      "desc": "公司代墊、公務報銷使用",
+      "sort": 5
+    },
+    { 
+      "code": "installment", 
+      "label": "大額分期", 
+      "color": "info", 
+      "desc": "3C家電等零利率分期",
+      "sort": 6
+    },
+    { 
+      "code": "backup", 
+      "label": "備用/其他", 
+      "color": "info", 
+      "desc": "低頻使用或特殊聯名卡",
+      "sort": 7
+    }
+  ]
+}

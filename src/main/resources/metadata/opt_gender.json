@@ -1,0 +1,8 @@
+{
+  "id": "opt_gender",
+  "name": "性別選項配置",
+  "list": [
+    { "code": "MALE", "label": "男性", "icon": "Male", "sort": 1 },
+    { "code": "FEMALE", "label": "女性", "icon": "Female", "sort": 2 }
+  ]
+}

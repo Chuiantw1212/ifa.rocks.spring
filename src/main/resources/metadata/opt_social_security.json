@@ -1,0 +1,37 @@
+{
+  "id": "opt_social_security",
+  "name": "社會保險身分",
+  "description": "台灣社會保險制度類別",
+  "list": [
+    { 
+      "code": "LABOR", 
+      "label": "勞工保險 (勞保)", 
+      "sort": 1 
+    },
+    { 
+      "code": "GOV", 
+      "label": "公教人員保險 (公保)", 
+      "sort": 2,
+	  "disabled": true
+    },
+    { 
+      "code": "MILITARY", 
+      "label": "軍人保險 (軍保)", 
+      "sort": 3,
+	  "disabled": true
+    },
+    { 
+      "code": "FARMER", 
+      "label": "農民保險 (農保)", 
+      "sort": 4,
+	  "disabled": true
+    },
+    { 
+      "code": "NATIONAL", 
+      "label": "國民年金 (國保)", 
+      "description": "無上述保險者適用",
+      "sort": 5,
+	  "disabled": true
+    }
+  ]
+}

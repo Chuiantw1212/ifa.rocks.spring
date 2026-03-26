@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+src/main/resources/service_account_key.json
+
+.claude/worktrees/
