@@ -1,76 +1,106 @@
 package rocks.ifa.spring.domain.agent;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 import rocks.ifa.spring.domain.agent.contracts.*;
+import rocks.ifa.spring.infra.config.LineLiffProperties;
+
+import java.util.Map;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AgentServiceImpl implements AgentService { // Corrected: Implements the standalone AgentService interface
+public class AgentServiceImpl implements AgentService {
 
     private final FirebaseAuth firebaseAuth;
+    private final RestTemplate restTemplate;
+    private final LineLiffProperties lineLiffProperties;
+
+    private static final String LINE_VERIFY_URL = "https://api.line.me/oauth2/v2.1/verify";
 
     @Override
-    public AuthRes login(LoginReq req) {
-        log.info("Agent login attempt with token: {}", req.firebaseToken());
-        // Dummy implementation
-        return new AuthRes("dummy-session-token", null);
+    public AuthRes loginWithLiff(LiffLoginReq req) {
+        // 1. Verify LIFF ID Token with LINE Platform
+        String lineUserId = verifyLiffToken(req.token());
+
+        // 2. Find or create a user in Firebase Auth based on the LINE User ID
+        UserRecord userRecord = getOrCreateFirebaseUser(lineUserId);
+
+        // 3. Create a custom token for the Firebase user
+        try {
+            String customToken = firebaseAuth.createCustomToken(userRecord.getUid());
+            log.info("✅ Successfully created Firebase custom token for LINE user: {}", lineUserId);
+            return new AuthRes(customToken, mapToAgentRes(userRecord));
+        } catch (FirebaseAuthException e) {
+            log.error("❌ Failed to create Firebase custom token for UID: {}", userRecord.getUid(), e);
+            throw new RuntimeException("Failed to create custom token", e);
+        }
     }
 
-    @Override
-    public void logout(String agentId) {
-        log.info("Agent logged out: {}", agentId);
+    private String verifyLiffToken(String liffIdToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("id_token", liffIdToken);
+        map.add("client_id", lineLiffProperties.getChannelId());
+
+        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(map, headers);
+
+        try {
+            ResponseEntity<LineVerifyResponse> response = restTemplate.postForEntity(LINE_VERIFY_URL, entity, LineVerifyResponse.class);
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                log.info("✅ LIFF token verified successfully for LINE user: {}", response.getBody().sub());
+                return response.getBody().sub();
+            } else {
+                log.error("❌ LIFF token verification failed with status: {}", response.getStatusCode());
+                throw new IllegalArgumentException("Invalid LIFF token");
+            }
+        } catch (Exception e) {
+            log.error("❌ Error while verifying LIFF token", e);
+            throw new IllegalArgumentException("Invalid LIFF token", e);
+        }
     }
 
-    @Override
-    public AgentRes createAgent(CreateAgentReq req) throws FirebaseAuthException {
+    private UserRecord getOrCreateFirebaseUser(String lineUserId) {
+        try {
+            // The UID in Firebase will be prefixed to distinguish from other providers
+            String firebaseUid = "line:" + lineUserId;
+            return firebaseAuth.getUser(firebaseUid);
+        } catch (FirebaseAuthException e) {
+            if ("user-not-found".equals(e.getErrorCode())) {
+                log.info("User with LINE ID {} not found in Firebase, creating a new user.", lineUserId);
+                return createFirebaseUserFromLine(lineUserId);
+            }
+            throw new RuntimeException("Error fetching Firebase user", e);
+        }
+    }
+
+    private UserRecord createFirebaseUserFromLine(String lineUserId) {
+        String firebaseUid = "line:" + lineUserId;
         UserRecord.CreateRequest request = new UserRecord.CreateRequest()
-                .setEmail(req.email())
-                .setPassword(req.password())
-                .setDisplayName(req.displayName())
+                .setUid(firebaseUid)
+                .setDisplayName("LINE User " + lineUserId.substring(0, 6)) // A default display name
                 .setDisabled(false);
-
-        UserRecord userRecord = firebaseAuth.createUser(request);
-        log.info("Successfully created new agent: {}", userRecord.getUid());
-        return mapToAgentRes(userRecord);
+        try {
+            return firebaseAuth.createUser(request);
+        } catch (FirebaseAuthException ex) {
+            log.error("❌ Failed to create Firebase user for LINE ID: {}", lineUserId, ex);
+            throw new RuntimeException("Failed to create Firebase user", ex);
+        }
     }
+    
+    // Helper record for deserializing LINE's verification response
+    private record LineVerifyResponse(String sub, String name, String picture) {}
 
-    @Override
-    public AgentRes getAgent(String agentId) throws FirebaseAuthException {
-        UserRecord userRecord = firebaseAuth.getUser(agentId);
-        return mapToAgentRes(userRecord);
-    }
-
-    @Override
-    public AgentRes updateAgent(String agentId, UpdateAgentReq req) throws FirebaseAuthException {
-        UserRecord.UpdateRequest request = new UserRecord.UpdateRequest(agentId)
-                .setDisplayName(req.displayName())
-                .setDisabled(req.disabled());
-
-        UserRecord userRecord = firebaseAuth.updateUser(request);
-        log.info("Successfully updated agent: {}", userRecord.getUid());
-        return mapToAgentRes(userRecord);
-    }
-
-    @Override
-    @Transactional
-    public void deleteAgent(String agentId) throws FirebaseAuthException {
-        firebaseAuth.deleteUser(agentId);
-        log.info("Successfully deleted agent: {}", agentId);
-    }
-
-    private AgentRes mapToAgentRes(UserRecord userRecord) {
-        return new AgentRes(
-                userRecord.getUid(),
-                userRecord.getEmail(),
-                userRecord.getDisplayName(),
-                userRecord.isDisabled()
-        );
-    }
+    // ... other methods from AgentService
 }

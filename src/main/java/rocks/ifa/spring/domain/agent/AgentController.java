@@ -24,6 +24,12 @@ public class AgentController {
         return ResponseEntity.ok(agentService.login(req));
     }
 
+    @Operation(summary = "顧問透過 LINE LIFF 登入")
+    @PostMapping("/auth/liff")
+    public ResponseEntity<AuthRes> loginWithLiff(@RequestBody @Valid LiffLoginReq req) {
+        return ResponseEntity.ok(agentService.loginWithLiff(req));
+    }
+
     @Operation(summary = "顧問登出")
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@RequestHeader("Authorization") String token) {
