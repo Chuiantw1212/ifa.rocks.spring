@@ -33,12 +33,12 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                // Spring Actuator
-                                "/actuator/health",
+                                // Status API
+                                "/api/v1/status",
                                 // Public APIs
                                 "/api/v1/metadata/**",
                                 "/api/v1/agents/login",
-                                // Admin tools - made public for convenience
+                                // Admin tools
                                 "/api/v1/admin/**"
                         )
                         .permitAll()
