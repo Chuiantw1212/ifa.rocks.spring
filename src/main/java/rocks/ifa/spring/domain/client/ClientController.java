@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import rocks.ifa.spring.domain.client.contracts.CreateClientReq;
 import rocks.ifa.spring.domain.client.contracts.ClientFullDataRes;
+import rocks.ifa.spring.domain.clientProfile.contracts.ProfileRes;
 import rocks.ifa.spring.infra.security.SecurityUtils;
 import rocks.ifa.spring.infra.common.PageResponse;
 
@@ -25,7 +26,7 @@ public class ClientController {
     @Operation(summary = "建立新客戶")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ClientProfileContracts.ProfileRes createClient(@RequestBody @Valid CreateClientReq req) {
+    public ProfileRes createClient(@RequestBody @Valid CreateClientReq req) {
         String agentFirebaseUid = SecurityUtils.getCurrentAgentUid();
         return clientService.createClient(req, agentFirebaseUid);
     }

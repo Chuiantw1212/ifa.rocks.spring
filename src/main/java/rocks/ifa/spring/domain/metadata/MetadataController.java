@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import rocks.ifa.spring.domain.metadata.contracts.LifeExpectancyRes;
 
 import java.io.IOException;
 import java.util.Map;
@@ -26,15 +27,16 @@ public class MetadataController {
 
     @Operation(summary = "查詢預期壽命")
     @GetMapping("/life-expectancy")
-    public ResponseEntity<MetadataContracts.LifeExpectancyRes> getLifeExpectancy(
+    public ResponseEntity<LifeExpectancyRes> getLifeExpectancy(
             @Parameter(description = "年份", example = "2025") @RequestParam Integer year,
             @Parameter(description = "性別 (MALE/FEMALE)", example = "MALE") @RequestParam String gender,
             @Parameter(description = "目前年齡", example = "30") @RequestParam Integer age) {
+        
         if (age < 0 || age > 150) {
             return ResponseEntity.badRequest().build();
         }
 
-        MetadataContracts.LifeExpectancyRes result = metadataService.getLifeExpectancy(year, gender, age);
+        LifeExpectancyRes result = metadataService.getLifeExpectancy(year, gender, age);
 
         if (result == null) {
             return ResponseEntity.notFound().build();
