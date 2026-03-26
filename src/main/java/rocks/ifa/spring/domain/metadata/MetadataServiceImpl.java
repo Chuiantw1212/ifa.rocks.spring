@@ -2,13 +2,14 @@ package rocks.ifa.spring.domain.metadata;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.api.core.ApiFuture; // Added the missing import
+import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Service;
+import rocks.ifa.spring.domain.metadata.contracts.LifeExpectancyRes; // Added the missing import
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,7 +46,7 @@ public class MetadataServiceImpl implements MetadataService {
     }
 
     @Override
-    public MetadataContracts.LifeExpectancyRes getLifeExpectancy(Integer year, String gender, Integer age) {
+    public LifeExpectancyRes getLifeExpectancy(Integer year, String gender, Integer age) {
         String ageSuffix = (age >= 100) ? "null" : String.valueOf(age);
         String docKey = year + "_" + gender + "_" + ageSuffix;
         try {
