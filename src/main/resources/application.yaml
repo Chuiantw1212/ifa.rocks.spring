@@ -13,9 +13,11 @@ spring:
     name: ifa.rocks.spring
   
   datasource:
-    url: jdbc:postgresql://ep-tiny-scene-a17efgr6-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+    # This URL is now controlled by an environment variable.
+    # See DEPLOYMENT_GUIDE.md for how to set it in different environments.
+    url: ${DATASOURCE_URL:?DATASOURCE_URL environment variable is not set}
     username: neondb_owner
-    password: ${DB_PASSWORD:?DB_PASSWORD environment variable is not set}
+    password: ${DATASOURCE_PASSWORD:?DATASOURCE_PASSWORD environment variable is not set}
     driver-class-name: org.postgresql.Driver
 
   flyway:
