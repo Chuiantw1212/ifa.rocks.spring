@@ -12,7 +12,7 @@ import rocks.ifa.spring.domain.agent.contracts.*;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AgentServiceImpl implements AgentRepository.AgentService {
+public class AgentServiceImpl implements AgentService { // Corrected: Implements the standalone AgentService interface
 
     private final FirebaseAuth firebaseAuth;
 

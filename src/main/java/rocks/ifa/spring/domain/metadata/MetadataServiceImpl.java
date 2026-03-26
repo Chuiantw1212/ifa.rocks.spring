@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Service;
-import rocks.ifa.spring.domain.metadata.contracts.LifeExpectancyRes; // Added the missing import
+import rocks.ifa.spring.domain.metadata.contracts.LifeExpectancyRes;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,7 +54,7 @@ public class MetadataServiceImpl implements MetadataService {
             if (doc.exists()) {
                 Double val = doc.getDouble("expected_lifespan");
                 BigDecimal lifespan = (val != null) ? BigDecimal.valueOf(val) : BigDecimal.ZERO;
-                return new MetadataContracts.LifeExpectancyRes(year, gender, age, lifespan);
+                return new LifeExpectancyRes(year, gender, age, lifespan);
             } else {
                 log.warn("Life expectancy data not found for key: {}", docKey);
                 return null;
@@ -97,18 +97,16 @@ public class MetadataServiceImpl implements MetadataService {
     @Override
     public void syncLifeTable() {
         try {
-            // Use the injected resourceResolver instead of creating a new one
             Resource[] resources = resourceResolver.getResources("classpath:metadata/*.json");
             log.info("📂 [LifeTable] Searching for life table config file...");
             boolean found = false;
             for (Resource resource : resources) {
-                try (InputStream is = resource.getInputStream()) {
-                    Map<String, Object> data = objectMapper.readValue(is, new TypeReference<Map<String, Object>>() {});
-                    String docId = (String) data.get("id");
-                    if (LIFE_TABLE_COLLECTION.equals(docId)) {
+                if (LIFE_TABLE_COLLECTION.equals(resource.getFilename())) {
+                    try (InputStream is = resource.getInputStream()) {
+                        Map<String, Object> data = objectMapper.readValue(is, new TypeReference<>() {});
                         found = true;
                         log.info("🚀 Found life table file, starting batch update process...");
-                        processLifeTableBatch(docId, data);
+                        processLifeTableBatch((String) data.get("id"), data);
                         break;
                     }
                 }
@@ -123,54 +121,40 @@ public class MetadataServiceImpl implements MetadataService {
     }
 
     private void processLifeTableBatch(String collectionName, Map<String, Object> sourceData) throws Exception {
-        List<Map<String, Object>> list = objectMapper.convertValue(sourceData.get("list"),
-                new TypeReference<List<Map<String, Object>>>() {
-                });
-
+        List<Map<String, Object>> list = objectMapper.convertValue(sourceData.get("list"), new TypeReference<>() {});
         if (list == null || list.isEmpty()) {
-            log.warn("生命表 list 為空，不進行寫入");
+            log.warn("Life table list is empty, skipping write.");
             return;
         }
-
-        log.info("📊 準備處理 {} 筆生命表數據...", list.size());
-
+        log.info("📊 Preparing to process {} life table records...", list.size());
         WriteBatch batch = firestore.batch();
         int batchCount = 0;
         int totalCount = 0;
-
         for (Map<String, Object> row : list) {
             Integer year = (Integer) row.get("year");
             String gender = (String) row.get("gender");
             Integer age = (Integer) row.get("age");
-
             Object lifespanObj = row.get("expected_lifespan");
             Double lifespan = (lifespanObj instanceof Number) ? ((Number) lifespanObj).doubleValue() : 0.0;
-
             String docKey = year + "_" + gender + "_" + age;
-
             Map<String, Object> docData = new HashMap<>();
             docData.put("year", year);
             docData.put("gender", gender);
             docData.put("age", age);
             docData.put("expected_lifespan", lifespan);
-
             DocumentReference docRef = firestore.collection(collectionName).document(docKey);
             batch.set(docRef, docData);
-
             batchCount++;
             totalCount++;
-
             if (batchCount >= 500) {
                 batch.commit().get();
                 batch = firestore.batch();
                 batchCount = 0;
             }
         }
-
         if (batchCount > 0) {
             batch.commit().get();
         }
-
-        log.info("✨ 生命表同步完成！(已將 {} 筆資料更新至 {})", totalCount, collectionName);
+        log.info("✨ Life table sync complete! ({} records updated in {})", totalCount, collectionName);
     }
 }
