@@ -1,9 +1,52 @@
-# ... (existing config)
-
-# LINE LIFF Integration Settings
+# Main/Production Configuration
 line:
   liff:
     # Your LIFF Channel ID, should be set via environment variable in production
     channel-id: ${LINE_LIFF_CHANNEL_ID:?LINE_LIFF_CHANNEL_ID is not set}
 
-# ... (rest of the config)
+server:
+  port: ${PORT:8080}
+  # Tell Spring Boot to trust the X-Forwarded-* headers from the reverse proxy (Cloud Run)
+  forward-headers-strategy: NATIVE
+
+spring:
+  # Always try to include the 'local' profile.
+  profiles:
+    include: local
+
+  application:
+    name: ifa.rocks.spring
+
+  datasource:
+    # This URL is now controlled by an environment variable.
+    # See DEPLOYMENT_GUIDE.md for how to set it in different environments.
+    url: ${DATASOURCE_URL:?DATASOURCE_URL environment variable is not set}
+    username: neondb_owner
+    password: ${DATASOURCE_PASSWORD:?DATASOURCE_PASSWORD environment variable is not set}
+    driver-class-name: org.postgresql.Driver
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+
+# CORS settings
+app:
+  cors:
+    allowed-origins:
+      # For local development (e.g., Vite, React Dev Server)
+      - http://localhost:5173
+      # For production
+      - https://ifa.rocks
+      - https://ifa-rocks.web.app
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+springdoc:
+  show-actuator: true
