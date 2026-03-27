@@ -17,6 +17,7 @@ import rocks.ifa.spring.domain.agent.contracts.*;
 public class AgentController {
 
     private final AgentService agentService;
+    private final LiffAuthService liffAuthService; // Inject LiffAuthService
 
     @Operation(summary = "顧問登入")
     @PostMapping("/login")
@@ -27,7 +28,7 @@ public class AgentController {
     @Operation(summary = "顧問透過 LINE LIFF 登入")
     @PostMapping("/auth/liff")
     public ResponseEntity<AuthRes> loginWithLiff(@RequestBody @Valid LiffLoginReq req) {
-        return ResponseEntity.ok(agentService.loginWithLiff(req));
+        return ResponseEntity.ok(liffAuthService.loginWithLiff(req)); // Call LiffAuthService
     }
 
     @Operation(summary = "顧問登出")
