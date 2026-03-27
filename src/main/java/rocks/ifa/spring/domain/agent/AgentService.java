@@ -7,7 +7,6 @@ public interface AgentService {
 
     // === Authentication ===
     AuthRes login(LoginReq req);
-    AuthRes loginWithLiff(LiffLoginReq req);
     void logout(String agentId);
 
     // === CRUD Operations ===

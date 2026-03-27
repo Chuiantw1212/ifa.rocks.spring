@@ -15,9 +15,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import rocks.ifa.spring.domain.agent.contracts.AgentRes; // Added the missing import
 import rocks.ifa.spring.domain.agent.contracts.AuthRes;
 import rocks.ifa.spring.domain.agent.contracts.LiffLoginReq;
 import rocks.ifa.spring.infra.config.LineLiffProperties;
+
+import java.util.Map;
 
 @Slf4j
 @Service
