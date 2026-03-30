@@ -11,4 +11,12 @@ public interface ClientProfileRepository extends JpaRepository<ClientProfileEnti
     boolean existsByAgentFirebaseUid(String agentFirebaseUid);
     void deleteByAgentFirebaseUid(String agentFirebaseUid);
     Page<ClientProfileEntity> findAllByAgentFirebaseUid(String agentFirebaseUid, Pageable pageable);
+
+    /**
+     * Finds a client profile by their email address.
+     * Used for client login and account binding.
+     * @param email The client's email address.
+     * @return An Optional containing the client profile if found.
+     */
+    Optional<ClientProfileEntity> findByEmail(String email);
 }
