@@ -2,6 +2,7 @@ package rocks.ifa.spring.domain.agent;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,15 +16,20 @@ import rocks.ifa.spring.domain.agent.contracts.*;
 public class AgentServiceImpl implements AgentService {
 
     private final FirebaseAuth firebaseAuth;
+    private final AuthService authService;
 
     @Override
     public AuthRes login(LoginReq req) {
-        log.info("Agent login attempt with token: {}", req.firebaseToken());
-        // Dummy implementation
-        return new AuthRes("dummy-session-token", null);
+        try {
+            FirebaseToken decodedToken = firebaseAuth.verifyIdToken(req.firebaseToken());
+            UserRecord userRecord = firebaseAuth.getUser(decodedToken.getUid());
+            log.info("Successfully verified Firebase ID token for user: {}", userRecord.getEmail());
+            return authService.handlePostLogin(userRecord);
+        } catch (FirebaseAuthException e) {
+            log.error("❌ Firebase ID token verification failed", e);
+            throw new RuntimeException("Invalid Firebase token", e);
+        }
     }
-
-    // Removed loginWithLiff and its helper methods
 
     @Override
     public void logout(String agentId) {
@@ -61,6 +67,7 @@ public class AgentServiceImpl implements AgentService {
     }
 
     @Override
+    @Transactional
     public void deleteAgent(String agentId) throws FirebaseAuthException {
         firebaseAuth.deleteUser(agentId);
         log.info("Successfully deleted agent: {}", agentId);
