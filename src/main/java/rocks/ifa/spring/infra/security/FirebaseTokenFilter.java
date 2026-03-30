@@ -27,7 +27,7 @@ import java.util.ArrayList;
 public class FirebaseTokenFilter extends OncePerRequestFilter {
 
     private final FirebaseAuth firebaseAuth;
-    private final AuthService authService; // Inject AuthService
+    private final AuthService authService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -43,12 +43,13 @@ public class FirebaseTokenFilter extends OncePerRequestFilter {
             FirebaseToken decodedToken = firebaseAuth.verifyIdToken(token);
             UserRecord userRecord = firebaseAuth.getUser(decodedToken.getUid());
 
-            // Centralized post-login handling
-            AuthRes authRes = authService.handlePostLogin(userRecord);
+            // This is the crucial step:
+            // On every valid token, we check for client binding.
+            authService.handlePostLogin(userRecord);
 
-            // Set the rich authentication object in the security context
+            // For authorization, we still put the UserRecord in the context.
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    authRes, decodedToken, new ArrayList<>());
+                    userRecord, decodedToken, new ArrayList<>());
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
         } catch (FirebaseAuthException e) {
