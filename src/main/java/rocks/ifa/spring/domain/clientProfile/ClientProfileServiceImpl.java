@@ -145,10 +145,21 @@ public class ClientProfileServiceImpl implements ClientProfileService {
 
     private ProfileRes convertToRes(ClientProfileEntity entity) {
         return new ProfileRes(
-            entity.getId(), entity.getName(), entity.getEmail(), entity.getPhone(), entity.getLineId(),
-            entity.getBirthDate(), entity.getGender(), entity.getCurrentAge(), entity.getRetirementAge(),
-            entity.getLifeExpectancy(), entity.getLifeExpectancyAtRetirement(),
-            entity.getMarriageYear(), entity.getCareerInsuranceType(), entity.getBiography()
+            entity.getId(),
+            entity.getClientFirebaseUid(), // Added new field
+            entity.getName(),
+            entity.getEmail(),
+            entity.getPhone(),
+            entity.getLineId(),
+            entity.getBirthDate(),
+            entity.getGender(),
+            entity.getCurrentAge(),
+            entity.getRetirementAge(),
+            entity.getLifeExpectancy(),
+            entity.getLifeExpectancyAtRetirement(),
+            entity.getMarriageYear(),
+            entity.getCareerInsuranceType(),
+            entity.getBiography()
         );
     }
 }

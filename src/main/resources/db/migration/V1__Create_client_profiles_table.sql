@@ -5,6 +5,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE client_profiles (
     id UUID PRIMARY KEY,
     agent_firebase_uid VARCHAR(255) NOT NULL,
+    client_firebase_uid VARCHAR(255), -- New field for client's own login
     name VARCHAR(255) NOT NULL,
     phone VARCHAR(255) NOT NULL,
     line_id VARCHAR(255) NOT NULL,
@@ -14,7 +15,7 @@ CREATE TABLE client_profiles (
     birth_date DATE,
     gender VARCHAR(255),
     current_age INTEGER,
-    retirement_age INTEGER, -- New field
+    retirement_age INTEGER,
     life_expectancy INTEGER,
     life_expectancy_at_retirement INTEGER,
     marriage_year INTEGER,
