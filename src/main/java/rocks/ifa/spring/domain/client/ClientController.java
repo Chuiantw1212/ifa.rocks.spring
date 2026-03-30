@@ -27,14 +27,14 @@ public class ClientController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ProfileRes createClient(@RequestBody @Valid CreateClientReq req) {
-        String agentFirebaseUid = SecurityUtils.getCurrentAgentUid();
+        String agentFirebaseUid = SecurityUtils.getCurrentUserUid();
         return clientService.createClient(req, agentFirebaseUid);
     }
 
     @Operation(summary = "獲取當前顧問的所有客戶列表 (分頁)")
     @GetMapping
     public PageResponse<ClientFullDataRes> listClients(Pageable pageable) {
-        String agentUid = SecurityUtils.getCurrentAgentUid();
+        String agentUid = SecurityUtils.getCurrentUserUid();
         return clientService.listClientsByAgent(agentUid, pageable);
     }
 
@@ -48,7 +48,7 @@ public class ClientController {
     @DeleteMapping("/{clientId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteClient(@PathVariable UUID clientId) {
-        String requesterUid = SecurityUtils.getCurrentAgentUid(); // Or getCurrentUserUid() if you have a unified method
+        String requesterUid = SecurityUtils.getCurrentUserUid();
         clientService.deleteClient(clientId, requesterUid);
     }
 }

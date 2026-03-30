@@ -35,7 +35,7 @@ public class ClientProfileController {
     @GetMapping
     @SecurityRequirement(name = "bearerAuth")
     public PageResponse<ProfileRes> listClientProfiles(Pageable pageable) {
-        String agentUid = SecurityUtils.getCurrentUserUid();
+        String agentUid = SecurityUtils.getCurrentUserUid(); // Corrected to use the unified method
         return clientProfileService.listClientProfilesByAgent(agentUid, pageable);
     }
 
