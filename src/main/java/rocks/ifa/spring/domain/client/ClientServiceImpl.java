@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import rocks.ifa.spring.domain.client.contracts.ClientFullDataRes;
 import rocks.ifa.spring.domain.client.contracts.CreateClientReq;
 import rocks.ifa.spring.domain.clientCareer.ClientCareerService;
@@ -20,6 +22,7 @@ import rocks.ifa.spring.domain.clientTax.ClientTaxService;
 import rocks.ifa.spring.infra.common.PageResponse;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -28,7 +31,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ClientServiceImpl implements ClientService {
 
-    private final ClientProfileRepository clientProfileRepository;
     private final ClientProfileService clientProfileService;
     private final ClientCareerService clientCareerService;
     private final ClientLaborPensionService clientLaborPensionService;
@@ -104,22 +106,8 @@ public class ClientServiceImpl implements ClientService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to delete this client.");
         }
 
-        // In a real app, you would delete all related sub-domain data here first.
-        // e.g., clientCareerRepository.deleteByClientId(clientId);
-
         clientProfileRepository.deleteById(clientId);
         log.info("✅ Successfully deleted client with ID: {} by requester: {}", clientId, requesterUid);
-    }
-
-    @Override
-    @Transactional
-    public void deleteClient(UUID clientId) {
-        if (!clientProfileRepository.existsById(clientId)) {
-            log.warn("Attempted to delete a non-existent client with ID: {}", clientId);
-            return;
-        }
-        clientProfileRepository.deleteById(clientId);
-        log.info("✅ Successfully deleted client with ID: {}", clientId);
     }
 
     private ClientFullDataRes mapToFullDataRes(ClientProfileEntity entity) {
