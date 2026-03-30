@@ -19,7 +19,9 @@ import rocks.ifa.spring.infra.common.PageResponse;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -114,10 +116,13 @@ public class ClientProfileServiceImpl implements ClientProfileService {
     @Override
     @Transactional
     public PageResponse<ProfileRes> listClientProfilesByAgent(String agentUid, Pageable pageable) {
-        Page<ClientProfileEntity> profilePage = clientProfileRepository.findAllByAgentFirebaseUid(agentUid, pageable);
+        Page<ClientProfileEntity> profilePage = clientProfileRepository.findAllByAgentFirebaseUidOrClientFirebaseUid(agentUid, agentUid, pageable);
         List<ClientProfileEntity> profiles = profilePage.getContent();
         profiles.forEach(this::bindClientFirebaseUid);
-        List<ProfileRes> dtoList = profiles.stream()
+        List<ClientProfileEntity> sortedProfiles = profiles.stream()
+                .sorted(Comparator.comparing(p -> !Objects.equals(p.getClientFirebaseUid(), agentUid)))
+                .collect(Collectors.toList());
+        List<ProfileRes> dtoList = sortedProfiles.stream()
                 .map(clientProfileMapper::toProfileRes)
                 .collect(Collectors.toList());
         return new PageResponse<>(dtoList, profilePage.getTotalElements(), profilePage.getNumber(), profilePage.getSize());
