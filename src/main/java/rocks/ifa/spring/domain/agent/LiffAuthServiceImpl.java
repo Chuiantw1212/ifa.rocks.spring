@@ -1,53 +1,44 @@
 package rocks.ifa.spring.domain.agent;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
-import rocks.ifa.spring.domain.agent.contracts.AgentRes; // Added the missing import
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
+import rocks.ifa.spring.domain.agent.contracts.AgentRes;
 import rocks.ifa.spring.domain.agent.contracts.AuthRes;
 import rocks.ifa.spring.domain.agent.contracts.LiffLoginReq;
 import rocks.ifa.spring.infra.config.LineLiffProperties;
 
-import java.util.Map;
-
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class LiffAuthServiceImpl implements LiffAuthService {
 
     private final FirebaseAuth firebaseAuth;
-    private final RestTemplate restTemplate;
+    private final WebClient webClient;
     private final LineLiffProperties lineLiffProperties;
 
     private static final String LINE_VERIFY_URL = "https://api.line.me/oauth2/v2.1/verify";
 
+    public LiffAuthServiceImpl(FirebaseAuth firebaseAuth, WebClient.Builder webClientBuilder, LineLiffProperties lineLiffProperties) {
+        this.firebaseAuth = firebaseAuth;
+        this.webClient = webClientBuilder.baseUrl(LINE_VERIFY_URL).build();
+        this.lineLiffProperties = lineLiffProperties;
+    }
+
     @Override
     public AuthRes loginWithLiff(LiffLoginReq req) {
-        // 1. Verify LIFF ID Token with LINE Platform
         String lineUserId = verifyLiffToken(req.token());
-
-        // 2. Find or create a user in Firebase Auth based on the LINE User ID
         UserRecord userRecord = getOrCreateFirebaseUser(lineUserId);
-
-        // 3. Create a custom token for the Firebase user
         try {
             String customToken = firebaseAuth.createCustomToken(userRecord.getUid());
             log.info("✅ Successfully created Firebase custom token for LINE user: {}", lineUserId);
-            // Note: AgentRes is not directly part of LiffAuthService's responsibility,
-            // but it's needed for AuthRes. We'll create a minimal one here.
-            // In a real app, you might fetch full agent details from AgentService.
             return new AuthRes(customToken, new AgentRes(userRecord.getUid(), userRecord.getEmail(), userRecord.getDisplayName(), userRecord.isDisabled()));
         } catch (FirebaseAuthException e) {
             log.error("❌ Failed to create Firebase custom token for UID: {}", userRecord.getUid(), e);
@@ -56,27 +47,29 @@ public class LiffAuthServiceImpl implements LiffAuthService {
     }
 
     private String verifyLiffToken(String liffIdToken) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+        formData.add("id_token", liffIdToken);
+        formData.add("client_id", lineLiffProperties.getChannelId());
 
-        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-        map.add("id_token", liffIdToken);
-        map.add("client_id", lineLiffProperties.getChannelId());
+        LineVerifyResponse response = webClient.post()
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .bodyValue(formData)
+                .retrieve()
+                .onStatus(status -> status.isError(), clientResponse ->
+                        clientResponse.bodyToMono(String.class)
+                                .flatMap(errorBody -> {
+                                    log.error("❌ LIFF token verification failed with status: {} and body: {}", clientResponse.statusCode(), errorBody);
+                                    return Mono.error(new IllegalArgumentException("Invalid LIFF token"));
+                                })
+                )
+                .bodyToMono(LineVerifyResponse.class)
+                .block(); // Block to get the result in a synchronous context
 
-        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(map, headers);
-
-        try {
-            ResponseEntity<LineVerifyResponse> response = restTemplate.postForEntity(LINE_VERIFY_URL, entity, LineVerifyResponse.class);
-            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-                log.info("✅ LIFF token verified successfully for LINE user: {}", response.getBody().sub());
-                return response.getBody().sub();
-            } else {
-                log.error("❌ LIFF token verification failed with status: {}", response.getStatusCode());
-                throw new IllegalArgumentException("Invalid LIFF token");
-            }
-        } catch (Exception e) {
-            log.error("❌ Error while verifying LIFF token", e);
-            throw new IllegalArgumentException("Invalid LIFF token", e);
+        if (response != null && response.sub() != null) {
+            log.info("✅ LIFF token verified successfully for LINE user: {}", response.sub());
+            return response.sub();
+        } else {
+            throw new IllegalArgumentException("Invalid LIFF token: response or subject is null");
         }
     }
 
@@ -107,7 +100,7 @@ public class LiffAuthServiceImpl implements LiffAuthService {
             throw new RuntimeException("Failed to create Firebase user", ex);
         }
     }
-    
-    // Helper record for deserializing LINE's verification response
-    private record LineVerifyResponse(String sub, String name, String picture) {}
+
+    private record LineVerifyResponse(String sub, String name, String picture) {
+    }
 }
