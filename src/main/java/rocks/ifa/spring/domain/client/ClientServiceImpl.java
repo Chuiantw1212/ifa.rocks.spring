@@ -14,6 +14,7 @@ import rocks.ifa.spring.domain.clientCareer.ClientCareerService;
 import rocks.ifa.spring.domain.clientLaborInsurance.ClientLaborInsuranceService;
 import rocks.ifa.spring.domain.clientLaborPension.ClientLaborPensionService;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileEntity;
+import rocks.ifa.spring.domain.clientProfile.ClientProfileMapper; // Import the mapper
 import rocks.ifa.spring.domain.clientProfile.ClientProfileRepository;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileService;
 import rocks.ifa.spring.domain.clientProfile.contracts.ProfileRes;
@@ -38,6 +39,7 @@ public class ClientServiceImpl implements ClientService {
     private final ClientRetirementService clientRetirementService;
     private final ClientTaxService clientTaxService;
     private final ClientProfileRepository clientProfileRepository;
+    private final ClientProfileMapper clientProfileMapper; // Add the mapper as a final field
 
     @Override
     public ClientFullDataRes getClientFullData(String clientUid) {
