@@ -14,5 +14,5 @@ public interface ClientProfileService {
     ProfileRes patchProfile(UUID clientId, PatchProfileReq req, String requesterUid);
     ProfileRes getProfile(String uid);
     PageResponse<ProfileRes> listClientProfilesByAgent(String agentUid, Pageable pageable);
-    ProfileRes getClientProfileById(UUID clientId);
+    ProfileRes getClientProfileById(UUID clientId, String requesterUid);
 }
