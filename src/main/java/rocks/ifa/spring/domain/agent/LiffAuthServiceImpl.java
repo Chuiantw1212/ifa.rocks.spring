@@ -16,6 +16,8 @@ import rocks.ifa.spring.domain.agent.contracts.LiffLoginReq;
 import rocks.ifa.spring.domain.agent.contracts.LineVerifyResponse;
 import rocks.ifa.spring.infra.config.LineLiffProperties;
 
+import java.util.Map;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -57,29 +59,36 @@ public class LiffAuthServiceImpl implements LiffAuthService {
     }
 
     private UserRecord getOrCreateFirebaseUser(LineVerifyResponse lineUser) {
-        String firebaseUid = "line:" + lineUser.sub();
-        try {
-            return firebaseAuth.getUser(firebaseUid);
-        } catch (FirebaseAuthException e) {
-            if ("user-not-found".equals(e.getErrorCode())) {
-                log.info("User with LINE ID {} not found in Firebase, creating a new user.", lineUser.sub());
-                return createFirebaseUserFromLine(firebaseUid, lineUser.email(), lineUser.name());
-            }
-            throw new RuntimeException("Error fetching Firebase user", e);
-        }
-    }
+        String email = lineUser.email();
+        String displayName = lineUser.name();
+        String lineUserId = lineUser.sub();
 
-    private UserRecord createFirebaseUserFromLine(String firebaseUid, String email, String displayName) {
-        UserRecord.CreateRequest request = new UserRecord.CreateRequest()
-                .setUid(firebaseUid)
-                .setEmail(email)
-                .setDisplayName(displayName)
-                .setDisabled(false);
         try {
-            return firebaseAuth.createUser(request);
-        } catch (FirebaseAuthException ex) {
-            log.error("❌ Failed to create Firebase user for email: {}", email, ex);
-            throw new RuntimeException("Failed to create Firebase user", ex);
+            UserRecord.CreateRequest request = new UserRecord.CreateRequest()
+                    .setEmail(email)
+                    .setDisplayName(displayName)
+                    .setDisabled(false);
+            
+            UserRecord newUserRecord = firebaseAuth.createUser(request);
+            log.info("✅ Successfully created a new Firebase user with email: {}", email);
+            
+            firebaseAuth.setCustomUserClaims(newUserRecord.getUid(), Map.of("lineUserId", lineUserId));
+            
+            return newUserRecord;
+
+        } catch (FirebaseAuthException e) {
+            if ("email-already-exists".equals(e.getErrorCode())) {
+                log.info("User with email {} already exists. Fetching existing user.", email);
+                try {
+                    return firebaseAuth.getUserByEmail(email);
+                } catch (FirebaseAuthException ex) {
+                    log.error("❌ Failed to fetch existing user by email: {}", email, ex);
+                    throw new RuntimeException("Failed to fetch existing user", ex);
+                }
+            } else {
+                log.error("❌ An unexpected Firebase error occurred during user creation for email: {}", email, e);
+                throw new RuntimeException("Firebase user creation failed", e);
+            }
         }
     }
 }
