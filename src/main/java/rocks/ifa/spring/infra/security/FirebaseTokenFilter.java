@@ -15,6 +15,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import rocks.ifa.spring.domain.agent.AuthService;
+import rocks.ifa.spring.domain.agent.contracts.AuthRes;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,6 +27,7 @@ import java.util.ArrayList;
 public class FirebaseTokenFilter extends OncePerRequestFilter {
 
     private final FirebaseAuth firebaseAuth;
+    private final AuthService authService; // Inject AuthService
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -40,9 +43,12 @@ public class FirebaseTokenFilter extends OncePerRequestFilter {
             FirebaseToken decodedToken = firebaseAuth.verifyIdToken(token);
             UserRecord userRecord = firebaseAuth.getUser(decodedToken.getUid());
 
-            // Set authentication in the security context, using the full UserRecord
+            // Centralized post-login handling
+            AuthRes authRes = authService.handlePostLogin(userRecord);
+
+            // Set the rich authentication object in the security context
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    userRecord, decodedToken, new ArrayList<>());
+                    authRes, decodedToken, new ArrayList<>());
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
         } catch (FirebaseAuthException e) {
