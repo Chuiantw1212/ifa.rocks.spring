@@ -27,18 +27,19 @@ public class ClientProfileServiceImpl implements ClientProfileService {
 
     private final ClientProfileRepository clientProfileRepository;
     private final MetadataService metadataService;
+    private final ClientProfileMapper clientProfileMapper; // Inject Mapper
 
     @Override
     public ProfileRes getClientProfileById(UUID clientId) {
         return clientProfileRepository.findById(clientId)
-                .map(this::convertToRes)
+                .map(clientProfileMapper::toProfileRes) // Use Mapper
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client profile not found"));
     }
 
     @Override
     public ProfileRes getProfile(String uid) {
         return clientProfileRepository.findByAgentFirebaseUid(uid)
-                .map(this::convertToRes)
+                .map(clientProfileMapper::toProfileRes) // Use Mapper
                 .orElseGet(() -> createDefaultProfile(uid));
     }
 
@@ -48,6 +49,7 @@ public class ClientProfileServiceImpl implements ClientProfileService {
         ClientProfileEntity entity = clientProfileRepository.findById(clientId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client profile not found"));
 
+        entity.setName(req.name());
         entity.setName(req.name());
         entity.setEmail(req.email());
         entity.setPhone(req.phone());
@@ -60,10 +62,8 @@ public class ClientProfileServiceImpl implements ClientProfileService {
         entity.setCareerInsuranceType(req.careerInsuranceType());
 
         updateLifeExpectancy(entity);
-
         ClientProfileEntity savedEntity = clientProfileRepository.save(entity);
-        log.info("✅ [Profile] Updated for client ID: {}", clientId);
-        return convertToRes(savedEntity);
+        return clientProfileMapper.toProfileRes(savedEntity); // Use Mapper
     }
 
     @Override
@@ -98,15 +98,14 @@ public class ClientProfileServiceImpl implements ClientProfileService {
         }
 
         ClientProfileEntity savedEntity = clientProfileRepository.save(entity);
-        log.info("✅ [Profile] Patched for client ID: {}", clientId);
-        return convertToRes(savedEntity);
+        return clientProfileMapper.toProfileRes(savedEntity); // Use Mapper
     }
 
     @Override
     public PageResponse<ProfileRes> listClientProfilesByAgent(String agentUid, Pageable pageable) {
         Page<ClientProfileEntity> profilePage = clientProfileRepository.findAllByAgentFirebaseUid(agentUid, pageable);
         List<ProfileRes> dtoList = profilePage.getContent().stream()
-                .map(this::convertToRes)
+                .map(clientProfileMapper::toProfileRes) // Use Mapper
                 .collect(Collectors.toList());
         return new PageResponse<>(dtoList, profilePage.getTotalElements(), profilePage.getNumber(), profilePage.getSize());
     }
@@ -122,8 +121,7 @@ public class ClientProfileServiceImpl implements ClientProfileService {
         newProfile.setRetirementAge(65);
 
         clientProfileRepository.save(newProfile);
-        log.info("✅ Minimal default profile created for UID: {}", uid);
-        return convertToRes(newProfile);
+        return clientProfileMapper.toProfileRes(newProfile); // Use Mapper
     }
 
     private void updateLifeExpectancy(ClientProfileEntity entity) {
@@ -141,25 +139,5 @@ public class ClientProfileServiceImpl implements ClientProfileService {
         if (retirementLifeExp != null) {
             entity.setLifeExpectancyAtRetirement(retirementLifeExp.expectedLifespan().intValue());
         }
-    }
-
-    private ProfileRes convertToRes(ClientProfileEntity entity) {
-        return new ProfileRes(
-            entity.getId(),
-            entity.getClientFirebaseUid(), // Added new field
-            entity.getName(),
-            entity.getEmail(),
-            entity.getPhone(),
-            entity.getLineId(),
-            entity.getBirthDate(),
-            entity.getGender(),
-            entity.getCurrentAge(),
-            entity.getRetirementAge(),
-            entity.getLifeExpectancy(),
-            entity.getLifeExpectancyAtRetirement(),
-            entity.getMarriageYear(),
-            entity.getCareerInsuranceType(),
-            entity.getBiography()
-        );
     }
 }

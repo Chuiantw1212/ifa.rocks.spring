@@ -72,25 +72,8 @@ public class ClientServiceImpl implements ClientService {
         ClientProfileEntity savedProfile = clientProfileRepository.save(newProfile);
         log.info("✅ Successfully created new client with ID: {} for Agent UID: {}", savedProfile.getId(), agentFirebaseUid);
 
-        return new ProfileRes(
-                savedProfile.getId(),
-                savedProfile.getClientFirebaseUid(), // The missing parameter is now added
-                savedProfile.getName(),
-                savedProfile.getEmail(),
-                savedProfile.getPhone(),
-                savedProfile.getLineId(),
-                savedProfile.getBirthDate(),
-                savedProfile.getGender(),
-                savedProfile.getCurrentAge(),
-                savedProfile.getRetirementAge(),
-                savedProfile.getLifeExpectancy(),
-                savedProfile.getLifeExpectancyAtRetirement(),
-                savedProfile.getMarriageYear(),
-                savedProfile.getCareerInsuranceType(),
-                savedProfile.getBiography()
-        );
+        return clientProfileMapper.toProfileRes(savedProfile); // Use Mapper
     }
-
 
     @Override
     @Transactional
