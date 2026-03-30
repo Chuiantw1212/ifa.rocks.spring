@@ -9,6 +9,7 @@ import rocks.ifa.spring.infra.common.PageResponse;
 import java.util.UUID;
 
 public interface ClientProfileService {
+    ProfileRes getOwnProfile(String clientFirebaseUid);
     ProfileRes updateProfile(UUID clientId, UpdateProfileReq req);
     ProfileRes patchProfile(UUID clientId, PatchProfileReq req);
     ProfileRes getProfile(String uid);
