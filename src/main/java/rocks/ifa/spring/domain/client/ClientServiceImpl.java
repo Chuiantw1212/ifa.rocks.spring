@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ClientServiceImpl implements ClientService {
 
+    private final ClientProfileRepository clientProfileRepository;
     private final ClientProfileService clientProfileService;
     private final ClientCareerService clientCareerService;
     private final ClientLaborPensionService clientLaborPensionService;
@@ -85,6 +86,29 @@ public class ClientServiceImpl implements ClientService {
                 savedProfile.getCareerInsuranceType(),
                 savedProfile.getBiography()
         );
+    }
+
+
+    @Override
+    @Transactional
+    public void deleteClient(UUID clientId, String requesterUid) {
+        ClientProfileEntity clientProfile = clientProfileRepository.findById(clientId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client not found"));
+
+        // Security Check: Requester must be the agent who owns the client OR the client themselves.
+        boolean isOwnerAgent = Objects.equals(requesterUid, clientProfile.getAgentFirebaseUid());
+        boolean isClientSelf = Objects.equals(requesterUid, clientProfile.getClientFirebaseUid());
+
+        if (!isOwnerAgent && !isClientSelf) {
+            log.warn("Unauthorized attempt to delete client {}. Requester UID: {}", clientId, requesterUid);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to delete this client.");
+        }
+
+        // In a real app, you would delete all related sub-domain data here first.
+        // e.g., clientCareerRepository.deleteByClientId(clientId);
+
+        clientProfileRepository.deleteById(clientId);
+        log.info("✅ Successfully deleted client with ID: {} by requester: {}", clientId, requesterUid);
     }
 
     @Override

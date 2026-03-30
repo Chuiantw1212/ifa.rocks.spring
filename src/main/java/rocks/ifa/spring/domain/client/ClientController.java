@@ -48,6 +48,7 @@ public class ClientController {
     @DeleteMapping("/{clientId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteClient(@PathVariable UUID clientId) {
-        clientService.deleteClient(clientId);
+        String requesterUid = SecurityUtils.getCurrentAgentUid(); // Or getCurrentUserUid() if you have a unified method
+        clientService.deleteClient(clientId, requesterUid);
     }
 }

@@ -7,5 +7,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public record LineVerifyResponse(
     String sub, // The User ID for which the ID token was issued.
     String name,
-    String picture
+    String picture,
+    String email
 ) {}
