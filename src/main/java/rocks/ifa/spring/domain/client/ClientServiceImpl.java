@@ -74,6 +74,7 @@ public class ClientServiceImpl implements ClientService {
 
         return new ProfileRes(
                 savedProfile.getId(),
+                savedProfile.getClientFirebaseUid(), // The missing parameter is now added
                 savedProfile.getName(),
                 savedProfile.getEmail(),
                 savedProfile.getPhone(),
