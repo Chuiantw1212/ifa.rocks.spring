@@ -15,8 +15,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-import rocks.ifa.spring.domain.agent.AuthService;
-import rocks.ifa.spring.domain.agent.contracts.AuthRes;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,7 +25,6 @@ import java.util.ArrayList;
 public class FirebaseTokenFilter extends OncePerRequestFilter {
 
     private final FirebaseAuth firebaseAuth;
-    private final AuthService authService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -43,11 +40,8 @@ public class FirebaseTokenFilter extends OncePerRequestFilter {
             FirebaseToken decodedToken = firebaseAuth.verifyIdToken(token);
             UserRecord userRecord = firebaseAuth.getUser(decodedToken.getUid());
 
-            // This is the crucial step:
-            // On every valid token, we check for client binding.
-            authService.handlePostLogin(userRecord);
-
-            // For authorization, we still put the UserRecord in the context.
+            // The filter's only job is to authenticate and set the principal.
+            // Business logic like client binding is moved to the service layer.
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     userRecord, decodedToken, new ArrayList<>());
             SecurityContextHolder.getContext().setAuthentication(authentication);
