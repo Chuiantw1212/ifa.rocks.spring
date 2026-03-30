@@ -58,9 +58,11 @@ public class ClientProfileServiceImpl implements ClientProfileService {
 
     @Override
     @Transactional
-    public ProfileRes updateProfile(UUID clientId, UpdateProfileReq req) {
+    public ProfileRes updateProfile(UUID clientId, UpdateProfileReq req, String requesterUid) {
         ClientProfileEntity entity = clientProfileRepository.findById(clientId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client profile not found"));
+        
+        authorizeModification(requesterUid, entity);
 
         entity.setName(req.name());
         entity.setEmail(req.email());
@@ -80,9 +82,11 @@ public class ClientProfileServiceImpl implements ClientProfileService {
 
     @Override
     @Transactional
-    public ProfileRes patchProfile(UUID clientId, PatchProfileReq req) {
+    public ProfileRes patchProfile(UUID clientId, PatchProfileReq req, String requesterUid) {
         ClientProfileEntity entity = clientProfileRepository.findById(clientId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client profile not found"));
+
+        authorizeModification(requesterUid, entity);
 
         boolean needsLifeExpectancyUpdate = false;
         if (req.name() != null) entity.setName(req.name());
@@ -126,6 +130,16 @@ public class ClientProfileServiceImpl implements ClientProfileService {
                 .map(clientProfileMapper::toProfileRes)
                 .collect(Collectors.toList());
         return new PageResponse<>(dtoList, profilePage.getTotalElements(), profilePage.getNumber(), profilePage.getSize());
+    }
+
+    private void authorizeModification(String requesterUid, ClientProfileEntity entity) {
+        boolean isOwnerAgent = Objects.equals(requesterUid, entity.getAgentFirebaseUid());
+        boolean isClientSelf = Objects.equals(requesterUid, entity.getClientFirebaseUid());
+
+        if (!isOwnerAgent && !isClientSelf) {
+            log.warn("Unauthorized attempt to modify client profile {}. Requester UID: {}", entity.getId(), requesterUid);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to modify this profile.");
+        }
     }
 
     private ProfileRes createDefaultProfile(String uid) {

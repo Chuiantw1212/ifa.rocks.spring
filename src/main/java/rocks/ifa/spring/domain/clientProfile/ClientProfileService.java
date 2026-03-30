@@ -10,8 +10,8 @@ import java.util.UUID;
 
 public interface ClientProfileService {
     ProfileRes getOwnProfile(String clientFirebaseUid);
-    ProfileRes updateProfile(UUID clientId, UpdateProfileReq req);
-    ProfileRes patchProfile(UUID clientId, PatchProfileReq req);
+    ProfileRes updateProfile(UUID clientId, UpdateProfileReq req, String requesterUid);
+    ProfileRes patchProfile(UUID clientId, PatchProfileReq req, String requesterUid);
     ProfileRes getProfile(String uid);
     PageResponse<ProfileRes> listClientProfilesByAgent(String agentUid, Pageable pageable);
     ProfileRes getClientProfileById(UUID clientId);

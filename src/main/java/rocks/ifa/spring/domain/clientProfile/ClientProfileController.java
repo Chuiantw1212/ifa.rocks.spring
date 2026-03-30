@@ -35,14 +35,15 @@ public class ClientProfileController {
     @GetMapping
     @SecurityRequirement(name = "bearerAuth")
     public PageResponse<ProfileRes> listClientProfiles(Pageable pageable) {
-        String agentUid = SecurityUtils.getCurrentUserUid(); // Corrected to use the unified method
+        String agentUid = SecurityUtils.getCurrentUserUid();
         return clientProfileService.listClientProfilesByAgent(agentUid, pageable);
     }
 
-    @Operation(summary = "[顧問專用] 獲取單一客戶的基本資料")
+    @Operation(summary = "[顧問/客戶] 獲取單一客戶的基本資料 (需權限)")
     @GetMapping("/{clientId}")
     @SecurityRequirement(name = "bearerAuth")
     public ProfileRes getClientProfile(@PathVariable UUID clientId) {
+        // Note: This endpoint should also have an ownership check in the service layer.
         return clientProfileService.getClientProfileById(clientId);
     }
 
@@ -50,13 +51,15 @@ public class ClientProfileController {
     @PutMapping("/{clientId}")
     @SecurityRequirement(name = "bearerAuth")
     public ProfileRes updateProfile(@PathVariable UUID clientId, @RequestBody @Valid UpdateProfileReq req) {
-        return clientProfileService.updateProfile(clientId, req);
+        String requesterUid = SecurityUtils.getCurrentUserUid();
+        return clientProfileService.updateProfile(clientId, req, requesterUid);
     }
 
     @Operation(summary = "部分更新客戶個人資料 (PATCH)")
     @PatchMapping("/{clientId}")
     @SecurityRequirement(name = "bearerAuth")
     public ProfileRes patchProfile(@PathVariable UUID clientId, @RequestBody @Valid PatchProfileReq req) {
-        return clientProfileService.patchProfile(clientId, req);
+        String requesterUid = SecurityUtils.getCurrentUserUid();
+        return clientProfileService.patchProfile(clientId, req, requesterUid);
     }
 }
