@@ -11,30 +11,28 @@ public class SecurityUtils {
 
     /**
      * Gets the Firebase UID of the currently authenticated user.
+     * This is the single source of truth for the current user's UID.
      * @return The Firebase UID.
      */
     public static String getCurrentUserUid() {
-        return getCurrentUserRecord().getUid();
-    }
-
-    /**
-     * Gets the full UserRecord of the currently authenticated user.
-     * @return The Firebase UserRecord.
-     */
-    public static UserRecord getCurrentUserRecord() {
         Authentication authentication = getAuthentication();
         Object principal = authentication.getPrincipal();
 
-        if (principal instanceof UserRecord) {
-            return (UserRecord) principal;
-        } else if (principal instanceof AuthRes) {
-            // This case handles the initial login where the filter might store AuthRes
-            return ((AuthRes) principal).agent() != null 
-                ? new UserRecord.UpdateRequest(((AuthRes) principal).agent().uid()).getPhotoUrl() // This is a workaround to get a UserRecord-like object
-                : null; // Or handle client case appropriately
+        if (principal instanceof AuthRes) {
+            AuthRes authRes = (AuthRes) principal;
+            // The token is the most reliable part of the AuthRes
+            if (authRes.token() != null && authRes.agent() != null) {
+                return authRes.agent().uid();
+            }
+            // If it's a client login, agent() will be null, but we need a UID.
+            // This part might need refinement based on what UID is stored for clients.
+            // For now, let's assume the token itself contains enough info,
+            // but a direct UID is better.
+        } else if (principal instanceof UserRecord) {
+            return ((UserRecord) principal).getUid();
         }
         
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Invalid authentication principal type");
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Invalid authentication principal type: " + principal.getClass().getName());
     }
 
     private static Authentication getAuthentication() {
