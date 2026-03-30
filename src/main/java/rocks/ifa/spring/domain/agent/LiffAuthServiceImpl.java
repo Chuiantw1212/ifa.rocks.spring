@@ -14,6 +14,7 @@ import reactor.core.publisher.Mono;
 import rocks.ifa.spring.domain.agent.contracts.AgentRes;
 import rocks.ifa.spring.domain.agent.contracts.AuthRes;
 import rocks.ifa.spring.domain.agent.contracts.LiffLoginReq;
+import rocks.ifa.spring.domain.agent.contracts.LineVerifyResponse; // Import the new record
 import rocks.ifa.spring.infra.config.LineLiffProperties;
 
 @Slf4j
@@ -63,7 +64,7 @@ public class LiffAuthServiceImpl implements LiffAuthService {
                                 })
                 )
                 .bodyToMono(LineVerifyResponse.class)
-                .block(); // Block to get the result in a synchronous context
+                .block();
 
         if (response != null && response.sub() != null) {
             log.info("✅ LIFF token verified successfully for LINE user: {}", response.sub());
@@ -99,8 +100,5 @@ public class LiffAuthServiceImpl implements LiffAuthService {
             log.error("❌ Failed to create Firebase user for LINE ID: {}", lineUserId, ex);
             throw new RuntimeException("Failed to create Firebase user", ex);
         }
-    }
-
-    private record LineVerifyResponse(String sub, String name, String picture) {
     }
 }
