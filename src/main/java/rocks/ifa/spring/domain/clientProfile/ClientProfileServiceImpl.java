@@ -43,10 +43,11 @@ public class ClientProfileServiceImpl implements ClientProfileService {
     }
     
     @Override
-    public ProfileRes getClientProfileById(UUID clientId) {
-        return clientProfileRepository.findById(clientId)
-                .map(clientProfileMapper::toProfileRes)
+    public ProfileRes getClientProfileById(UUID clientId, String requesterUid) {
+        ClientProfileEntity entity = clientProfileRepository.findById(clientId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client profile not found"));
+        authorizeModification(requesterUid, entity);
+        return clientProfileMapper.toProfileRes(entity);
     }
 
     @Override
@@ -137,8 +138,8 @@ public class ClientProfileServiceImpl implements ClientProfileService {
         boolean isClientSelf = Objects.equals(requesterUid, entity.getClientFirebaseUid());
 
         if (!isOwnerAgent && !isClientSelf) {
-            log.warn("Unauthorized attempt to modify client profile {}. Requester UID: {}", entity.getId(), requesterUid);
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to modify this profile.");
+            log.warn("Unauthorized attempt to access client profile {}. Requester UID: {}", entity.getId(), requesterUid);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to access this profile.");
         }
     }
 

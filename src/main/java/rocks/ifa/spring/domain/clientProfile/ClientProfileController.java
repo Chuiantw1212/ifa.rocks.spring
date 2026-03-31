@@ -43,8 +43,8 @@ public class ClientProfileController {
     @GetMapping("/{clientId}")
     @SecurityRequirement(name = "bearerAuth")
     public ProfileRes getClientProfile(@PathVariable UUID clientId) {
-        // Note: This endpoint should also have an ownership check in the service layer.
-        return clientProfileService.getClientProfileById(clientId);
+        String requesterUid = SecurityUtils.getCurrentUserUid();
+        return clientProfileService.getClientProfileById(clientId, requesterUid);
     }
 
     @Operation(summary = "更新客戶個人資料 (PUT)")
