@@ -1,4 +1,9 @@
 # Main/Production Configuration
+line:
+  liff:
+    # Your LIFF Channel ID, should be set via environment variable in production
+    channel-id: ${LINE_LIFF_CHANNEL_ID:?LINE_LIFF_CHANNEL_ID is not set}
+
 server:
   port: ${PORT:8080}
   # Tell Spring Boot to trust the X-Forwarded-* headers from the reverse proxy (Cloud Run)
@@ -11,7 +16,7 @@ spring:
 
   application:
     name: ifa.rocks.spring
-  
+
   datasource:
     # This URL is now controlled by an environment variable.
     # See DEPLOYMENT_GUIDE.md for how to set it in different environments.

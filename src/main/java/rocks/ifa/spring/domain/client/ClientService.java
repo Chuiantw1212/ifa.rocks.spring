@@ -16,5 +16,5 @@ public interface ClientService {
 
     ProfileRes createClient(CreateClientReq req, String agentFirebaseUid);
 
-    void deleteClient(UUID clientId);
+    void deleteClient(UUID clientId, String requesterUid);
 }

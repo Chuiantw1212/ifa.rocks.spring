@@ -1,6 +1,7 @@
 package rocks.ifa.spring.domain.clientProfile;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,28 +23,43 @@ public class ClientProfileController {
 
     private final ClientProfileService clientProfileService;
 
-    @Operation(summary = "獲取當前顧問的所有客戶基本資料列表 (分頁)")
+    @Operation(summary = "[客戶專用] 獲取自己的個人基本資料")
+    @GetMapping("/me")
+    @SecurityRequirement(name = "bearerAuth")
+    public ProfileRes getOwnProfile() {
+        String clientFirebaseUid = SecurityUtils.getCurrentUserUid();
+        return clientProfileService.getOwnProfile(clientFirebaseUid);
+    }
+
+    @Operation(summary = "[顧問專用] 獲取當前顧問的所有客戶基本資料列表 (分頁)")
     @GetMapping
+    @SecurityRequirement(name = "bearerAuth")
     public PageResponse<ProfileRes> listClientProfiles(Pageable pageable) {
-        String agentUid = SecurityUtils.getCurrentAgentUid();
+        String agentUid = SecurityUtils.getCurrentUserUid();
         return clientProfileService.listClientProfilesByAgent(agentUid, pageable);
     }
 
-    @Operation(summary = "獲取單一客戶的基本資料")
+    @Operation(summary = "[顧問/客戶] 獲取單一客戶的基本資料 (需權限)")
     @GetMapping("/{clientId}")
+    @SecurityRequirement(name = "bearerAuth")
     public ProfileRes getClientProfile(@PathVariable UUID clientId) {
-        return clientProfileService.getClientProfileById(clientId);
+        String requesterUid = SecurityUtils.getCurrentUserUid();
+        return clientProfileService.getClientProfileById(clientId, requesterUid);
     }
 
     @Operation(summary = "更新客戶個人資料 (PUT)")
     @PutMapping("/{clientId}")
+    @SecurityRequirement(name = "bearerAuth")
     public ProfileRes updateProfile(@PathVariable UUID clientId, @RequestBody @Valid UpdateProfileReq req) {
-        return clientProfileService.updateProfile(clientId, req);
+        String requesterUid = SecurityUtils.getCurrentUserUid();
+        return clientProfileService.updateProfile(clientId, req, requesterUid);
     }
 
     @Operation(summary = "部分更新客戶個人資料 (PATCH)")
     @PatchMapping("/{clientId}")
+    @SecurityRequirement(name = "bearerAuth")
     public ProfileRes patchProfile(@PathVariable UUID clientId, @RequestBody @Valid PatchProfileReq req) {
-        return clientProfileService.patchProfile(clientId, req);
+        String requesterUid = SecurityUtils.getCurrentUserUid();
+        return clientProfileService.patchProfile(clientId, req, requesterUid);
     }
 }

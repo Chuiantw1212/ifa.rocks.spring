@@ -2,6 +2,7 @@ package rocks.ifa.spring.domain.agent;
 
 import com.google.firebase.auth.FirebaseAuthException;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import rocks.ifa.spring.domain.agent.contracts.*;
 public class AgentController {
 
     private final AgentService agentService;
+    private final LiffAuthService liffAuthService; // Inject LiffAuthService
 
     @Operation(summary = "顧問登入")
     @PostMapping("/login")
@@ -24,10 +26,16 @@ public class AgentController {
         return ResponseEntity.ok(agentService.login(req));
     }
 
+    @Operation(summary = "顧問透過 LINE LIFF 登入")
+    @PostMapping("/auth/liff")
+    public ResponseEntity<AuthRes> loginWithLiff(@RequestBody @Valid LiffLoginReq req) {
+        return ResponseEntity.ok(liffAuthService.loginWithLiff(req)); // Call LiffAuthService
+    }
+
     @Operation(summary = "顧問登出")
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@RequestHeader("Authorization") String token) {
-        String agentId = "dummy-agent-id"; 
+        String agentId = "dummy-agent-id";
         agentService.logout(agentId);
         return ResponseEntity.ok().build();
     }
@@ -51,10 +59,11 @@ public class AgentController {
         return agentService.updateAgent(id, req);
     }
 
-    @Operation(summary = "刪除使用者")
-    @DeleteMapping("/{id}")
+    @Operation(summary = "刪除自己的帳號", description = "刪除當前登入用戶自己的帳號，並連動刪除所有相關資料。")
+    @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteAgent(@PathVariable String id) throws FirebaseAuthException {
-        agentService.deleteAgent(id);
+    @SecurityRequirement(name = "bearerAuth")
+    public void deleteOwnAgentAccount() throws FirebaseAuthException {
+        agentService.deleteAgent();
     }
 }

@@ -38,6 +38,7 @@ public class SecurityConfig {
                                 // Public APIs
                                 "/api/v1/metadata/**",
                                 "/api/v1/agents/login",
+                                "/api/v1/agents/auth/liff", // Unified LIFF login endpoint
                                 // Admin tools
                                 "/api/v1/admin/**"
                         )

@@ -21,6 +21,9 @@ import java.time.LocalDate;
 @Table(name = "client_profiles")
 public class ClientProfileEntity extends ClientBaseEntity {
 
+    @Column(name = "client_firebase_uid")
+    private String clientFirebaseUid;
+
     @Column(nullable = false)
     private String name;
 

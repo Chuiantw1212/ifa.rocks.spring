@@ -1,5 +1,8 @@
 package rocks.ifa.spring.domain.clientProfile;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.UserRecord;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -16,7 +19,9 @@ import rocks.ifa.spring.infra.common.PageResponse;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -27,26 +32,38 @@ public class ClientProfileServiceImpl implements ClientProfileService {
 
     private final ClientProfileRepository clientProfileRepository;
     private final MetadataService metadataService;
+    private final ClientProfileMapper clientProfileMapper;
+    private final FirebaseAuth firebaseAuth;
 
     @Override
-    public ProfileRes getClientProfileById(UUID clientId) {
-        return clientProfileRepository.findById(clientId)
-                .map(this::convertToRes)
+    public ProfileRes getOwnProfile(String clientFirebaseUid) {
+        return clientProfileRepository.findByClientFirebaseUid(clientFirebaseUid)
+                .map(clientProfileMapper::toProfileRes)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client profile not found for the current user."));
+    }
+    
+    @Override
+    public ProfileRes getClientProfileById(UUID clientId, String requesterUid) {
+        ClientProfileEntity entity = clientProfileRepository.findById(clientId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client profile not found"));
+        authorizeModification(requesterUid, entity);
+        return clientProfileMapper.toProfileRes(entity);
     }
 
     @Override
     public ProfileRes getProfile(String uid) {
         return clientProfileRepository.findByAgentFirebaseUid(uid)
-                .map(this::convertToRes)
+                .map(clientProfileMapper::toProfileRes)
                 .orElseGet(() -> createDefaultProfile(uid));
     }
 
     @Override
     @Transactional
-    public ProfileRes updateProfile(UUID clientId, UpdateProfileReq req) {
+    public ProfileRes updateProfile(UUID clientId, UpdateProfileReq req, String requesterUid) {
         ClientProfileEntity entity = clientProfileRepository.findById(clientId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client profile not found"));
+        
+        authorizeModification(requesterUid, entity);
 
         entity.setName(req.name());
         entity.setEmail(req.email());
@@ -60,17 +77,17 @@ public class ClientProfileServiceImpl implements ClientProfileService {
         entity.setCareerInsuranceType(req.careerInsuranceType());
 
         updateLifeExpectancy(entity);
-
         ClientProfileEntity savedEntity = clientProfileRepository.save(entity);
-        log.info("✅ [Profile] Updated for client ID: {}", clientId);
-        return convertToRes(savedEntity);
+        return clientProfileMapper.toProfileRes(savedEntity);
     }
 
     @Override
     @Transactional
-    public ProfileRes patchProfile(UUID clientId, PatchProfileReq req) {
+    public ProfileRes patchProfile(UUID clientId, PatchProfileReq req, String requesterUid) {
         ClientProfileEntity entity = clientProfileRepository.findById(clientId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client profile not found"));
+
+        authorizeModification(requesterUid, entity);
 
         boolean needsLifeExpectancyUpdate = false;
         if (req.name() != null) entity.setName(req.name());
@@ -98,17 +115,32 @@ public class ClientProfileServiceImpl implements ClientProfileService {
         }
 
         ClientProfileEntity savedEntity = clientProfileRepository.save(entity);
-        log.info("✅ [Profile] Patched for client ID: {}", clientId);
-        return convertToRes(savedEntity);
+        return clientProfileMapper.toProfileRes(savedEntity);
     }
 
     @Override
+    @Transactional
     public PageResponse<ProfileRes> listClientProfilesByAgent(String agentUid, Pageable pageable) {
-        Page<ClientProfileEntity> profilePage = clientProfileRepository.findAllByAgentFirebaseUid(agentUid, pageable);
-        List<ProfileRes> dtoList = profilePage.getContent().stream()
-                .map(this::convertToRes)
+        Page<ClientProfileEntity> profilePage = clientProfileRepository.findAllByAgentFirebaseUidOrClientFirebaseUid(agentUid, agentUid, pageable);
+        List<ClientProfileEntity> profiles = profilePage.getContent();
+        profiles.forEach(this::bindClientFirebaseUid);
+        List<ClientProfileEntity> sortedProfiles = profiles.stream()
+                .sorted(Comparator.comparing(p -> !Objects.equals(p.getClientFirebaseUid(), agentUid)))
+                .collect(Collectors.toList());
+        List<ProfileRes> dtoList = sortedProfiles.stream()
+                .map(clientProfileMapper::toProfileRes)
                 .collect(Collectors.toList());
         return new PageResponse<>(dtoList, profilePage.getTotalElements(), profilePage.getNumber(), profilePage.getSize());
+    }
+
+    private void authorizeModification(String requesterUid, ClientProfileEntity entity) {
+        boolean isOwnerAgent = Objects.equals(requesterUid, entity.getAgentFirebaseUid());
+        boolean isClientSelf = Objects.equals(requesterUid, entity.getClientFirebaseUid());
+
+        if (!isOwnerAgent && !isClientSelf) {
+            log.warn("Unauthorized attempt to access client profile {}. Requester UID: {}", entity.getId(), requesterUid);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to access this profile.");
+        }
     }
 
     private ProfileRes createDefaultProfile(String uid) {
@@ -120,10 +152,8 @@ public class ClientProfileServiceImpl implements ClientProfileService {
         newProfile.setPhone("");
         newProfile.setLineId("");
         newProfile.setRetirementAge(65);
-
         clientProfileRepository.save(newProfile);
-        log.info("✅ Minimal default profile created for UID: {}", uid);
-        return convertToRes(newProfile);
+        return clientProfileMapper.toProfileRes(newProfile);
     }
 
     private void updateLifeExpectancy(ClientProfileEntity entity) {
@@ -143,12 +173,16 @@ public class ClientProfileServiceImpl implements ClientProfileService {
         }
     }
 
-    private ProfileRes convertToRes(ClientProfileEntity entity) {
-        return new ProfileRes(
-            entity.getId(), entity.getName(), entity.getEmail(), entity.getPhone(), entity.getLineId(),
-            entity.getBirthDate(), entity.getGender(), entity.getCurrentAge(), entity.getRetirementAge(),
-            entity.getLifeExpectancy(), entity.getLifeExpectancyAtRetirement(),
-            entity.getMarriageYear(), entity.getCareerInsuranceType(), entity.getBiography()
-        );
+    private void bindClientFirebaseUid(ClientProfileEntity entity) {
+        if (entity.getClientFirebaseUid() == null && entity.getEmail() != null) {
+            try {
+                UserRecord userRecord = firebaseAuth.getUserByEmail(entity.getEmail());
+                entity.setClientFirebaseUid(userRecord.getUid());
+                clientProfileRepository.save(entity);
+                log.info("✅ Auto-bound Firebase UID {} to client profile for email {}", userRecord.getUid(), entity.getEmail());
+            } catch (FirebaseAuthException e) {
+                log.info("ℹ️ No existing Firebase user found for email {} during auto-binding. Skipping.", entity.getEmail());
+            }
+        }
     }
 }

@@ -7,6 +7,8 @@ import java.util.UUID;
 @Schema(description = "客戶的個人基本資料回應")
 public record ProfileRes(
     UUID id,
+    @Schema(description = "客戶自己的 Firebase UID (如果已綁定)")
+    String clientFirebaseUid,
     String name,
     String email,
     String phone,

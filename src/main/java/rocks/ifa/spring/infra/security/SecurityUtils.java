@@ -1,5 +1,6 @@
 package rocks.ifa.spring.infra.security;
 
+import com.google.firebase.auth.UserRecord;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -9,12 +10,13 @@ public class SecurityUtils {
 
     /**
      * Gets the Firebase UID of the currently authenticated user from the SecurityContext.
-     * This relies on the FirebaseTokenFilter successfully populating the context.
+     * This is the single source of truth for the current user's UID.
+     * It relies on FirebaseTokenFilter correctly setting the UserRecord as the principal.
      *
      * @return The Firebase UID of the current user.
-     * @throws ResponseStatusException if the user is not authenticated or the principal is invalid.
+     * @throws ResponseStatusException if the user is not authenticated or the principal is not a UserRecord.
      */
-    public static String getCurrentAgentUid() {
+    public static String getCurrentUserUid() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
@@ -22,11 +24,11 @@ public class SecurityUtils {
         }
 
         Object principal = authentication.getPrincipal();
-        if (principal instanceof String) {
-            return (String) principal;
+        if (principal instanceof UserRecord) {
+            return ((UserRecord) principal).getUid();
         }
 
-        // This should not happen if FirebaseTokenFilter is working correctly.
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Invalid authentication principal type");
+        // If the principal is not a UserRecord, something is wrong in the filter chain.
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Invalid authentication principal type. Expected UserRecord, but got " + principal.getClass().getName());
     }
 }

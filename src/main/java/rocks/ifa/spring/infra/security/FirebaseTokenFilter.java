@@ -3,6 +3,7 @@ package rocks.ifa.spring.infra.security;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
+import com.google.firebase.auth.UserRecord;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,11 +38,12 @@ public class FirebaseTokenFilter extends OncePerRequestFilter {
 
         try {
             FirebaseToken decodedToken = firebaseAuth.verifyIdToken(token);
-            String uid = decodedToken.getUid();
+            UserRecord userRecord = firebaseAuth.getUser(decodedToken.getUid());
 
-            // Set authentication in the security context
+            // The filter's only job is to authenticate and set the principal.
+            // Business logic like client binding is moved to the service layer.
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    uid, decodedToken, new ArrayList<>());
+                    userRecord, decodedToken, new ArrayList<>());
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
         } catch (FirebaseAuthException e) {
