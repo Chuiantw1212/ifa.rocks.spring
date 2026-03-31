@@ -13,5 +13,5 @@ public interface AgentService {
     AgentRes createAgent(CreateAgentReq req) throws FirebaseAuthException;
     AgentRes getAgent(String agentId) throws FirebaseAuthException;
     AgentRes updateAgent(String agentId, UpdateAgentReq req) throws FirebaseAuthException;
-    void deleteAgent(String agentId) throws FirebaseAuthException;
+    void deleteAgent() throws FirebaseAuthException;
 }

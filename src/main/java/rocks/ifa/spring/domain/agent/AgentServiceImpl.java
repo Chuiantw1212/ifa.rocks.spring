@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rocks.ifa.spring.domain.agent.contracts.*;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileRepository;
+import rocks.ifa.spring.infra.security.SecurityUtils;
 
 @Slf4j
 @Service
@@ -70,8 +71,9 @@ public class AgentServiceImpl implements AgentService {
 
     @Override
     @Transactional
-    public void deleteAgent(String agentId) throws FirebaseAuthException {
-        log.info("--- Starting deletion process for user: {} ---", agentId);
+    public void deleteAgent() throws FirebaseAuthException {
+        String agentId = SecurityUtils.getCurrentUserUid();
+        log.info("--- Starting self-deletion process for user: {} ---", agentId);
 
         // Step 1: Delete all client profiles where this user is the AGENT.
         log.info("Step 1a: Deleting client profiles where agent_firebase_uid is {}", agentId);
