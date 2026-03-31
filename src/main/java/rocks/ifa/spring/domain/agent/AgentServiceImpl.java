@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rocks.ifa.spring.domain.agent.contracts.*;
+import rocks.ifa.spring.domain.clientProfile.ClientProfileRepository;
 
 @Slf4j
 @Service
@@ -17,6 +18,7 @@ public class AgentServiceImpl implements AgentService {
 
     private final FirebaseAuth firebaseAuth;
     private final AuthService authService;
+    private final ClientProfileRepository clientProfileRepository;
 
     @Override
     public AuthRes login(LoginReq req) {
@@ -69,8 +71,22 @@ public class AgentServiceImpl implements AgentService {
     @Override
     @Transactional
     public void deleteAgent(String agentId) throws FirebaseAuthException {
+        log.info("--- Starting deletion process for user: {} ---", agentId);
+
+        // Step 1: Delete all client profiles where this user is the AGENT.
+        log.info("Step 1a: Deleting client profiles where agent_firebase_uid is {}", agentId);
+        clientProfileRepository.deleteByAgentFirebaseUid(agentId);
+        log.info("✅ Completed deleting profiles owned by user.");
+
+        // Step 2: Delete the client profile where this user is the CLIENT.
+        log.info("Step 1b: Deleting client profile where client_firebase_uid is {}", agentId);
+        clientProfileRepository.deleteByClientFirebaseUid(agentId);
+        log.info("✅ Completed deleting self-profile for user.");
+
+        // Step 3: Delete the user from Firebase Authentication.
+        log.info("Step 2: Deleting user from Firebase Authentication...");
         firebaseAuth.deleteUser(agentId);
-        log.info("Successfully deleted agent: {}", agentId);
+        log.info("✅ --- Successfully deleted user {} from all systems. ---", agentId);
     }
 
     private AgentRes mapToAgentRes(UserRecord userRecord) {
