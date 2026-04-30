@@ -25,9 +25,10 @@ spring:
     password: ${DATASOURCE_PASSWORD:?DATASOURCE_PASSWORD environment variable is not set}
     driver-class-name: org.postgresql.Driver
 
-  flyway:
-    enabled: true
-    baseline-on-migrate: true
+  # Flyway is temporarily disabled for rapid development.
+  # flyway:
+  #   enabled: true
+  #   baseline-on-migrate: true
 
 # CORS settings
 app:

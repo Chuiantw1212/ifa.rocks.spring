@@ -8,5 +8,10 @@ import java.util.UUID;
 
 @Repository
 public interface ClientCareerRepository extends JpaRepository<ClientCareerEntity, UUID> {
+    
+    // We can remove findByClientId because JpaRepository already provides findById.
+    // Optional<ClientCareerEntity> findById(UUID id);
+
+    // This might be useful if an agent needs to find a career record directly.
     Optional<ClientCareerEntity> findByAgentFirebaseUid(String agentFirebaseUid);
 }

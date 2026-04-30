@@ -17,21 +17,30 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "user_careers")
+@Table(name = "client_careers")
 public class ClientCareerEntity extends ClientBaseEntity {
+
+    // The 'id' and 'agentFirebaseUid' fields are inherited from ClientBaseEntity.
+    // The 'id' now acts as the foreign key to client_profiles.
+
     private BigDecimal baseSalary;
     private BigDecimal otherAllowance;
+    private BigDecimal annualBonus;
+    
     private BigDecimal laborInsurance;
     private BigDecimal healthInsurance;
     private BigDecimal otherDeduction;
+    
     private BigDecimal pensionPersonalRate;
     private BigDecimal pensionPersonalAmount;
     private BigDecimal pensionEmployerAmount;
     private BigDecimal pensionTotalAmount;
+    
     private BigDecimal stockDeduction;
     private BigDecimal stockCompanyMatch;
+    
     private BigDecimal monthlyNetIncome;
-    private BigDecimal annualBonus;
     private BigDecimal annualTotalIncome;
+
     private Integer dependents;
 }

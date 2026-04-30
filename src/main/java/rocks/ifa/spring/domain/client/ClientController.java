@@ -1,6 +1,7 @@
 package rocks.ifa.spring.domain.client;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class ClientController {
 
     @Operation(summary = "獲取當前顧問的所有客戶列表 (分頁)")
     @GetMapping
+    @SecurityRequirement(name = "bearerAuth")
     public PageResponse<ClientFullDataRes> listClients(Pageable pageable) {
         String agentUid = SecurityUtils.getCurrentUserUid();
         return clientService.listClientsByAgent(agentUid, pageable);
@@ -40,13 +42,16 @@ public class ClientController {
 
     @Operation(summary = "獲取單一客戶的完整理財資料")
     @GetMapping("/{clientId}")
+    @SecurityRequirement(name = "bearerAuth")
     public ClientFullDataRes getClient(@PathVariable UUID clientId) {
-        return clientService.getClientFullData(clientId.toString());
+        String requesterUid = SecurityUtils.getCurrentUserUid();
+        return clientService.getClientFullData(clientId, requesterUid);
     }
 
     @Operation(summary = "刪除客戶")
     @DeleteMapping("/{clientId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @SecurityRequirement(name = "bearerAuth")
     public void deleteClient(@PathVariable UUID clientId) {
         String requesterUid = SecurityUtils.getCurrentUserUid();
         clientService.deleteClient(clientId, requesterUid);
