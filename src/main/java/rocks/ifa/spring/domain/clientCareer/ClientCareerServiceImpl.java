@@ -2,11 +2,15 @@ package rocks.ifa.spring.domain.clientCareer;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import rocks.ifa.spring.domain.clientCareer.contracts.CareerRes;
 import rocks.ifa.spring.domain.clientCareer.contracts.UpdateCareerReq;
+import rocks.ifa.spring.domain.clientProfile.ClientProfileRepository;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
@@ -15,27 +19,29 @@ import java.util.UUID;
 public class ClientCareerServiceImpl implements ClientCareerService {
 
     private final ClientCareerRepository clientCareerRepository;
+    private final ClientProfileRepository clientProfileRepository;
 
     @Override
-    public CareerRes getCareer(String uid) {
-        return clientCareerRepository.findByAgentFirebaseUid(uid)
+    public CareerRes getCareer(UUID clientId, String requesterUid) {
+        authorizeAccess(clientId, requesterUid);
+        return clientCareerRepository.findByClientId(clientId)
                 .map(this::convertToRes)
-                .orElse(null); // Or create a default one if needed
+                .orElse(null);
     }
 
     @Override
     @Transactional
-    public void updateCareer(String uid, UpdateCareerReq req) {
-        ClientCareerEntity entity = clientCareerRepository.findByAgentFirebaseUid(uid)
+    public void updateCareer(UUID clientId, UpdateCareerReq req, String requesterUid) {
+        authorizeAccess(clientId, requesterUid);
+        
+        ClientCareerEntity entity = clientCareerRepository.findByClientId(clientId)
                 .orElseGet(() -> {
-                    log.info("No existing career record, creating new one for UID: {}", uid);
+                    log.info("No existing career record for client ID: {}, creating new one.", clientId);
                     ClientCareerEntity newEntity = new ClientCareerEntity();
-                    newEntity.setId(UUID.randomUUID());
-                    newEntity.setAgentFirebaseUid(uid);
+                    newEntity.setClientId(clientId);
                     return newEntity;
                 });
 
-        // Map all fields from request to entity
         entity.setBaseSalary(req.baseSalary());
         entity.setOtherAllowance(req.otherAllowance());
         entity.setLaborInsurance(req.laborInsurance());
@@ -51,10 +57,26 @@ public class ClientCareerServiceImpl implements ClientCareerService {
         // e.g., entity.setPensionPersonalAmount(...)
 
         clientCareerRepository.save(entity);
-        log.info("✅ [Career] Updated for user: {}", uid);
+        log.info("✅ [Career] Updated for client ID: {}", clientId);
+    }
+
+    private void authorizeAccess(UUID clientId, String requesterUid) {
+        var profile = clientProfileRepository.findById(clientId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Associated client profile not found."));
+        
+        boolean isOwnerAgent = Objects.equals(requesterUid, profile.getAgentFirebaseUid());
+        boolean isClientSelf = Objects.equals(requesterUid, profile.getClientFirebaseUid());
+
+        if (!isOwnerAgent && !isClientSelf) {
+            log.warn("Unauthorized attempt to access career data for client {}. Requester UID: {}", clientId, requesterUid);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to access this data.");
+        }
     }
 
     private CareerRes convertToRes(ClientCareerEntity entity) {
+        if (entity == null) {
+            return null;
+        }
         return new CareerRes(
             entity.getBaseSalary(),
             entity.getOtherAllowance(),
