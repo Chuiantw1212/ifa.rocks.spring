@@ -14,7 +14,7 @@ import rocks.ifa.spring.infra.security.SecurityUtils;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/client-careers")
+@RequestMapping("/api/v1/client/careers")
 @Tag(name = "Client Sub: Career", description = "管理客戶的職涯與收入資料")
 @RequiredArgsConstructor
 public class ClientCareerController {

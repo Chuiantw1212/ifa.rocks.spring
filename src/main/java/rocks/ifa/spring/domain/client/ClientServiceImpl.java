@@ -14,7 +14,7 @@ import rocks.ifa.spring.domain.clientCareer.ClientCareerService;
 import rocks.ifa.spring.domain.clientLaborInsurance.ClientLaborInsuranceService;
 import rocks.ifa.spring.domain.clientLaborPension.ClientLaborPensionService;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileEntity;
-import rocks.ifa.spring.domain.clientProfile.ClientProfileMapper; // Import the mapper
+import rocks.ifa.spring.domain.clientProfile.ClientProfileMapper;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileRepository;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileService;
 import rocks.ifa.spring.domain.clientProfile.contracts.ProfileRes;
@@ -39,12 +39,12 @@ public class ClientServiceImpl implements ClientService {
     private final ClientRetirementService clientRetirementService;
     private final ClientTaxService clientTaxService;
     private final ClientProfileRepository clientProfileRepository;
-    private final ClientProfileMapper clientProfileMapper; // Add the mapper as a final field
+    private final ClientProfileMapper clientProfileMapper;
 
     @Override
-    public ClientFullDataRes getClientFullData(String clientUid) {
-        return clientProfileRepository.findById(UUID.fromString(clientUid))
-                .map(this::mapToFullDataRes)
+    public ClientFullDataRes getClientFullData(UUID clientId, String requesterUid) {
+        return clientProfileRepository.findById(clientId)
+                .map(entity -> mapToFullDataRes(entity, requesterUid))
                 .orElse(null);
     }
 
@@ -52,7 +52,7 @@ public class ClientServiceImpl implements ClientService {
     public PageResponse<ClientFullDataRes> listClientsByAgent(String agentUid, Pageable pageable) {
         Page<ClientProfileEntity> clientPage = clientProfileRepository.findAllByAgentFirebaseUid(agentUid, pageable);
         List<ClientFullDataRes> dtoList = clientPage.getContent().stream()
-                .map(this::mapToFullDataRes)
+                .map(entity -> mapToFullDataRes(entity, agentUid))
                 .collect(Collectors.toList());
         return new PageResponse<>(dtoList, clientPage.getTotalElements(), clientPage.getNumber(), clientPage.getSize());
     }
@@ -74,7 +74,7 @@ public class ClientServiceImpl implements ClientService {
         ClientProfileEntity savedProfile = clientProfileRepository.save(newProfile);
         log.info("✅ Successfully created new client with ID: {} for Agent UID: {}", savedProfile.getId(), agentFirebaseUid);
 
-        return clientProfileMapper.toProfileRes(savedProfile); // Use Mapper
+        return clientProfileMapper.toProfileRes(savedProfile);
     }
 
     @Override
@@ -83,7 +83,6 @@ public class ClientServiceImpl implements ClientService {
         ClientProfileEntity clientProfile = clientProfileRepository.findById(clientId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client not found"));
 
-        // Security Check: Requester must be the agent who owns the client OR the client themselves.
         boolean isOwnerAgent = Objects.equals(requesterUid, clientProfile.getAgentFirebaseUid());
         boolean isClientSelf = Objects.equals(requesterUid, clientProfile.getClientFirebaseUid());
 
@@ -96,16 +95,16 @@ public class ClientServiceImpl implements ClientService {
         log.info("✅ Successfully deleted client with ID: {} by requester: {}", clientId, requesterUid);
     }
 
-    private ClientFullDataRes mapToFullDataRes(ClientProfileEntity entity) {
-        String clientUid = entity.getId().toString();
+    private ClientFullDataRes mapToFullDataRes(ClientProfileEntity entity, String requesterUid) {
+        UUID clientId = entity.getId();
         return new ClientFullDataRes(
-                entity.getId(),
-                clientProfileService.getProfile(clientUid),
-                clientCareerService.getCareer(clientUid),
-                clientLaborPensionService.getLaborPension(clientUid),
-                clientLaborInsuranceService.getLaborInsurance(clientUid),
-                clientRetirementService.getRetirement(clientUid),
-                clientTaxService.getTax(clientUid)
+                clientId,
+                clientProfileService.getClientProfileById(clientId, requesterUid),
+                clientCareerService.getCareer(clientId, requesterUid),
+                clientLaborPensionService.getLaborPension(clientId.toString()),
+                clientLaborInsuranceService.getLaborInsurance(clientId.toString()),
+                clientRetirementService.getRetirement(clientId.toString()),
+                clientTaxService.getTax(clientId.toString())
         );
     }
 }

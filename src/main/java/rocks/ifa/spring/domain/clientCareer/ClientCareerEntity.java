@@ -1,5 +1,6 @@
 package rocks.ifa.spring.domain.clientCareer;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -10,6 +11,7 @@ import lombok.experimental.SuperBuilder;
 import rocks.ifa.spring.domain.common.ClientBaseEntity;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Data
 @SuperBuilder
@@ -17,8 +19,12 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "user_careers")
+@Table(name = "client_careers") // Corrected table name
 public class ClientCareerEntity extends ClientBaseEntity {
+
+    @Column(name = "client_id", nullable = false, unique = true)
+    private UUID clientId;
+
     private BigDecimal baseSalary;
     private BigDecimal otherAllowance;
     private BigDecimal laborInsurance;

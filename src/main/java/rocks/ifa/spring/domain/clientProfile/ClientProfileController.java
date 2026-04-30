@@ -16,7 +16,7 @@ import rocks.ifa.spring.infra.security.SecurityUtils;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/client-profiles")
+@RequestMapping("/api/v1/client/profiles")
 @Tag(name = "Client Profile API", description = "管理客戶的個人基本資料")
 @RequiredArgsConstructor
 public class ClientProfileController {

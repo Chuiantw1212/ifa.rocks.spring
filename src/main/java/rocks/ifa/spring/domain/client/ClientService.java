@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public interface ClientService {
 
-    ClientFullDataRes getClientFullData(String clientUid);
+    ClientFullDataRes getClientFullData(UUID clientId, String requesterUid);
     
     PageResponse<ClientFullDataRes> listClientsByAgent(String agentUid, Pageable pageable);
 
