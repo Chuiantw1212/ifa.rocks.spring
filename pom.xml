@@ -65,10 +65,13 @@
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <!-- Temporarily disabled Flyway for rapid development -->
+        <!--
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
         </dependency>
+        -->
 
         <!-- Firebase -->
         <dependency>
