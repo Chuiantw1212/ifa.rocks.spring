@@ -1,5 +1,7 @@
 package rocks.ifa.spring.domain.clientCareer;
 
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -18,10 +20,11 @@ import java.math.BigDecimal;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "client_careers")
+@AttributeOverride(name = "id", column = @Column(name = "client_id"))
 public class ClientCareerEntity extends ClientBaseEntity {
 
-    // The 'id' and 'agentFirebaseUid' fields are inherited from ClientBaseEntity.
-    // The 'id' now acts as the foreign key to client_profiles.
+    // The inherited 'id' field is now mapped to the 'client_id' column in the database.
+    // It still acts as the primary key and the foreign key.
 
     private BigDecimal baseSalary;
     private BigDecimal otherAllowance;
