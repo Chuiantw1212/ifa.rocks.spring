@@ -8,8 +8,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import rocks.ifa.spring.domain.clientCareer.contracts.CareerRes;
-import rocks.ifa.spring.domain.clientCareer.contracts.UpdateCareerReq;
+import rocks.ifa.spring.domain.clientCareer.dtos.CareerRes;
+import rocks.ifa.spring.domain.clientCareer.dtos.UpdateCareerReq;
 import rocks.ifa.spring.infra.security.SecurityUtils;
 
 import java.util.UUID;

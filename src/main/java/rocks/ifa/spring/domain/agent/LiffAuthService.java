@@ -1,7 +1,7 @@
 package rocks.ifa.spring.domain.agent;
 
-import rocks.ifa.spring.domain.agent.contracts.AuthRes;
-import rocks.ifa.spring.domain.agent.contracts.LiffLoginReq;
+import rocks.ifa.spring.domain.agent.dtos.AuthRes;
+import rocks.ifa.spring.domain.agent.dtos.LiffLoginReq;
 
 public interface LiffAuthService {
     /**

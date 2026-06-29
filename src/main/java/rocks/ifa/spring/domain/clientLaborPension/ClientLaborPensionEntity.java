@@ -17,16 +17,16 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "user_labor_pensions")
+@Table(name = "client_labor_pensions")
 public class ClientLaborPensionEntity extends ClientBaseEntity {
     private Integer expectedRetirementAge;
-    private BigDecimal remainingLifeAtRetirement;
+    private Integer remainingLifeAtRetirement;
     private BigDecimal retirementRoi;
     private BigDecimal employerContribution;
     private BigDecimal employerEarnings;
     private BigDecimal personalContribution;
     private BigDecimal personalEarnings;
-    private BigDecimal currentWorkSeniority;
+    private Integer currentWorkSeniority;
     private BigDecimal predictedLumpSum;
     private BigDecimal predictedNetLumpSum;
 }

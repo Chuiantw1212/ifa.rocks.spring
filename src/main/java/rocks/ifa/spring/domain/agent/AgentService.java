@@ -1,7 +1,7 @@
 package rocks.ifa.spring.domain.agent;
 
 import com.google.firebase.auth.FirebaseAuthException;
-import rocks.ifa.spring.domain.agent.contracts.*;
+import rocks.ifa.spring.domain.agent.dtos.*;
 
 public interface AgentService {
 

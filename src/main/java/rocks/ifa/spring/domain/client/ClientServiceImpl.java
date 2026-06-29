@@ -8,8 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import rocks.ifa.spring.domain.client.contracts.ClientFullDataRes;
-import rocks.ifa.spring.domain.client.contracts.CreateClientReq;
+import rocks.ifa.spring.domain.client.dtos.ClientFullDataRes;
+import rocks.ifa.spring.domain.client.dtos.CreateClientReq;
 import rocks.ifa.spring.domain.clientCareer.ClientCareerService;
 import rocks.ifa.spring.domain.clientLaborInsurance.ClientLaborInsuranceService;
 import rocks.ifa.spring.domain.clientLaborPension.ClientLaborPensionService;
@@ -17,7 +17,7 @@ import rocks.ifa.spring.domain.clientProfile.ClientProfileEntity;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileMapper;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileRepository;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileService;
-import rocks.ifa.spring.domain.clientProfile.contracts.ProfileRes;
+import rocks.ifa.spring.domain.clientProfile.dtos.ProfileRes;
 import rocks.ifa.spring.domain.clientRetirement.ClientRetirementService;
 import rocks.ifa.spring.domain.clientTax.ClientTaxService;
 import rocks.ifa.spring.infra.common.PageResponse;
@@ -101,7 +101,7 @@ public class ClientServiceImpl implements ClientService {
                 clientId,
                 clientProfileService.getClientProfileById(clientId, requesterUid),
                 clientCareerService.getCareer(clientId, requesterUid),
-                clientLaborPensionService.getLaborPension(clientId.toString()),
+                clientLaborPensionService.getLaborPension(clientId,requesterUid),
                 clientLaborInsuranceService.getLaborInsurance(clientId.toString()),
                 clientRetirementService.getRetirement(clientId.toString()),
                 clientTaxService.getTax(clientId.toString())

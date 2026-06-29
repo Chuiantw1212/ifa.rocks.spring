@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Service;
-import rocks.ifa.spring.domain.metadata.contracts.LifeExpectancyRes;
+import rocks.ifa.spring.domain.metadata.dtos.LifeExpectancyRes;
 
 import java.io.IOException;
 import java.io.InputStream;

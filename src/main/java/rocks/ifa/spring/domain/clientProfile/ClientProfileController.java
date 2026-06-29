@@ -7,9 +7,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
-import rocks.ifa.spring.domain.clientProfile.contracts.PatchProfileReq;
-import rocks.ifa.spring.domain.clientProfile.contracts.ProfileRes;
-import rocks.ifa.spring.domain.clientProfile.contracts.UpdateProfileReq;
+import rocks.ifa.spring.domain.clientProfile.dtos.PatchProfileReq;
+import rocks.ifa.spring.domain.clientProfile.dtos.ProfileRes;
+import rocks.ifa.spring.domain.clientProfile.dtos.UpdateProfileReq;
 import rocks.ifa.spring.infra.common.PageResponse;
 import rocks.ifa.spring.infra.security.SecurityUtils;
 

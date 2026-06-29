@@ -2,7 +2,7 @@ package rocks.ifa.spring.domain.clientProfile;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
-import rocks.ifa.spring.domain.clientProfile.contracts.ProfileRes;
+import rocks.ifa.spring.domain.clientProfile.dtos.ProfileRes;
 
 @Mapper(componentModel = "spring")
 public interface ClientProfileMapper {

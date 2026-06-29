@@ -1,7 +1,7 @@
 package rocks.ifa.spring.domain.clientCareer;
 
-import rocks.ifa.spring.domain.clientCareer.contracts.CareerRes;
-import rocks.ifa.spring.domain.clientCareer.contracts.UpdateCareerReq;
+import rocks.ifa.spring.domain.clientCareer.dtos.CareerRes;
+import rocks.ifa.spring.domain.clientCareer.dtos.UpdateCareerReq;
 
 import java.util.UUID;
 

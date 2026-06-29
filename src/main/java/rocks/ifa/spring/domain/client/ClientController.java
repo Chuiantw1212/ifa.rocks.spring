@@ -8,9 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import rocks.ifa.spring.domain.client.contracts.CreateClientReq;
-import rocks.ifa.spring.domain.client.contracts.ClientFullDataRes;
-import rocks.ifa.spring.domain.clientProfile.contracts.ProfileRes;
+import rocks.ifa.spring.domain.client.dtos.CreateClientReq;
+import rocks.ifa.spring.domain.client.dtos.ClientFullDataRes;
+import rocks.ifa.spring.domain.clientProfile.dtos.ProfileRes;
 import rocks.ifa.spring.infra.security.SecurityUtils;
 import rocks.ifa.spring.infra.common.PageResponse;
 

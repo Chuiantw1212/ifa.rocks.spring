@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import rocks.ifa.spring.domain.metadata.contracts.LifeExpectancyRes;
+import rocks.ifa.spring.domain.metadata.dtos.LifeExpectancyRes;
 
 import java.io.IOException;
 import java.util.Map;

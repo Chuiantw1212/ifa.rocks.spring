@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import rocks.ifa.spring.domain.agent.contracts.AgentRes;
-import rocks.ifa.spring.domain.agent.contracts.AuthRes;
+import rocks.ifa.spring.domain.agent.dtos.AgentRes;
+import rocks.ifa.spring.domain.agent.dtos.AuthRes;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileEntity;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileRepository;
 

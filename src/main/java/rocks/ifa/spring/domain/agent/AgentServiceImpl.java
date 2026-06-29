@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import rocks.ifa.spring.domain.agent.contracts.*;
+import rocks.ifa.spring.domain.agent.dtos.*;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileRepository;
 import rocks.ifa.spring.infra.security.SecurityUtils;
 

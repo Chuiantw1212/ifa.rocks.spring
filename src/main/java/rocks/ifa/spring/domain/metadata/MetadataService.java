@@ -1,6 +1,6 @@
 package rocks.ifa.spring.domain.metadata;
 
-import rocks.ifa.spring.domain.metadata.contracts.LifeExpectancyRes;
+import rocks.ifa.spring.domain.metadata.dtos.LifeExpectancyRes;
 
 import java.io.IOException;
 import java.util.Map;
