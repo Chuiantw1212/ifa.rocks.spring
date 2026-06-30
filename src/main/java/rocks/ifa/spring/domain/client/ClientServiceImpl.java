@@ -101,8 +101,9 @@ public class ClientServiceImpl implements ClientService {
                 clientId,
                 clientProfileService.getClientProfileById(clientId, requesterUid),
                 clientCareerService.getCareer(clientId, requesterUid),
-                clientLaborPensionService.getLaborPension(clientId,requesterUid),
-                clientLaborInsuranceService.getLaborInsurance(clientId.toString()),
+                clientLaborPensionService.getLaborPension(clientId, requesterUid),
+                clientLaborInsuranceService.getLaborInsurance(clientId, requesterUid),
+                // The following services will also need to be updated to accept (UUID, String)
                 clientRetirementService.getRetirement(clientId.toString()),
                 clientTaxService.getTax(clientId.toString())
         );

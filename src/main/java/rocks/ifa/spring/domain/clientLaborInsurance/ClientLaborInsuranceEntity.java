@@ -1,5 +1,7 @@
 package rocks.ifa.spring.domain.clientLaborInsurance;
 
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -17,11 +19,12 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "user_labor_insurances")
+@Table(name = "client_labor_insurances")
+@AttributeOverride(name = "id", column = @Column(name = "client_id"))
 public class ClientLaborInsuranceEntity extends ClientBaseEntity {
     private Integer expectedClaimAge;
     private BigDecimal averageMonthlySalary;
     private Integer insuranceSeniority;
-    private BigDecimal predictedRemainingLife;
+    private Integer predictedRemainingLife;
     private BigDecimal predictedMonthlyAnnuity;
 }
