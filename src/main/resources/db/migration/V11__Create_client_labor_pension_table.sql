@@ -1,9 +1,9 @@
 -- V11: Create the client_labor_pensions table
 CREATE TABLE client_labor_pensions (
-    -- This ID is both the Primary Key and the Foreign Key to client_profiles.id
-    id UUID PRIMARY KEY,
+    -- This is the Primary Key, and it's also a Foreign Key to client_profiles.id
+    client_id UUID PRIMARY KEY,
 
-    -- Inherited from ClientBaseEntity
+    -- Inherited from ClientBaseEntity, tracks which agent created/last modified this record.
     agent_firebase_uid VARCHAR(255) NOT NULL,
 
     -- Labor Pension Details
@@ -24,7 +24,7 @@ CREATE TABLE client_labor_pensions (
 
     -- Constraint to link to the client_profiles table
     CONSTRAINT fk_client_labor_pension_profile
-        FOREIGN KEY(id)
+        FOREIGN KEY(client_id)
         REFERENCES client_profiles(id)
         ON DELETE CASCADE
 );

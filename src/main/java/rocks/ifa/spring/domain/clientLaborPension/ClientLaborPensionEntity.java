@@ -1,5 +1,7 @@
 package rocks.ifa.spring.domain.clientLaborPension;
 
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -18,7 +20,11 @@ import java.math.BigDecimal;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "client_labor_pensions")
+@AttributeOverride(name = "id", column = @Column(name = "client_id"))
 public class ClientLaborPensionEntity extends ClientBaseEntity {
+    
+    // The inherited 'id' field is now mapped to the 'client_id' column.
+
     private Integer expectedRetirementAge;
     private Integer remainingLifeAtRetirement;
     private BigDecimal retirementRoi;
