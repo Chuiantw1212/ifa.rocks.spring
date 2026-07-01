@@ -12,6 +12,7 @@ import rocks.ifa.spring.domain.clientProfile.ClientProfileRepository;
 import rocks.ifa.spring.infra.security.SecurityUtils;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -23,11 +24,10 @@ public class ClientLaborInsuranceServiceImpl implements ClientLaborInsuranceServ
     private final ClientProfileRepository clientProfileRepository;
 
     @Override
-    public LaborInsuranceRes getLaborInsurance(UUID clientId, String requesterUid) {
+    public Optional<LaborInsuranceRes> getLaborInsurance(UUID clientId, String requesterUid) {
         authorizeAccess(clientId, requesterUid);
         return clientLaborInsuranceRepository.findById(clientId)
-                .map(this::convertToRes)
-                .orElse(null);
+                .map(this::convertToRes);
     }
 
     @Override
@@ -48,9 +48,6 @@ public class ClientLaborInsuranceServiceImpl implements ClientLaborInsuranceServ
         entity.setAverageMonthlySalary(req.averageMonthlySalary());
         entity.setInsuranceSeniority(req.insuranceSeniority());
         entity.setPredictedRemainingLife(req.predictedRemainingLife());
-
-        // Here you would calculate the predictedMonthlyAnnuity
-        // For now, it will be saved as null or its existing value.
 
         clientLaborInsuranceRepository.save(entity);
         log.info("✅ [LaborInsurance] Updated for client ID: {}", clientId);

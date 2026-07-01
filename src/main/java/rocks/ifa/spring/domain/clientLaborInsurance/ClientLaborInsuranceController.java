@@ -2,6 +2,9 @@ package rocks.ifa.spring.domain.clientLaborInsurance;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -12,6 +15,8 @@ import rocks.ifa.spring.domain.clientLaborInsurance.dtos.LaborInsuranceRes;
 import rocks.ifa.spring.domain.clientLaborInsurance.dtos.UpdateLaborInsuranceReq;
 import rocks.ifa.spring.infra.security.SecurityUtils;
 
+import java.util.Collections;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -23,14 +28,23 @@ public class ClientLaborInsuranceController {
     private final ClientLaborInsuranceService clientLaborInsuranceService;
 
     @GetMapping
-    @Operation(summary = "獲取指定客戶的勞工保險資料")
+    @Operation(summary = "獲取指定客戶的勞工保險資料", description = "如果找不到資料，將回傳 200 OK 且 body 為一個空的 JSON 物件 {}。")
+    @ApiResponse(responseCode = "200", description = "成功獲取資料或表示資料不存在。", content = {
+            @Content(mediaType = "application/json", schema = @Schema(oneOf = {LaborInsuranceRes.class, Object.class}))
+    })
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<LaborInsuranceRes> getLaborInsurance(
+    public ResponseEntity<Object> getLaborInsurance(
             @Parameter(description = "客戶的唯一識別碼 (UUID)", required = true)
             @PathVariable UUID clientId) {
+        
         String requesterUid = SecurityUtils.getCurrentUserUid();
-        LaborInsuranceRes laborInsurance = clientLaborInsuranceService.getLaborInsurance(clientId, requesterUid);
-        return ResponseEntity.ok(laborInsurance);
+        Optional<LaborInsuranceRes> laborInsuranceOpt = clientLaborInsuranceService.getLaborInsurance(clientId, requesterUid);
+        
+        if (laborInsuranceOpt.isPresent()) {
+            return ResponseEntity.ok(laborInsuranceOpt.get());
+        } else {
+            return ResponseEntity.ok(Collections.emptyMap());
+        }
     }
 
     @PutMapping
