@@ -6,7 +6,7 @@ steps:
     entrypoint: 'pack'
     args:
       - 'build'
-      - 'asia-east1-docker.pkg.dev/ifa-rocks/cloud-run-source-deploy/ifa-rocks-spring:$SHORT_SHA'
+      - 'asia-east1-docker.pkg.dev/ifa-rocks/cloud-run-source-deploy/ifa-rocks:$SHORT_SHA'
       - '--builder=gcr.io/buildpacks/builder:google-24'
       - '--path=.'
       - '--env=GOOGLE_RUNTIME_VERSION=21'
@@ -18,7 +18,7 @@ steps:
     entrypoint: 'docker'
     args:
       - 'push'
-      - 'asia-east1-docker.pkg.dev/ifa-rocks/cloud-run-source-deploy/ifa-rocks-spring:$SHORT_SHA'
+      - 'asia-east1-docker.pkg.dev/ifa-rocks/cloud-run-source-deploy/ifa-rocks:$SHORT_SHA'
     waitFor: ['Build']
 
   # STEP 3: Deploy the image to Cloud Run with necessary environment variables.
@@ -28,8 +28,8 @@ steps:
     args:
       - 'run'
       - 'deploy'
-      - 'ifa-rocks-spring'
-      - '--image=asia-east1-docker.pkg.dev/ifa-rocks/cloud-run-source-deploy/ifa-rocks-spring:$SHORT_SHA'
+      - 'ifa-rocks'
+      - '--image=asia-east1-docker.pkg.dev/ifa-rocks/cloud-run-source-deploy/ifa-rocks:$SHORT_SHA'
       - '--region=asia-east1'
       - '--platform=managed'
       - '--allow-unauthenticated'
@@ -40,7 +40,7 @@ steps:
     waitFor: ['Push']
 
 images:
-  - 'asia-east1-docker.pkg.dev/ifa-rocks/cloud-run-source-deploy/ifa-rocks-spring:$SHORT_SHA'
+  - 'asia-east1-docker.pkg.dev/ifa-rocks/cloud-run-source-deploy/ifa-rocks:$SHORT_SHA'
 
 options:
   logging: CLOUD_LOGGING_ONLY
