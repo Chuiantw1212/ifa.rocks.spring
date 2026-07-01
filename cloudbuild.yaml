@@ -1,0 +1,47 @@
+# This file defines the complete, robust CI/CD pipeline for Google Cloud Build.
+# It follows an explicit Build -> Push -> Deploy sequence.
+
+steps:
+  # STEP 1: Build the application image.
+  - name: 'gcr.io/k8s-skaffold/pack'
+    id: 'Build'
+    entrypoint: 'pack'
+    args:
+      - 'build'
+      - 'asia-east1-docker.pkg.dev/ifa-rocks/cloud-run-source-deploy/ifa-rocks:$SHORT_SHA'
+      - '--builder=gcr.io/buildpacks/builder:google-24'
+      - '--path=.'
+      - '--env=GOOGLE_RUNTIME_VERSION=21'
+      - '--clear-cache'
+
+  # STEP 2: Explicitly push the image to Artifact Registry.
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push'
+    entrypoint: 'docker'
+    args:
+      - 'push'
+      - 'asia-east1-docker.pkg.dev/ifa-rocks/cloud-run-source-deploy/ifa-rocks:$SHORT_SHA'
+    waitFor: ['Build']
+
+  # STEP 3: Deploy the image to Cloud Run.
+  # By NOT including any --set-env-vars or --set-secrets flags, this command
+  # instructs Cloud Run to create a new revision that INHERITS all environment
+  # variables that are already configured on the service.
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'Deploy'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'ifa-rocks' # Your Cloud Run service name
+      - '--image=asia-east1-docker.pkg.dev/ifa-rocks/cloud-run-source-deploy/ifa-rocks:$SHORT_SHA'
+      - '--region=asia-east1'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+    waitFor: ['Push']
+
+images:
+  - 'asia-east1-docker.pkg.dev/ifa-rocks/cloud-run-source-deploy/ifa-rocks:$SHORT_SHA'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
