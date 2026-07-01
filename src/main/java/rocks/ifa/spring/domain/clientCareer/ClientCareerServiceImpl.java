@@ -6,12 +6,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import rocks.ifa.spring.domain.clientCareer.contracts.CareerRes;
-import rocks.ifa.spring.domain.clientCareer.contracts.UpdateCareerReq;
+import rocks.ifa.spring.domain.clientCareer.dtos.CareerRes;
+import rocks.ifa.spring.domain.clientCareer.dtos.UpdateCareerReq;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileRepository;
 import rocks.ifa.spring.infra.security.SecurityUtils;
 
-import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -45,6 +44,7 @@ public class ClientCareerServiceImpl implements ClientCareerService {
                     return newEntity;
                 });
 
+        // Update all fields from the request
         entity.setBaseSalary(req.baseSalary());
         entity.setOtherAllowance(req.otherAllowance());
         entity.setAnnualBonus(req.annualBonus());
@@ -52,12 +52,14 @@ public class ClientCareerServiceImpl implements ClientCareerService {
         entity.setHealthInsurance(req.healthInsurance());
         entity.setOtherDeduction(req.otherDeduction());
         entity.setPensionPersonalRate(req.pensionPersonalRate());
+        entity.setPensionPersonalAmount(req.pensionPersonalAmount());
+        entity.setPensionEmployerAmount(req.pensionEmployerAmount());
+        entity.setPensionTotalAmount(req.pensionTotalAmount());
         entity.setStockDeduction(req.stockDeduction());
         entity.setStockCompanyMatch(req.stockCompanyMatch());
+        entity.setMonthlyNetIncome(req.monthlyNetIncome());
+        entity.setAnnualTotalIncome(req.annualTotalIncome());
         entity.setDependents(req.dependents());
-
-        // Here you would calculate derived fields
-        // e.g., entity.setPensionPersonalAmount(...)
 
         clientCareerRepository.save(entity);
         log.info("✅ [Career] Updated for client ID: {}", clientId);

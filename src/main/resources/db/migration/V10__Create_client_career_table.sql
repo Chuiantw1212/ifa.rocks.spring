@@ -1,8 +1,7 @@
 -- V10: Create the client_career table to store career and income details for a client.
--- This table has a one-to-one relationship with client_profiles.
 CREATE TABLE client_careers (
-    -- This ID is both the Primary Key and the Foreign Key to client_profiles.id
-    id UUID PRIMARY KEY,
+    -- This is the Primary Key, and it's also a Foreign Key to client_profiles.id
+    client_id UUID PRIMARY KEY,
 
     -- Inherited from ClientBaseEntity, tracks which agent created/last modified this record.
     agent_firebase_uid VARCHAR(255) NOT NULL,
@@ -38,14 +37,12 @@ CREATE TABLE client_careers (
     annual_total_income NUMERIC(19, 2),
 
     -- === Timestamps ===
-
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     -- === Constraints ===
-
     CONSTRAINT fk_client_career_profile
-        FOREIGN KEY(id)
+        FOREIGN KEY(client_id)
         REFERENCES client_profiles(id)
         ON DELETE CASCADE
 );

@@ -9,11 +9,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Service;
-import rocks.ifa.spring.domain.metadata.contracts.LifeExpectancyRes;
+import rocks.ifa.spring.domain.metadata.dtos.LifeExpectancyRes;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +66,23 @@ public class MetadataServiceImpl implements MetadataService {
             Thread.currentThread().interrupt();
             throw new RuntimeException("Database connection error");
         }
+    }
+
+    @Override
+    public List<LifeExpectancyRes> getLifeExpectancyRange(String gender, int baseAge, Integer year) {
+        List<LifeExpectancyRes> results = new ArrayList<>();
+        int queryYear = (year != null) ? year : LocalDate.now().getYear();
+        log.info("Querying life expectancy range for gender: {}, baseAge: {}, year: {}", gender, baseAge, queryYear);
+
+        for (int age = baseAge - 5; age <= baseAge + 5; age++) {
+            if (age < 0) continue;
+            
+            LifeExpectancyRes res = getLifeExpectancy(queryYear, gender, age);
+            if (res != null) {
+                results.add(res);
+            }
+        }
+        return results;
     }
 
     @Override

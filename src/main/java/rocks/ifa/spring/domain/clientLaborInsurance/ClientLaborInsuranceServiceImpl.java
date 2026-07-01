@@ -2,11 +2,16 @@ package rocks.ifa.spring.domain.clientLaborInsurance;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import rocks.ifa.spring.domain.clientLaborInsurance.contracts.LaborInsuranceRes;
-import rocks.ifa.spring.domain.clientLaborInsurance.contracts.UpdateLaborInsuranceReq;
+import org.springframework.web.server.ResponseStatusException;
+import rocks.ifa.spring.domain.clientLaborInsurance.dtos.LaborInsuranceRes;
+import rocks.ifa.spring.domain.clientLaborInsurance.dtos.UpdateLaborInsuranceReq;
+import rocks.ifa.spring.domain.clientProfile.ClientProfileRepository;
+import rocks.ifa.spring.infra.security.SecurityUtils;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
@@ -15,39 +20,61 @@ import java.util.UUID;
 public class ClientLaborInsuranceServiceImpl implements ClientLaborInsuranceService {
 
     private final ClientLaborInsuranceRepository clientLaborInsuranceRepository;
+    private final ClientProfileRepository clientProfileRepository;
 
     @Override
-    public LaborInsuranceRes getLaborInsurance(String uid) {
-        return clientLaborInsuranceRepository.findByAgentFirebaseUid(uid)
+    public LaborInsuranceRes getLaborInsurance(UUID clientId, String requesterUid) {
+        authorizeAccess(clientId, requesterUid);
+        return clientLaborInsuranceRepository.findById(clientId)
                 .map(this::convertToRes)
-                .orElse(null); // Or create a default one if needed
+                .orElse(null);
     }
 
     @Override
     @Transactional
-    public void updateLaborInsurance(String uid, UpdateLaborInsuranceReq req) {
-        ClientLaborInsuranceEntity entity = clientLaborInsuranceRepository.findByAgentFirebaseUid(uid)
+    public void updateLaborInsurance(UUID clientId, UpdateLaborInsuranceReq req, String requesterUid) {
+        authorizeAccess(clientId, requesterUid);
+        
+        ClientLaborInsuranceEntity entity = clientLaborInsuranceRepository.findById(clientId)
                 .orElseGet(() -> {
-                    log.info("No existing labor insurance record, creating new one for UID: {}", uid);
+                    log.info("No existing labor insurance record for client ID: {}, creating new one.", clientId);
                     ClientLaborInsuranceEntity newEntity = new ClientLaborInsuranceEntity();
-                    newEntity.setId(UUID.randomUUID());
-                    newEntity.setAgentFirebaseUid(uid);
+                    newEntity.setId(clientId);
+                    newEntity.setAgentFirebaseUid(SecurityUtils.getCurrentUserUid());
                     return newEntity;
                 });
 
-        // Map all fields from request to entity
         entity.setExpectedClaimAge(req.expectedClaimAge());
         entity.setAverageMonthlySalary(req.averageMonthlySalary());
         entity.setInsuranceSeniority(req.insuranceSeniority());
         entity.setPredictedRemainingLife(req.predictedRemainingLife());
-        entity.setPredictedMonthlyAnnuity(req.predictedMonthlyAnnuity());
+
+        // Here you would calculate the predictedMonthlyAnnuity
+        // For now, it will be saved as null or its existing value.
 
         clientLaborInsuranceRepository.save(entity);
-        log.info("✅ [LaborInsurance] Updated for user: {}", uid);
+        log.info("✅ [LaborInsurance] Updated for client ID: {}", clientId);
+    }
+
+    private void authorizeAccess(UUID clientId, String requesterUid) {
+        var profile = clientProfileRepository.findById(clientId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Associated client profile not found."));
+        
+        boolean isOwnerAgent = Objects.equals(requesterUid, profile.getAgentFirebaseUid());
+        boolean isClientSelf = Objects.equals(requesterUid, profile.getClientFirebaseUid());
+
+        if (!isOwnerAgent && !isClientSelf) {
+            log.warn("Unauthorized attempt to access labor insurance data for client {}. Requester UID: {}", clientId, requesterUid);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to access this data.");
+        }
     }
 
     private LaborInsuranceRes convertToRes(ClientLaborInsuranceEntity entity) {
+        if (entity == null) {
+            return null;
+        }
         return new LaborInsuranceRes(
+            entity.getId(),
             entity.getExpectedClaimAge(),
             entity.getAverageMonthlySalary(),
             entity.getInsuranceSeniority(),

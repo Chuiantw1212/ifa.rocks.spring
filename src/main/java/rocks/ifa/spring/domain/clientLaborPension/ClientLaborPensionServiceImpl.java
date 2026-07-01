@@ -2,11 +2,16 @@ package rocks.ifa.spring.domain.clientLaborPension;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import rocks.ifa.spring.domain.clientLaborPension.contracts.LaborPensionRes;
-import rocks.ifa.spring.domain.clientLaborPension.contracts.UpdateLaborPensionReq;
+import org.springframework.web.server.ResponseStatusException;
+import rocks.ifa.spring.domain.clientLaborPension.dtos.LaborPensionRes;
+import rocks.ifa.spring.domain.clientLaborPension.dtos.UpdateLaborPensionReq;
+import rocks.ifa.spring.domain.clientProfile.ClientProfileRepository;
+import rocks.ifa.spring.infra.security.SecurityUtils;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
@@ -15,28 +20,36 @@ import java.util.UUID;
 public class ClientLaborPensionServiceImpl implements ClientLaborPensionService {
 
     private final ClientLaborPensionRepository clientLaborPensionRepository;
+    private final ClientProfileRepository clientProfileRepository;
 
     @Override
-    public LaborPensionRes getLaborPension(String uid) {
-        return clientLaborPensionRepository.findByAgentFirebaseUid(uid)
+    public LaborPensionRes getLaborPension(UUID clientId, String requesterUid) {
+        log.info("Service: getLaborPension for client ID: {}", clientId);
+        authorizeAccess(clientId, requesterUid);
+        
+        log.info("Service: Authorization successful. Finding labor pension data by ID...");
+        return clientLaborPensionRepository.findById(clientId)
                 .map(this::convertToRes)
-                .orElse(null); // Or create a default one if needed
+                .orElse(null);
     }
 
     @Override
     @Transactional
-    public void updateLaborPension(String uid, UpdateLaborPensionReq req) {
-        ClientLaborPensionEntity entity = clientLaborPensionRepository.findByAgentFirebaseUid(uid)
+    public void updateLaborPension(UUID clientId, UpdateLaborPensionReq req, String requesterUid) {
+        log.info("Service: updateLaborPension for client ID: {}", clientId);
+        authorizeAccess(clientId, requesterUid);
+        
+        ClientLaborPensionEntity entity = clientLaborPensionRepository.findById(clientId)
                 .orElseGet(() -> {
-                    log.info("No existing labor pension record, creating new one for UID: {}", uid);
+                    log.info("No existing labor pension record for client ID: {}, creating new one.", clientId);
                     ClientLaborPensionEntity newEntity = new ClientLaborPensionEntity();
-                    newEntity.setId(UUID.randomUUID());
-                    newEntity.setAgentFirebaseUid(uid);
+                    newEntity.setId(clientId);
+                    newEntity.setAgentFirebaseUid(SecurityUtils.getCurrentUserUid());
                     return newEntity;
                 });
 
-        // Map fields from request to entity
         entity.setExpectedRetirementAge(req.expectedRetirementAge());
+        entity.setRemainingLifeAtRetirement(req.remainingLifeAtRetirement());
         entity.setRetirementRoi(req.retirementRoi());
         entity.setEmployerContribution(req.employerContribution());
         entity.setEmployerEarnings(req.employerEarnings());
@@ -44,16 +57,40 @@ public class ClientLaborPensionServiceImpl implements ClientLaborPensionService 
         entity.setPersonalEarnings(req.personalEarnings());
         entity.setCurrentWorkSeniority(req.currentWorkSeniority());
 
-        // Here you would typically calculate the derived fields
-        // entity.setPredictedLumpSum(...);
-        // entity.setPredictedNetLumpSum(...);
-
         clientLaborPensionRepository.save(entity);
-        log.info("✅ [LaborPension] Updated for user: {}", uid);
+        log.info("✅ [LaborPension] Updated for client ID: {}", clientId);
+    }
+
+    private void authorizeAccess(UUID clientId, String requesterUid) {
+        log.info("Service: Authorizing access for requester {} to client {}", requesterUid, clientId);
+        try {
+            var profile = clientProfileRepository.findById(clientId)
+                    .orElseThrow(() -> {
+                        log.warn("Authorization failed: Client profile with ID {} not found.", clientId);
+                        return new ResponseStatusException(HttpStatus.NOT_FOUND, "Associated client profile not found.");
+                    });
+            
+            boolean isOwnerAgent = Objects.equals(requesterUid, profile.getAgentFirebaseUid());
+            boolean isClientSelf = Objects.equals(requesterUid, profile.getClientFirebaseUid());
+
+            if (!isOwnerAgent && !isClientSelf) {
+                log.warn("Authorization FAILED: Requester {} is not the owner agent ({}) nor the client themselves ({}).", 
+                         requesterUid, profile.getAgentFirebaseUid(), profile.getClientFirebaseUid());
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to access this data.");
+            }
+            log.info("Service: Authorization successful for requester {} on client {}.", requesterUid, clientId);
+        } catch (Exception e) {
+            log.error("❌❌❌ Exception during authorization check for client ID: {}", clientId, e);
+            throw e;
+        }
     }
 
     private LaborPensionRes convertToRes(ClientLaborPensionEntity entity) {
+        if (entity == null) {
+            return null;
+        }
         return new LaborPensionRes(
+            entity.getId(),
             entity.getExpectedRetirementAge(),
             entity.getRemainingLifeAtRetirement(),
             entity.getRetirementRoi(),

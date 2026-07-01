@@ -11,9 +11,9 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-import rocks.ifa.spring.domain.agent.contracts.AuthRes;
-import rocks.ifa.spring.domain.agent.contracts.LiffLoginReq;
-import rocks.ifa.spring.domain.agent.contracts.LineVerifyResponse;
+import rocks.ifa.spring.domain.agent.dtos.AuthRes;
+import rocks.ifa.spring.domain.agent.dtos.LiffLoginReq;
+import rocks.ifa.spring.domain.agent.dtos.LineVerifyResponse;
 import rocks.ifa.spring.infra.config.LineLiffProperties;
 
 import java.util.Map;

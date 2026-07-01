@@ -3,7 +3,7 @@ package rocks.ifa.spring.domain.clientRetirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import rocks.ifa.spring.domain.clientRetirement.contracts.RetirementRes;
+import rocks.ifa.spring.domain.clientRetirement.dtos.RetirementRes;
 
 @Slf4j
 @Service

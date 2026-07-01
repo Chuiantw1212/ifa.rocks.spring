@@ -11,9 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import rocks.ifa.spring.domain.clientProfile.contracts.PatchProfileReq;
-import rocks.ifa.spring.domain.clientProfile.contracts.ProfileRes;
-import rocks.ifa.spring.domain.clientProfile.contracts.UpdateProfileReq;
+import rocks.ifa.spring.domain.clientProfile.dtos.PatchProfileReq;
+import rocks.ifa.spring.domain.clientProfile.dtos.ProfileRes;
+import rocks.ifa.spring.domain.clientProfile.dtos.UpdateProfileReq;
 import rocks.ifa.spring.domain.metadata.MetadataService;
 import rocks.ifa.spring.infra.common.PageResponse;
 
