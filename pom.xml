@@ -27,10 +27,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+        <!--
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
+        -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -103,11 +105,6 @@
                 <configuration>
                     <source>21</source>
                     <target>21</target>
-                    <!--
-                      CRITICAL FIX: Re-introducing the annotationProcessorPaths.
-                      This explicitly tells the compiler to use Lombok and MapStruct,
-                      which is necessary in some build environments like Cloud Build.
-                    -->
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
@@ -119,7 +116,6 @@
                             <artifactId>mapstruct-processor</artifactId>
                             <version>${org.mapstruct.version}</version>
                         </path>
-                        <!-- This binding is essential for Lombok and MapStruct to work together -->
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok-mapstruct-binding</artifactId>

@@ -18,7 +18,7 @@ import rocks.ifa.spring.domain.agent.dtos.*;
 public class AgentController {
 
     private final AgentService agentService;
-    private final LiffAuthService liffAuthService; // Inject LiffAuthService
+    // private final LiffAuthService liffAuthService; // Temporarily commented out
 
     @Operation(summary = "顧問登入")
     @PostMapping("/login")
@@ -26,11 +26,13 @@ public class AgentController {
         return ResponseEntity.ok(agentService.login(req));
     }
 
+    /*
     @Operation(summary = "顧問透過 LINE LIFF 登入")
     @PostMapping("/auth/liff")
     public ResponseEntity<AuthRes> loginWithLiff(@RequestBody @Valid LiffLoginReq req) {
-        return ResponseEntity.ok(liffAuthService.loginWithLiff(req)); // Call LiffAuthService
+        return ResponseEntity.ok(liffAuthService.loginWithLiff(req)); // Temporarily commented out
     }
+    */
 
     @Operation(summary = "顧問登出")
     @PostMapping("/logout")
