@@ -14,6 +14,8 @@ import rocks.ifa.spring.domain.metadata.dtos.LifeExpectancyRes;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +66,22 @@ public class MetadataServiceImpl implements MetadataService {
             Thread.currentThread().interrupt();
             throw new RuntimeException("Database connection error");
         }
+    }
+
+    @Override
+    public List<LifeExpectancyRes> getLifeExpectancyRange(String gender, int baseAge) {
+        List<LifeExpectancyRes> results = new ArrayList<>();
+        int currentYear = LocalDate.now().getYear();
+        
+        for (int age = baseAge - 5; age <= baseAge + 5; age++) {
+            if (age < 0) continue;
+            
+            LifeExpectancyRes res = getLifeExpectancy(currentYear, gender, age);
+            if (res != null) {
+                results.add(res);
+            }
+        }
+        return results;
     }
 
     @Override
