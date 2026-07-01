@@ -10,15 +10,17 @@ steps:
       # IMPORTANT: Replace this with your actual image name in Google Artifact Registry.
       - 'asia-east1-docker.pkg.dev/YOUR_PROJECT_ID/YOUR_REPO_NAME/ifa-rocks-spring:latest'
       
-      # This is the recommended, up-to-date builder for Google Cloud.
-      # It provides stable support for various languages, including Java.
+      # Use the recommended, up-to-date builder for Google Cloud.
       - '--builder=gcr.io/buildpacks/builder:google-24'
       
       - '--path=.'
       
-      # As a best practice, we explicitly lock the Java version to match our local environment and pom.xml.
-      # This provides an extra layer of stability and prevents unexpected version changes.
+      # Lock the Java version to ensure consistency between local and cloud environments.
       - '--env=GOOGLE_RUNTIME_VERSION=21'
+      
+      # This is the crucial fix:
+      # Force a clean build by clearing any cached layers from previous failed builds.
+      - '--clear-cache'
 
 # After the build step is successful, Cloud Build will automatically push the resulting
 # container image to the specified Artifact Registry repository.
@@ -26,5 +28,4 @@ images:
   - 'asia-east1-docker.pkg.dev/YOUR_PROJECT_ID/YOUR_REPO_NAME/ifa-rocks-spring:latest'
 
 options:
-  # Set the logging mode. CLOUD_LOGGING_ONLY is the default.
   logging: CLOUD_LOGGING_ONLY
