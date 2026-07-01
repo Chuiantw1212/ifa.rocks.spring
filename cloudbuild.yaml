@@ -1,5 +1,5 @@
-# This file defines the complete, secure, and robust CI/CD pipeline.
-# It uses Secret Manager to handle database credentials, which is the best practice.
+# This file defines the complete, robust CI/CD pipeline for Google Cloud Build.
+# It follows an explicit Build -> Push -> Deploy sequence.
 
 steps:
   # STEP 1: Build the application image.
@@ -23,7 +23,10 @@ steps:
       - 'asia-east1-docker.pkg.dev/ifa-rocks/cloud-run-source-deploy/ifa-rocks:$SHORT_SHA'
     waitFor: ['Build']
 
-  # STEP 3: Deploy the image to Cloud Run, mounting secrets as environment variables.
+  # STEP 3: Deploy the image to Cloud Run.
+  # By NOT including any --set-env-vars or --set-secrets flags, this command
+  # instructs Cloud Run to create a new revision that INHERITS all environment
+  # variables that are already configured on the service.
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     id: 'Deploy'
     entrypoint: 'gcloud'
@@ -35,10 +38,6 @@ steps:
       - '--region=asia-east1'
       - '--platform=managed'
       - '--allow-unauthenticated'
-      # CRITICAL SECURITY FIX: Mount secrets as environment variables.
-      # This command tells Cloud Run to fetch the latest version of the specified secrets
-      # from Secret Manager and expose them to the container as environment variables.
-      - '--set-secrets=DATASOURCE_URL=NEON_DB_URL:latest,DATASOURCE_PASSWORD=NEON_DB_PASSWORD:latest'
     waitFor: ['Push']
 
 images:
