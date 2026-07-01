@@ -1,4 +1,4 @@
-package rocks.ifa.spring.domain.common;
+package rocks.ifa.spring.domain.entityBase;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;

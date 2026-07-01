@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import rocks.ifa.spring.domain.common.ClientBaseEntity;
+import rocks.ifa.spring.domain.entityBase.ClientBaseEntity;
 
 import java.math.BigDecimal;
 
