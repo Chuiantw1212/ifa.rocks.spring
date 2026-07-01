@@ -8,14 +8,12 @@ schema-version = "0.2"
 # We are explicitly defining the buildpacks to use, in order.
 [[build.buildpacks]]
 id = "google.java.maven"
-version = "0.9.2"
 
 [[build.buildpacks]]
 id = "google.java.runtime"
-version = "0.9.2"
 
-# Environment variables to be set during the build
-[build.env]
-# This is the crucial part:
-# Force the Java runtime and compiler version to 17.
-GOOGLE_RUNTIME_VERSION = "17"
+# Environment variables to be set during the build.
+# This section must be an array of tables.
+[[build.env]]
+name = "GOOGLE_RUNTIME_VERSION"
+value = "17"
