@@ -1,17 +1,23 @@
-# This file defines the continuous integration and deployment pipeline for Google Cloud Build.
+# This file defines the CI/CD pipeline for Google Cloud Build.
+# It uses Cloud Native Buildpacks to create a container image without a Dockerfile.
 
 steps:
-  # Step 1: Build the application into a container image using Cloud Native Buildpacks.
+  # This step builds the application into a container image.
   - name: 'gcr.io/k8s-skaffold/pack'
     entrypoint: 'pack'
     args:
       - 'build'
       # IMPORTANT: Replace this with your actual image name in Google Artifact Registry.
       - 'asia-east1-docker.pkg.dev/YOUR_PROJECT_ID/YOUR_REPO_NAME/ifa-rocks-spring:latest'
-      - '--builder=gcr.io/buildpacks/builder:v1'
+      
+      # This is the recommended, up-to-date builder for Google Cloud.
+      # It provides stable support for various languages, including Java.
+      - '--builder=gcr.io/buildpacks/builder:google-24'
+      
       - '--path=.'
-      # This environment variable forces the buildpack to use the specified Java version.
-      # This is the definitive solution to the Java version mismatch errors.
+      
+      # As a best practice, we explicitly lock the Java version to match our local environment and pom.xml.
+      # This provides an extra layer of stability and prevents unexpected version changes.
       - '--env=GOOGLE_RUNTIME_VERSION=21'
 
 # After the build step is successful, Cloud Build will automatically push the resulting
@@ -19,6 +25,6 @@ steps:
 images:
   - 'asia-east1-docker.pkg.dev/YOUR_PROJECT_ID/YOUR_REPO_NAME/ifa-rocks-spring:latest'
 
-# Optional: You can add deployment steps here later, for example, to deploy to Cloud Run.
-# options:
-#   logging: CLOUD_LOGGING_ONLY
+options:
+  # Set the logging mode. CLOUD_LOGGING_ONLY is the default.
+  logging: CLOUD_LOGGING_ONLY
