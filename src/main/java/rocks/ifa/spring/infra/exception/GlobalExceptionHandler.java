@@ -1,8 +1,8 @@
 package rocks.ifa.spring.infra.exception;
 
-import rocks.ifa.spring.infra.common.ErrorResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataAccessException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,58 +10,90 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.server.ResponseStatusException;
 
-@Slf4j
 @ControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(DataAccessException.class)
-    public ResponseEntity<ErrorResponse> handleDataAccessException(DataAccessException ex) {
-        // First, check for the more specific data integrity violation
-        if (ex instanceof DataIntegrityViolationException) {
-            String rootCauseMessage = ex.getMostSpecificCause().getMessage();
-            log.warn("⚠️ Data integrity violation: {}", rootCauseMessage);
+    @Value("${spring.profiles.active:prod}")
+    private String activeProfile;
 
-            if (rootCauseMessage != null && rootCauseMessage.contains("client_profiles_email_key")) {
-                String errorMessage = "This email is already registered.";
-                ErrorResponse errorResponse = new ErrorResponse(HttpStatus.CONFLICT.value(), errorMessage);
-                return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
-            }
-            
-            // For other integrity violations, return a generic bad request
-            String errorMessage = "The request violates a database constraint.";
-            ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), errorMessage);
-            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    /**
+     * Handles exceptions that we throw intentionally (e.g., for authorization).
+     * Catches: 403 Forbidden, 404 Not Found, etc.
+     */
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ErrorRes> handleResponseStatusException(ResponseStatusException ex, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());
+        log.warn("ResponseStatusException caught: {} {} - {}", status.value(), request.getMethod(), request.getRequestURI());
+        ErrorRes errorResponse = new ErrorRes(status, ex.getReason(), request.getRequestURI());
+        return new ResponseEntity<>(errorResponse, status);
+    }
+
+    /**
+     * Handles DTO validation failures (@Valid).
+     * Catches: 400 Bad Request.
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorRes> handleValidationExceptions(MethodArgumentNotValidException ex, HttpServletRequest request) {
+        String firstErrorMessage = ex.getBindingResult().getAllErrors().get(0).getDefaultMessage();
+        log.warn("⚠️ DTO validation failed for request {}: {}", request.getRequestURI(), firstErrorMessage);
+        String userMessage = "The request data is invalid. Please check the fields. Details: " + firstErrorMessage;
+        ErrorRes errorResponse = new ErrorRes(HttpStatus.BAD_REQUEST, userMessage, request.getRequestURI());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Handles malformed JSON or missing request body.
+     * Catches: 400 Bad Request.
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorRes> handleMessageNotReadableException(HttpMessageNotReadableException ex, HttpServletRequest request) {
+        log.warn("🚫 Could not read request body for {}: {}", request.getRequestURI(), ex.getMessage());
+        String userMessage = "Request body is missing or JSON format is invalid.";
+        ErrorRes errorResponse = new ErrorRes(HttpStatus.BAD_REQUEST, userMessage, request.getRequestURI());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Handles database constraint violations (e.g., unique key conflicts).
+     * Catches: 409 Conflict.
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorRes> handleDataIntegrityViolation(DataIntegrityViolationException ex, HttpServletRequest request) {
+        String rootCauseMessage = ex.getMostSpecificCause().getMessage();
+        log.warn("⚠️ Data integrity violation for request {}: {}", request.getRequestURI(), rootCauseMessage);
+
+        String userMessage = "The request violates a database constraint. Please check your input.";
+        if (rootCauseMessage != null && rootCauseMessage.contains("client_profiles_email_key")) {
+            userMessage = "This email is already registered.";
+        }
+        
+        ErrorRes errorResponse = new ErrorRes(HttpStatus.CONFLICT, userMessage, request.getRequestURI());
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
+
+    /**
+     * The ultimate fallback handler for all other uncaught exceptions.
+     * Catches: 500 Internal Server Error.
+     */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorRes> handleAllUncaughtException(Exception ex, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        String path = request.getRequestURI();
+        
+        log.error("🔥🔥🔥 Uncaught Exception: {} {} - Root cause: {}", status.value(), path, ex.getMessage(), ex);
+
+        String message;
+        // Only expose detailed error messages in non-production environments for security reasons.
+        if ("dev".equalsIgnoreCase(activeProfile) || "local".equalsIgnoreCase(activeProfile)) {
+            message = "An unexpected error occurred. Cause: " + ex.getMessage();
+        } else {
+            message = "An unexpected internal server error occurred. Please contact support or check server logs for details.";
         }
 
-        // For all other data access exceptions, return 503
-        log.error("❌ Database access exception: ", ex);
-        String errorMessage = "The database service is temporarily unavailable. Please check the logs.";
-        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.SERVICE_UNAVAILABLE.value(), errorMessage);
-        return new ResponseEntity<>(errorResponse, HttpStatus.SERVICE_UNAVAILABLE);
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        log.warn("⚠️ DTO validation failed: {}", ex.getBindingResult().getAllErrors().get(0).getDefaultMessage());
-        String errorMessage = "The request data format is incorrect or missing required fields.";
-        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), errorMessage);
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorResponse> handleMessageNotReadableException(HttpMessageNotReadableException ex) {
-        log.warn("🚫 Could not read request body: {}", ex.getMessage());
-        String errorMessage = "Request body is missing or JSON format is invalid.";
-        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), errorMessage);
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
-        log.error("🔥 An unexpected internal server error occurred: ", ex);
-        String errorMessage = "An unexpected internal server error occurred.";
-        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), errorMessage);
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        ErrorRes errorResponse = new ErrorRes(status, message, path);
+        return new ResponseEntity<>(errorResponse, status);
     }
 }

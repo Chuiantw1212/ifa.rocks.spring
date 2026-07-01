@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.5</version> <!-- Use a stable Spring Boot version compatible with Java 21 -->
+        <version>3.2.5</version>
         <relativePath/>
     </parent>
     <groupId>rocks.ifa</groupId>
@@ -15,7 +15,7 @@
     <description>IFA Rocks Spring Boot Backend</description>
 
     <properties>
-        <java.version>21</java.version> <!-- Align with the Cloud Build environment -->
+        <java.version>21</java.version>
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
         <lombok.version>1.18.32</lombok.version>
     </properties>
@@ -38,10 +38,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -81,7 +78,6 @@
             <artifactId>mapstruct</artifactId>
             <version>${org.mapstruct.version}</version>
         </dependency>
-        <!-- This dependency is crucial for auto-configuration -->
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct-processor</artifactId>
@@ -99,15 +95,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version> <!-- Use a known stable version -->
+                <version>3.11.0</version>
                 <configuration>
-                    <source>21</source> <!-- Align with java.version -->
-                    <target>21</target> <!-- Align with java.version -->
-                    <!--
-                      CRITICAL FIX: The <annotationProcessorPaths> section has been completely removed.
-                      This allows Spring Boot's parent POM to auto-configure annotation processors
-                      in a way that is compatible with the build environment.
-                    -->
+                    <source>21</source>
+                    <target>21</target>
                 </configuration>
             </plugin>
             <plugin>
