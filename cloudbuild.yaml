@@ -1,0 +1,24 @@
+# This file defines the continuous integration and deployment pipeline for Google Cloud Build.
+
+steps:
+  # Step 1: Build the application into a container image using Cloud Native Buildpacks.
+  - name: 'gcr.io/k8s-skaffold/pack'
+    entrypoint: 'pack'
+    args:
+      - 'build'
+      # IMPORTANT: Replace this with your actual image name in Google Artifact Registry.
+      - 'asia-east1-docker.pkg.dev/YOUR_PROJECT_ID/YOUR_REPO_NAME/ifa-rocks-spring:latest'
+      - '--builder=gcr.io/buildpacks/builder:v1'
+      - '--path=.'
+      # This environment variable forces the buildpack to use the specified Java version.
+      # This is the definitive solution to the Java version mismatch errors.
+      - '--env=GOOGLE_RUNTIME_VERSION=21'
+
+# After the build step is successful, Cloud Build will automatically push the resulting
+# container image to the specified Artifact Registry repository.
+images:
+  - 'asia-east1-docker.pkg.dev/YOUR_PROJECT_ID/YOUR_REPO_NAME/ifa-rocks-spring:latest'
+
+# Optional: You can add deployment steps here later, for example, to deploy to Cloud Run.
+# options:
+#   logging: CLOUD_LOGGING_ONLY
