@@ -6,6 +6,7 @@ import rocks.ifa.spring.domain.agent.dtos.LiffLoginReq;
 public interface LiffAuthService {
     /**
      * Handles the LINE LIFF login process.
+     * This is temporarily disabled to isolate build issues.
      * @param req The request containing the LIFF ID token.
      * @return An authentication response containing a Firebase custom token.
      */
