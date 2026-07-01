@@ -12,6 +12,7 @@ import rocks.ifa.spring.domain.clientCareer.dtos.CareerRes;
 import rocks.ifa.spring.domain.clientCareer.dtos.UpdateCareerReq;
 import rocks.ifa.spring.infra.security.SecurityUtils;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -23,14 +24,18 @@ public class ClientCareerController {
     private final ClientCareerService clientCareerService;
 
     @GetMapping
-    @Operation(summary = "獲取指定客戶的職涯資料")
+    @Operation(summary = "獲取指定客戶的職涯資料", description = "如果找不到資料，將回傳 200 OK 且 body 為空。")
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<CareerRes> getCareer(
             @Parameter(description = "客戶的唯一識別碼 (UUID)", required = true)
             @PathVariable UUID clientId) {
         String requesterUid = SecurityUtils.getCurrentUserUid();
-        CareerRes career = clientCareerService.getCareer(clientId, requesterUid);
-        return ResponseEntity.ok(career);
+        
+        Optional<CareerRes> careerOpt = clientCareerService.getCareer(clientId, requesterUid);
+        
+        return careerOpt
+                .map(ResponseEntity::ok) // If present, wrap it in a 200 OK response
+                .orElse(ResponseEntity.ok().build()); // If not present, return 200 OK with an empty body
     }
 
     @PutMapping

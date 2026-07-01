@@ -12,6 +12,7 @@ import rocks.ifa.spring.domain.clientProfile.ClientProfileRepository;
 import rocks.ifa.spring.infra.security.SecurityUtils;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -23,11 +24,10 @@ public class ClientCareerServiceImpl implements ClientCareerService {
     private final ClientProfileRepository clientProfileRepository;
 
     @Override
-    public CareerRes getCareer(UUID clientId, String requesterUid) {
+    public Optional<CareerRes> getCareer(UUID clientId, String requesterUid) {
         authorizeAccess(clientId, requesterUid);
         return clientCareerRepository.findById(clientId)
-                .map(this::convertToRes)
-                .orElse(null);
+                .map(this::convertToRes); // No more orElse(null)
     }
 
     @Override
