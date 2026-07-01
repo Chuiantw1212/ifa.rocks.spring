@@ -1,31 +1,43 @@
-# This file defines the CI/CD pipeline for Google Cloud Build.
-# It uses Cloud Native Buildpacks to create a container image without a Dockerfile.
+# This file defines the complete CI/CD pipeline for Google Cloud Build.
+# It first builds the application into a container image, then deploys it to Cloud Run.
 
 steps:
-  # This step builds the application into a container image.
+  # STEP 1: Build the application into a container image using Cloud Native Buildpacks.
   - name: 'gcr.io/k8s-skaffold/pack'
+    id: 'Build'
     entrypoint: 'pack'
     args:
       - 'build'
-      # This is the full name of the image to be built and pushed to Artifact Registry.
-      - 'asia-east1-docker.pkg.dev/ifa-rocks/cloud-run-source-deploy/ifa-rocks-spring:latest'
-      
-      # Use the recommended, up-to-date builder for Google Cloud.
+      # The image name now uses the short Git commit SHA as the tag for unique versioning.
+      - 'asia-east1-docker.pkg.dev/ifa-rocks/cloud-run-source-deploy/ifa-rocks-spring:$SHORT_SHA'
       - '--builder=gcr.io/buildpacks/builder:google-24'
-      
       - '--path=.'
-      
       # Lock the Java version to 21 to ensure a stable and consistent build environment.
       - '--env=GOOGLE_RUNTIME_VERSION=21'
-      
       # Force a clean build by clearing any cached layers from previous failed builds.
       - '--clear-cache'
+
+  # STEP 2: Deploy the newly built image to Cloud Run.
+  # This step runs after the 'Build' step is successful.
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'Deploy'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'ifa-rocks-spring'  # <-- IMPORTANT: This is your Cloud Run service name.
+      - '--image=asia-east1-docker.pkg.dev/ifa-rocks/cloud-run-source-deploy/ifa-rocks-spring:$SHORT_SHA'
+      - '--region=asia-east1'
+      - '--platform=managed'
+      # If your service does not need to be public, you can remove the following line.
+      - '--allow-unauthenticated'
+    # This ensures the deploy step only runs if the build step succeeds.
+    waitFor: ['Build']
 
 # After the build step is successful, Cloud Build will automatically push the resulting
 # container image to the specified Artifact Registry repository.
 images:
-  - 'asia-east1-docker.pkg.dev/ifa-rocks/cloud-run-source-deploy/ifa-rocks-spring:latest'
+  - 'asia-east1-docker.pkg.dev/ifa-rocks/cloud-run-source-deploy/ifa-rocks-spring:$SHORT_SHA'
 
 options:
-  # Set the logging mode. CLOUD_LOGGING_ONLY is the default.
   logging: CLOUD_LOGGING_ONLY
