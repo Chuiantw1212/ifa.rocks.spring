@@ -12,6 +12,7 @@ import rocks.ifa.spring.domain.clientProfile.ClientProfileRepository;
 import rocks.ifa.spring.infra.security.SecurityUtils;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -23,20 +24,15 @@ public class ClientLaborPensionServiceImpl implements ClientLaborPensionService 
     private final ClientProfileRepository clientProfileRepository;
 
     @Override
-    public LaborPensionRes getLaborPension(UUID clientId, String requesterUid) {
-        log.info("Service: getLaborPension for client ID: {}", clientId);
+    public Optional<LaborPensionRes> getLaborPension(UUID clientId, String requesterUid) {
         authorizeAccess(clientId, requesterUid);
-        
-        log.info("Service: Authorization successful. Finding labor pension data by ID...");
         return clientLaborPensionRepository.findById(clientId)
-                .map(this::convertToRes)
-                .orElse(null);
+                .map(this::convertToRes);
     }
 
     @Override
     @Transactional
     public void updateLaborPension(UUID clientId, UpdateLaborPensionReq req, String requesterUid) {
-        log.info("Service: updateLaborPension for client ID: {}", clientId);
         authorizeAccess(clientId, requesterUid);
         
         ClientLaborPensionEntity entity = clientLaborPensionRepository.findById(clientId)
@@ -62,26 +58,15 @@ public class ClientLaborPensionServiceImpl implements ClientLaborPensionService 
     }
 
     private void authorizeAccess(UUID clientId, String requesterUid) {
-        log.info("Service: Authorizing access for requester {} to client {}", requesterUid, clientId);
-        try {
-            var profile = clientProfileRepository.findById(clientId)
-                    .orElseThrow(() -> {
-                        log.warn("Authorization failed: Client profile with ID {} not found.", clientId);
-                        return new ResponseStatusException(HttpStatus.NOT_FOUND, "Associated client profile not found.");
-                    });
-            
-            boolean isOwnerAgent = Objects.equals(requesterUid, profile.getAgentFirebaseUid());
-            boolean isClientSelf = Objects.equals(requesterUid, profile.getClientFirebaseUid());
+        var profile = clientProfileRepository.findById(clientId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Associated client profile not found."));
+        
+        boolean isOwnerAgent = Objects.equals(requesterUid, profile.getAgentFirebaseUid());
+        boolean isClientSelf = Objects.equals(requesterUid, profile.getClientFirebaseUid());
 
-            if (!isOwnerAgent && !isClientSelf) {
-                log.warn("Authorization FAILED: Requester {} is not the owner agent ({}) nor the client themselves ({}).", 
-                         requesterUid, profile.getAgentFirebaseUid(), profile.getClientFirebaseUid());
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to access this data.");
-            }
-            log.info("Service: Authorization successful for requester {} on client {}.", requesterUid, clientId);
-        } catch (Exception e) {
-            log.error("❌❌❌ Exception during authorization check for client ID: {}", clientId, e);
-            throw e;
+        if (!isOwnerAgent && !isClientSelf) {
+            log.warn("Unauthorized attempt to access labor pension data for client {}. Requester UID: {}", clientId, requesterUid);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to access this data.");
         }
     }
 

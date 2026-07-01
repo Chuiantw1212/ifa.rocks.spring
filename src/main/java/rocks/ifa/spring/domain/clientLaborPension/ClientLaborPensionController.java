@@ -2,6 +2,9 @@ package rocks.ifa.spring.domain.clientLaborPension;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -13,6 +16,8 @@ import rocks.ifa.spring.domain.clientLaborPension.dtos.LaborPensionRes;
 import rocks.ifa.spring.domain.clientLaborPension.dtos.UpdateLaborPensionReq;
 import rocks.ifa.spring.infra.security.SecurityUtils;
 
+import java.util.Collections;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -25,23 +30,22 @@ public class ClientLaborPensionController {
     private final ClientLaborPensionService clientLaborPensionService;
 
     @GetMapping
-    @Operation(summary = "獲取指定客戶的勞工退休金資料")
+    @Operation(summary = "獲取指定客戶的勞工退休金資料", description = "如果找不到資料，將回傳 200 OK 且 body 為一個空的 JSON 物件 {}。")
+    @ApiResponse(responseCode = "200", description = "成功獲取資料或表示資料不存在。", content = {
+            @Content(mediaType = "application/json", schema = @Schema(oneOf = {LaborPensionRes.class, Object.class}))
+    })
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<LaborPensionRes> getLaborPension(
+    public ResponseEntity<Object> getLaborPension(
             @Parameter(description = "客戶的唯一識別碼 (UUID)", required = true)
             @PathVariable UUID clientId) {
-        log.info("--- Received GET request for labor pension data for client ID: {} ---", clientId);
-        try {
-            String requesterUid = SecurityUtils.getCurrentUserUid();
-            log.info("Requester UID: {}", requesterUid);
-            LaborPensionRes laborPension = clientLaborPensionService.getLaborPension(clientId, requesterUid);
-            log.info("--- Successfully retrieved labor pension data for client ID: {} ---", clientId);
-            return ResponseEntity.ok(laborPension);
-        } catch (Exception e) {
-            log.error("❌❌❌ Unhandled exception in getLaborPension controller for client ID: {}", clientId, e);
-            // Re-throwing the exception to let the global exception handler deal with it,
-            // but we have logged the root cause here.
-            throw e;
+        
+        String requesterUid = SecurityUtils.getCurrentUserUid();
+        Optional<LaborPensionRes> laborPensionOpt = clientLaborPensionService.getLaborPension(clientId, requesterUid);
+        
+        if (laborPensionOpt.isPresent()) {
+            return ResponseEntity.ok(laborPensionOpt.get());
+        } else {
+            return ResponseEntity.ok(Collections.emptyMap());
         }
     }
 
@@ -52,16 +56,8 @@ public class ClientLaborPensionController {
             @Parameter(description = "客戶的唯一識別碼 (UUID)", required = true)
             @PathVariable UUID clientId,
             @RequestBody @Valid UpdateLaborPensionReq req) {
-        log.info("--- Received PUT request to update labor pension data for client ID: {} ---", clientId);
-        try {
-            String requesterUid = SecurityUtils.getCurrentUserUid();
-            log.info("Requester UID: {}", requesterUid);
-            clientLaborPensionService.updateLaborPension(clientId, req, requesterUid);
-            log.info("--- Successfully updated labor pension data for client ID: {} ---", clientId);
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            log.error("❌❌❌ Unhandled exception in updateLaborPension controller for client ID: {}", clientId, e);
-            throw e;
-        }
+        String requesterUid = SecurityUtils.getCurrentUserUid();
+        clientLaborPensionService.updateLaborPension(clientId, req, requesterUid);
+        return ResponseEntity.noContent().build();
     }
 }
