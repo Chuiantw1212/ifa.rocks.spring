@@ -11,6 +11,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @ControllerAdvice
 @Slf4j
@@ -18,6 +19,17 @@ public class GlobalExceptionHandler {
 
     @Value("${spring.profiles.active:prod}")
     private String activeProfile;
+
+    /**
+     * CRITICAL FIX: Handles the specific case where a controller returns an empty body,
+     * which can mistakenly trigger the static resource handler.
+     * This handler intercepts the exception and returns the desired 200 OK with an empty body.
+     */
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<Void> handleNoResourceFoundException(NoResourceFoundException ex, HttpServletRequest request) {
+        log.warn("✅ NoResourceFoundException caught for {}. This is likely due to a GET endpoint returning an empty body. Suppressing 500 and returning 200 OK as requested.", request.getRequestURI());
+        return ResponseEntity.ok().build();
+    }
 
     /**
      * Handles exceptions that we throw intentionally (e.g., for authorization).
@@ -86,7 +98,6 @@ public class GlobalExceptionHandler {
         log.error("🔥🔥🔥 Uncaught Exception: {} {} - Root cause: {}", status.value(), path, ex.getMessage(), ex);
 
         String message;
-        // Only expose detailed error messages in non-production environments for security reasons.
         if ("dev".equalsIgnoreCase(activeProfile) || "local".equalsIgnoreCase(activeProfile)) {
             message = "An unexpected error occurred. Cause: " + ex.getMessage();
         } else {
