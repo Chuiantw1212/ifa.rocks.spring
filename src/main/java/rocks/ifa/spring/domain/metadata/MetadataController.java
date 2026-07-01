@@ -46,17 +46,18 @@ public class MetadataController {
         return ResponseEntity.ok(result);
     }
 
-    @Operation(summary = "查詢一個年齡範圍內的預期壽命", description = "根據指定的性別和基準年齡，回傳前後五年的預期壽命列表。")
+    @Operation(summary = "查詢一個年齡範圍內的預期壽命", description = "根據指定的性別和基準年齡，回傳前後五年的預期壽命列表。可選填年份，若不提供則使用當前年份。")
     @GetMapping("/life-expectancy-range")
     public ResponseEntity<List<LifeExpectancyRes>> getLifeExpectancyRange(
             @Parameter(description = "性別 (MALE/FEMALE)", example = "MALE") @RequestParam String gender,
-            @Parameter(description = "基準年齡", example = "65") @RequestParam Integer baseAge) {
+            @Parameter(description = "基準年齡", example = "65") @RequestParam Integer baseAge,
+            @Parameter(description = "查詢年份 (可選，預設為當前年份)", example = "2024") @RequestParam(required = false) Integer year) {
         
         if (baseAge < 5 || baseAge > 145) {
             return ResponseEntity.badRequest().build();
         }
 
-        List<LifeExpectancyRes> results = metadataService.getLifeExpectancyRange(gender, baseAge);
+        List<LifeExpectancyRes> results = metadataService.getLifeExpectancyRange(gender, baseAge, year);
 
         if (results.isEmpty()) {
             return ResponseEntity.notFound().build();

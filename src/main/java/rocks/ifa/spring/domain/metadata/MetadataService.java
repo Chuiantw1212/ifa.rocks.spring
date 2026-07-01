@@ -12,7 +12,7 @@ public interface MetadataService {
 
     LifeExpectancyRes getLifeExpectancy(Integer year, String gender, Integer age);
 
-    List<LifeExpectancyRes> getLifeExpectancyRange(String gender, int baseAge);
+    List<LifeExpectancyRes> getLifeExpectancyRange(String gender, int baseAge, Integer year);
 
     void syncMetadata() throws IOException;
 

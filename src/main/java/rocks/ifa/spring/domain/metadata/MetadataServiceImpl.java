@@ -69,14 +69,15 @@ public class MetadataServiceImpl implements MetadataService {
     }
 
     @Override
-    public List<LifeExpectancyRes> getLifeExpectancyRange(String gender, int baseAge) {
+    public List<LifeExpectancyRes> getLifeExpectancyRange(String gender, int baseAge, Integer year) {
         List<LifeExpectancyRes> results = new ArrayList<>();
-        int currentYear = LocalDate.now().getYear();
-        
+        int queryYear = (year != null) ? year : LocalDate.now().getYear();
+        log.info("Querying life expectancy range for gender: {}, baseAge: {}, year: {}", gender, baseAge, queryYear);
+
         for (int age = baseAge - 5; age <= baseAge + 5; age++) {
             if (age < 0) continue;
             
-            LifeExpectancyRes res = getLifeExpectancy(currentYear, gender, age);
+            LifeExpectancyRes res = getLifeExpectancy(queryYear, gender, age);
             if (res != null) {
                 results.add(res);
             }
