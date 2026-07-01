@@ -147,7 +147,8 @@ MAVEN_HOME="${MAVEN_USER_HOME}/wrapper/dists/${distributionUrlNameMain-}/$(hash_
 
 exec_maven() {
   unset MVNW_VERBOSE MVNW_USERNAME MVNW_PASSWORD MVNW_REPOURL || :
-  exec "$MAVEN_HOME/bin/$MVN_CMD" "$@" || die "cannot exec $MAVEN_HOME/bin/$MVN_CMD"
+  # CRITICAL MODIFICATION: Added -X flag to force debug logging
+  exec "$MAVEN_HOME/bin/$MVN_CMD" -X "$@" || die "cannot exec $MAVEN_HOME/bin/$MVN_CMD"
 }
 
 if [ -d "$MAVEN_HOME" ]; then
