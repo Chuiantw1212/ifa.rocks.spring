@@ -43,6 +43,7 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public ClientFullDataRes getClientFullData(UUID clientId, String requesterUid) {
+        log.info("Fetching full data for client ID: {}", clientId);
         return clientProfileRepository.findById(clientId)
                 .map(entity -> mapToFullDataRes(entity, requesterUid))
                 .orElse(null);
@@ -50,6 +51,7 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public PageResponse<ClientFullDataRes> listClientsByAgent(String agentUid, Pageable pageable) {
+        log.info("Listing clients for agent UID: {}", agentUid);
         Page<ClientProfileEntity> clientPage = clientProfileRepository.findAllByAgentFirebaseUid(agentUid, pageable);
         List<ClientFullDataRes> dtoList = clientPage.getContent().stream()
                 .map(entity -> mapToFullDataRes(entity, agentUid))
@@ -80,6 +82,7 @@ public class ClientServiceImpl implements ClientService {
     @Override
     @Transactional
     public void deleteClient(UUID clientId, String requesterUid) {
+        log.info("Attempting to delete client ID: {}", clientId);
         ClientProfileEntity clientProfile = clientProfileRepository.findById(clientId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client not found"));
 
@@ -97,15 +100,41 @@ public class ClientServiceImpl implements ClientService {
 
     private ClientFullDataRes mapToFullDataRes(ClientProfileEntity entity, String requesterUid) {
         UUID clientId = entity.getId();
-        return new ClientFullDataRes(
-                clientId,
-                clientProfileService.getClientProfileById(clientId, requesterUid),
-                clientCareerService.getCareer(clientId, requesterUid),
-                clientLaborPensionService.getLaborPension(clientId, requesterUid),
-                clientLaborInsuranceService.getLaborInsurance(clientId, requesterUid),
-                // The following services will also need to be updated to accept (UUID, String)
-                clientRetirementService.getRetirement(clientId.toString()),
-                clientTaxService.getTax(clientId.toString())
-        );
+        log.debug("Mapping full data response for client ID: {}", clientId);
+
+        try {
+            log.debug("Fetching profile...");
+            var profile = clientProfileService.getClientProfileById(clientId, requesterUid);
+            
+            log.debug("Fetching career...");
+            var career = clientCareerService.getCareer(clientId, requesterUid);
+            
+            log.debug("Fetching labor pension...");
+            var laborPension = clientLaborPensionService.getLaborPension(clientId, requesterUid);
+            
+            log.debug("Fetching labor insurance...");
+            var laborInsurance = clientLaborInsuranceService.getLaborInsurance(clientId, requesterUid);
+            
+            log.debug("Fetching retirement...");
+            var retirement = clientRetirementService.getRetirement(clientId.toString());
+            
+            log.debug("Fetching tax...");
+            var tax = clientTaxService.getTax(clientId.toString());
+
+            log.debug("All sub-domain data fetched successfully for client ID: {}", clientId);
+            
+            return new ClientFullDataRes(
+                    clientId,
+                    profile,
+                    career,
+                    laborPension,
+                    laborInsurance,
+                    retirement,
+                    tax
+            );
+        } catch (Exception e) {
+            log.error("❌ Error occurred during mapToFullDataRes for client ID: {}. This will be caught by GlobalExceptionHandler.", clientId, e);
+            throw e; // Re-throw to be caught by the GlobalExceptionHandler
+        }
     }
 }
