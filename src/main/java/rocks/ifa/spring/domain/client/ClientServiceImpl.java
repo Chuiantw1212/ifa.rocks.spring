@@ -107,16 +107,16 @@ public class ClientServiceImpl implements ClientService {
             var profile = clientProfileService.getClientProfileById(clientId, requesterUid);
             
             log.debug("Fetching career...");
-            // Correctly unwrap the Optional before passing it to the constructor
             var career = clientCareerService.getCareer(clientId, requesterUid).orElse(null);
             
             log.debug("Fetching labor pension...");
-            var laborPension = clientLaborPensionService.getLaborPension(clientId, requesterUid);
+            var laborPension = clientLaborPensionService.getLaborPension(clientId, requesterUid).orElse(null);
             
             log.debug("Fetching labor insurance...");
-            var laborInsurance = clientLaborInsuranceService.getLaborInsurance(clientId, requesterUid);
+            var laborInsurance = clientLaborInsuranceService.getLaborInsurance(clientId, requesterUid).orElse(null);
             
             log.debug("Fetching retirement...");
+            // Assuming these will also be updated to return Optional eventually
             var retirement = clientRetirementService.getRetirement(clientId.toString());
             
             log.debug("Fetching tax...");
