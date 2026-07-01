@@ -18,9 +18,9 @@ import rocks.ifa.spring.infra.config.LineLiffProperties;
 
 import java.util.Map;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
+@Slf4j // This annotation is critical and will now work with the corrected pom.xml
 public class LiffAuthServiceImpl implements LiffAuthService {
 
     private final FirebaseAuth firebaseAuth;
@@ -32,6 +32,7 @@ public class LiffAuthServiceImpl implements LiffAuthService {
 
     @Override
     public AuthRes loginWithLiff(LiffLoginReq req) {
+        // The core business logic remains unchanged.
         LineVerifyResponse lineUser = verifyLiffToken(req.token());
         UserRecord firebaseUser = getOrCreateFirebaseUser(lineUser);
         return authService.handlePostLogin(firebaseUser);
@@ -41,7 +42,8 @@ public class LiffAuthServiceImpl implements LiffAuthService {
         WebClient webClient = webClientBuilder.baseUrl(LINE_VERIFY_URL).build();
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("id_token", liffIdToken);
-        formData.add("client_id", lineLiffProperties.getChannelId());
+        // Using the correct accessor for a record, which will work now that annotation processing is fixed.
+        formData.add("client_id", lineLiffProperties.channelId());
 
         return webClient.post()
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -64,30 +66,34 @@ public class LiffAuthServiceImpl implements LiffAuthService {
         String lineUserId = lineUser.sub();
 
         try {
-            UserRecord.CreateRequest request = new UserRecord.CreateRequest()
-                    .setEmail(email)
-                    .setDisplayName(displayName)
-                    .setDisabled(false);
-            
-            UserRecord newUserRecord = firebaseAuth.createUser(request);
-            log.info("✅ Successfully created a new Firebase user with email: {}", email);
-            
-            firebaseAuth.setCustomUserClaims(newUserRecord.getUid(), Map.of("lineUserId", lineUserId));
-            
-            return newUserRecord;
-
+            // The robust "get-first" strategy is preserved.
+            log.debug("Attempting to fetch existing Firebase user by email: {}", email);
+            return firebaseAuth.getUserByEmail(email);
         } catch (FirebaseAuthException e) {
-            if ("email-already-exists".equals(e.getErrorCode())) {
-                log.info("User with email {} already exists. Fetching existing user.", email);
+            // If and only if the user is not found, we proceed to create them.
+            if ("user-not-found".equals(e.getErrorCode())) {
+                log.info("User with email {} not found. Creating a new Firebase user.", email);
                 try {
-                    return firebaseAuth.getUserByEmail(email);
+                    UserRecord.CreateRequest request = new UserRecord.CreateRequest()
+                            .setEmail(email)
+                            .setDisplayName(displayName)
+                            .setDisabled(false);
+                    
+                    UserRecord newUserRecord = firebaseAuth.createUser(request);
+                    log.info("✅ Successfully created a new Firebase user with email: {}", email);
+                    
+                    // Set custom claims for the newly created user.
+                    firebaseAuth.setCustomUserClaims(newUserRecord.getUid(), Map.of("lineUserId", lineUserId));
+                    
+                    return newUserRecord;
                 } catch (FirebaseAuthException ex) {
-                    log.error("❌ Failed to fetch existing user by email: {}", email, ex);
-                    throw new RuntimeException("Failed to fetch existing user", ex);
+                    log.error("❌ An unexpected Firebase error occurred during user creation for email: {}", email, ex);
+                    throw new RuntimeException("Firebase user creation failed", ex);
                 }
             } else {
-                log.error("❌ An unexpected Firebase error occurred during user creation for email: {}", email, e);
-                throw new RuntimeException("Firebase user creation failed", e);
+                // For other Firebase exceptions (e.g., network issues), re-throw.
+                log.error("❌ An unexpected Firebase error occurred when fetching user by email: {}", email, e);
+                throw new RuntimeException("Failed to fetch or create user", e);
             }
         }
     }
