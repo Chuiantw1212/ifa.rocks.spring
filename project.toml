@@ -1,0 +1,21 @@
+# Google Cloud Buildpacks Project Descriptor
+# See https://github.com/GoogleCloudPlatform/buildpacks/blob/main/README.md
+
+# Set a schema version
+schema-version = "0.2"
+
+# List of buildpack IDs to be used in the build
+# We are explicitly defining the buildpacks to use, in order.
+[[build.buildpacks]]
+id = "google.java.maven"
+version = "0.9.2"
+
+[[build.buildpacks]]
+id = "google.java.runtime"
+version = "0.9.2"
+
+# Environment variables to be set during the build
+[build.env]
+# This is the crucial part:
+# Force the Java runtime and compiler version to 17.
+GOOGLE_RUNTIME_VERSION = "17"
