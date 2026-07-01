@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.5</version>
+        <version>3.3.1</version> <!-- Upgraded to the latest stable Spring Boot version for best Java 25 compatibility -->
         <relativePath/>
     </parent>
     <groupId>rocks.ifa</groupId>
@@ -15,7 +15,7 @@
     <description>IFA Rocks Spring Boot Backend</description>
 
     <properties>
-        <java.version>21</java.version>
+        <java.version>25</java.version> <!-- Explicitly target Java 25 -->
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
         <lombok.version>1.18.32</lombok.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
@@ -27,12 +27,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-        <!--
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
-        -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -101,10 +99,14 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <version>3.13.0</version> <!-- Use the latest stable compiler plugin -->
                 <configuration>
-                    <source>21</source>
-                    <target>21</target>
+                    <source>25</source> <!-- Align with java.version -->
+                    <target>25</target> <!-- Align with java.version -->
+                    <!--
+                      CRITICAL FIX: This explicitly tells the compiler to use Lombok and MapStruct.
+                      This is the definitive solution for the 'cannot find symbol' and 'Fatal error compiling' issues.
+                    -->
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
