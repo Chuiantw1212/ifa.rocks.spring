@@ -1,20 +1,23 @@
 package rocks.ifa.spring.auth;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import rocks.ifa.spring.domain.agent.AgentService; // Corrected import
+import rocks.ifa.spring.domain.agent.AgentService;
 import rocks.ifa.spring.auth.dtos.AuthRes;
 import rocks.ifa.spring.auth.dtos.LoginReq;
 import rocks.ifa.spring.auth.dtos.FirebaseCustomToken;
 import rocks.ifa.spring.auth.dtos.LiffIdToken;
-import rocks.ifa.spring.auth.dtos.LineTokenPayload; // Corrected import
+import rocks.ifa.spring.auth.dtos.LineTokenPayload;
 import rocks.ifa.spring.auth.port.LineAuthPort;
+
+import java.util.Date;
 
 @Slf4j
 @Service
@@ -24,9 +27,6 @@ public class AuthServiceImpl implements AuthService {
     private final FirebaseAuth firebaseAuth;
     private final AgentService agentService;
     private final LineAuthPort lineAuthPort;
-
-    @Value("${line.liff.channel-id}")
-    private String lineLiffChannelId;
 
     @Override
     public AuthRes loginWithFirebase(LoginReq req) {
@@ -47,11 +47,13 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public FirebaseCustomToken loginWithLiff(LiffIdToken idToken) {
         // 1. Verify ID Token with LINE
-        LineTokenPayload payload = lineAuthPort.verifyIdToken(idToken.idToken(), lineLiffChannelId)
+        LineTokenPayload payload = lineAuthPort.verifyIdToken(idToken.idToken())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid ID Token"));
 
         // 2. Validate Payload
-        payload.validate(lineLiffChannelId);
+        // The audience (aud) check is now implicitly handled by the adapter.
+        // We still need to validate the issuer (iss) and expiration (exp) here.
+        payload.validate("2009612107");
 
         // 3. Find or create user in Agent domain
         String lineUserId = "line:" + payload.sub();
@@ -68,8 +70,6 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void logout() {
-        // The actual logout mechanism (e.g., token revocation) would be implemented here.
-        // For now, we just log the action.
         log.info("User logout requested.");
     }
 }

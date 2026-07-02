@@ -20,34 +20,36 @@ public class LineAuthAdapter implements LineAuthPort {
 
     private final RestTemplate restTemplate = new RestTemplate();
     private static final String LINE_VERIFY_URL = "https://api.line.me/oauth2/v2.1/verify";
+    private static final String LINE_CHANNEL_ID = "2009612107"; // Hardcoded Channel ID
 
     @Override
-    public Optional<LineTokenPayload> verifyIdToken(String idToken, String clientId) {
-        // 1. Set up headers
+    public Optional<LineTokenPayload> verifyIdToken(String idToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-        // 2. Set up the request body (form data)
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         map.add("id_token", idToken);
-        map.add("client_id", clientId);
+        map.add("client_id", LINE_CHANNEL_ID);
 
-        // 3. Create the HTTP entity
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
 
         try {
-            // 4. Send the POST request
-            log.info("Verifying ID token with LINE API...");
+            // --- New Detailed Log ---
+            log.info("--> Sending verification request to LINE API.");
+            log.info("    URL: {}", LINE_VERIFY_URL);
+            log.info("    client_id: {}", LINE_CHANNEL_ID);
+            log.info("    id_token: {}", idToken);
+            // --- End of New Detailed Log ---
+
             LineTokenPayload payload = restTemplate.postForObject(LINE_VERIFY_URL, request, LineTokenPayload.class);
-            log.info("Successfully verified ID token. LINE User Sub: {}", payload != null ? payload.sub() : "null");
+            
+            log.info("<-- Successfully verified ID token. LINE User Sub: {}", payload != null ? payload.sub() : "null");
             return Optional.ofNullable(payload);
         } catch (HttpClientErrorException e) {
-            // 5. Log detailed error information from LINE
-            log.error("Error while verifying LINE ID token. Status: {}, Body: {}", e.getStatusCode(), e.getResponseBodyAsString());
+            log.error("<-- Error while verifying LINE ID token. Status: {}, Body: {}", e.getStatusCode(), e.getResponseBodyAsString());
             return Optional.empty();
         } catch (Exception e) {
-            // Catch other potential exceptions (e.g., network issues)
-            log.error("An unexpected error occurred during LINE ID token verification.", e);
+            log.error("<-- An unexpected error occurred during LINE ID token verification.", e);
             return Optional.empty();
         }
     }
