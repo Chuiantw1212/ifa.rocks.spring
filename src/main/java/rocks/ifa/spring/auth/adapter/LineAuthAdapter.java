@@ -20,7 +20,7 @@ public class LineAuthAdapter implements LineAuthPort {
 
     private final RestTemplate restTemplate = new RestTemplate();
     private static final String LINE_VERIFY_URL = "https://api.line.me/oauth2/v2.1/verify";
-    private static final String LINE_CHANNEL_ID = "2009612107"; // Hardcoded Channel ID
+    private static final String LINE_CHANNEL_ID = "2009612107";
 
     @Override
     public Optional<LineTokenPayload> verifyIdToken(String idToken) {
@@ -34,22 +34,14 @@ public class LineAuthAdapter implements LineAuthPort {
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
 
         try {
-            // --- New Detailed Log ---
-            log.info("--> Sending verification request to LINE API.");
-            log.info("    URL: {}", LINE_VERIFY_URL);
-            log.info("    client_id: {}", LINE_CHANNEL_ID);
-            log.info("    id_token: {}", idToken);
-            // --- End of New Detailed Log ---
-
             LineTokenPayload payload = restTemplate.postForObject(LINE_VERIFY_URL, request, LineTokenPayload.class);
-            
-            log.info("<-- Successfully verified ID token. LINE User Sub: {}", payload != null ? payload.sub() : "null");
+            log.info("Successfully verified LINE ID token.");
             return Optional.ofNullable(payload);
         } catch (HttpClientErrorException e) {
-            log.error("<-- Error while verifying LINE ID token. Status: {}, Body: {}", e.getStatusCode(), e.getResponseBodyAsString());
+            log.error("LINE ID token verification failed. Status: {}, Body: {}", e.getStatusCode(), e.getResponseBodyAsString());
             return Optional.empty();
         } catch (Exception e) {
-            log.error("<-- An unexpected error occurred during LINE ID token verification.", e);
+            log.error("An unexpected error occurred during LINE ID token verification.", e);
             return Optional.empty();
         }
     }

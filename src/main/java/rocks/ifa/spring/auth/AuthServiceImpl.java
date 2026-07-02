@@ -1,7 +1,5 @@
 package rocks.ifa.spring.auth;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
@@ -16,8 +14,6 @@ import rocks.ifa.spring.auth.dtos.FirebaseCustomToken;
 import rocks.ifa.spring.auth.dtos.LiffIdToken;
 import rocks.ifa.spring.auth.dtos.LineTokenPayload;
 import rocks.ifa.spring.auth.port.LineAuthPort;
-
-import java.util.Date;
 
 @Slf4j
 @Service
@@ -51,8 +47,6 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid ID Token"));
 
         // 2. Validate Payload
-        // The audience (aud) check is now implicitly handled by the adapter.
-        // We still need to validate the issuer (iss) and expiration (exp) here.
         payload.validate("2009612107");
 
         // 3. Find or create user in Agent domain
