@@ -1,7 +1,4 @@
-package rocks.ifa.spring.infra.config;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
+package rocks.ifa.spring.infrastructure.config;
 
 /*
   This configuration is temporarily disabled by commenting out the annotations.

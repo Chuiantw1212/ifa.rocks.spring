@@ -1,4 +1,4 @@
-package rocks.ifa.spring.infra.config;
+package rocks.ifa.spring.infrastructure.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -10,7 +10,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
-import rocks.ifa.spring.infra.security.FirebaseTokenFilter;
+import rocks.ifa.spring.infrastructure.security.FirebaseTokenFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -29,17 +29,19 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers(
-                                // Swagger & Docs
+                                // --- Authentication API ---
+                                "/api/v1/auth/**",
+
+                                // --- Swagger & Docs ---
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                // Status API (root path)
-                                "/",
-                                // Public APIs
+
+                                // --- Status & Public APIs ---
+                                "/", // Root status endpoint
                                 "/api/v1/metadata/**",
-                                "/api/v1/agents/login",
-                                "/api/v1/agents/auth/liff", // Unified LIFF login endpoint
-                                // Admin tools
+                                
+                                // --- Admin tools (if any) ---
                                 "/api/v1/admin/**"
                         )
                         .permitAll()

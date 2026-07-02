@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.*;
 import rocks.ifa.spring.domain.clientProfile.dtos.PatchProfileReq;
 import rocks.ifa.spring.domain.clientProfile.dtos.ProfileRes;
 import rocks.ifa.spring.domain.clientProfile.dtos.UpdateProfileReq;
-import rocks.ifa.spring.infra.common.PageResponse;
-import rocks.ifa.spring.infra.security.SecurityUtils;
+import rocks.ifa.spring.infrastructure.common.PageResponse;
+import rocks.ifa.spring.infrastructure.security.SecurityUtils;
 
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/client/profiles")
+@RequestMapping("/api/v1/client/profiles") // Reverted
 @Tag(name = "Client Profile API", description = "管理客戶的個人基本資料")
 @RequiredArgsConstructor
 public class ClientProfileController {

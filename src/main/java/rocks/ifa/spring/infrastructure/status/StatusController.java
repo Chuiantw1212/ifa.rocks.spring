@@ -1,4 +1,4 @@
-package rocks.ifa.spring.infra.status;
+package rocks.ifa.spring.infrastructure.status;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

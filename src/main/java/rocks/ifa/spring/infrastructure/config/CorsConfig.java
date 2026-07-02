@@ -1,4 +1,4 @@
-package rocks.ifa.spring.infra.config;
+package rocks.ifa.spring.infrastructure.config;
 
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;

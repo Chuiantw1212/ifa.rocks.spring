@@ -1,4 +1,4 @@
-package rocks.ifa.spring.infra.exception;
+package rocks.ifa.spring.infrastructure.exception;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.http.HttpStatus;

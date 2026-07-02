@@ -1,4 +1,4 @@
-package rocks.ifa.spring.infra.common;
+package rocks.ifa.spring.infrastructure.common;
 
 import lombok.Data;
 import java.util.List;

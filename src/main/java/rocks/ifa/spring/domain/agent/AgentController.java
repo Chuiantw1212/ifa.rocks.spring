@@ -7,61 +7,39 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import rocks.ifa.spring.domain.agent.dtos.*;
+import rocks.ifa.spring.domain.agent.dtos.AgentRes;
+import rocks.ifa.spring.domain.agent.dtos.CreateAgentReq;
+import rocks.ifa.spring.domain.agent.dtos.UpdateAgentReq;
 
 @RestController
-@RequestMapping("/api/v1/agents")
+@RequestMapping("/api/v1/agents") // Reverted
 @Tag(name = "Agent Management API", description = "IFA 顧問後台管理使用者帳號")
 @RequiredArgsConstructor
 public class AgentController {
 
     private final AgentService agentService;
-    // private final LiffAuthService liffAuthService; // Temporarily commented out
 
-    @Operation(summary = "顧問登入")
-    @PostMapping("/login")
-    public ResponseEntity<AuthRes> login(@RequestBody @Valid LoginReq req) {
-        return ResponseEntity.ok(agentService.login(req));
-    }
-
-    /*
-    @Operation(summary = "顧問透過 LINE LIFF 登入")
-    @PostMapping("/auth/liff")
-    public ResponseEntity<AuthRes> loginWithLiff(@RequestBody @Valid LiffLoginReq req) {
-        return ResponseEntity.ok(liffAuthService.loginWithLiff(req)); // Temporarily commented out
-    }
-    */
-
-    @Operation(summary = "顧問登出")
-    @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestHeader("Authorization") String token) {
-        String agentId = "dummy-agent-id";
-        agentService.logout(agentId);
-        return ResponseEntity.ok().build();
-    }
-
-    @Operation(summary = "建立新使用者")
+    @Operation(summary = "建立新顧問")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public AgentRes createAgent(@RequestBody @Valid CreateAgentReq req) throws FirebaseAuthException {
         return agentService.createAgent(req);
     }
 
-    @Operation(summary = "取得單一使用者資訊")
+    @Operation(summary = "取得單一顧問資訊")
     @GetMapping("/{id}")
-    public AgentRes getAgent(@PathVariable String id) throws FirebaseAuthException {
+    public AgentRes getAgent(@PathVariable String id) {
         return agentService.getAgent(id);
     }
 
-    @Operation(summary = "更新使用者資訊")
+    @Operation(summary = "更新顧問資訊")
     @PutMapping("/{id}")
     public AgentRes updateAgent(@PathVariable String id, @RequestBody @Valid UpdateAgentReq req) throws FirebaseAuthException {
         return agentService.updateAgent(id, req);
     }
 
-    @Operation(summary = "刪除自己的帳號", description = "刪除當前登入用戶自己的帳號，並連動刪除所有相關資料。")
+    @Operation(summary = "刪除自己的顧問帳號", description = "刪除當前登入用戶自己的帳號，並連動刪除所有相關資料。")
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @SecurityRequirement(name = "bearerAuth")

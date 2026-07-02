@@ -1,4 +1,4 @@
-package rocks.ifa.spring.infra.config;
+package rocks.ifa.spring.infrastructure.config;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.Firestore;

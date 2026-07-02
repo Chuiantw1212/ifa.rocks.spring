@@ -2,7 +2,6 @@ package rocks.ifa.spring.domain.agent;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rocks.ifa.spring.domain.agent.dtos.*;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileRepository;
-import rocks.ifa.spring.infra.security.SecurityUtils;
+import rocks.ifa.spring.infrastructure.security.SecurityUtils;
 
 @Slf4j
 @Service
@@ -18,26 +17,7 @@ import rocks.ifa.spring.infra.security.SecurityUtils;
 public class AgentServiceImpl implements AgentService {
 
     private final FirebaseAuth firebaseAuth;
-    private final AuthService authService;
     private final ClientProfileRepository clientProfileRepository;
-
-    @Override
-    public AuthRes login(LoginReq req) {
-        try {
-            FirebaseToken decodedToken = firebaseAuth.verifyIdToken(req.firebaseToken());
-            UserRecord userRecord = firebaseAuth.getUser(decodedToken.getUid());
-            log.info("Successfully verified Firebase ID token for user: {}", userRecord.getEmail());
-            return authService.handlePostLogin(userRecord);
-        } catch (FirebaseAuthException e) {
-            log.error("❌ Firebase ID token verification failed", e);
-            throw new RuntimeException("Invalid Firebase token", e);
-        }
-    }
-
-    @Override
-    public void logout(String agentId) {
-        log.info("Agent logged out: {}", agentId);
-    }
 
     @Override
     public AgentRes createAgent(CreateAgentReq req) throws FirebaseAuthException {
@@ -53,9 +33,14 @@ public class AgentServiceImpl implements AgentService {
     }
 
     @Override
-    public AgentRes getAgent(String agentId) throws FirebaseAuthException {
-        UserRecord userRecord = firebaseAuth.getUser(agentId);
-        return mapToAgentRes(userRecord);
+    public AgentRes getAgent(String agentId) {
+        try {
+            UserRecord userRecord = firebaseAuth.getUser(agentId);
+            return mapToAgentRes(userRecord);
+        } catch (FirebaseAuthException e) {
+            // Consider a more specific exception, e.g., a custom NotFoundException
+            throw new RuntimeException("Failed to get user with id: " + agentId, e);
+        }
     }
 
     @Override
@@ -89,6 +74,24 @@ public class AgentServiceImpl implements AgentService {
         log.info("Step 2: Deleting user from Firebase Authentication...");
         firebaseAuth.deleteUser(agentId);
         log.info("✅ --- Successfully deleted user {} from all systems. ---", agentId);
+    }
+
+    @Override
+    public UserRecord findOrCreateAgentByLineId(String lineUserId, String name, String picture) {
+        try {
+            return firebaseAuth.getUser(lineUserId);
+        } catch (FirebaseAuthException e) {
+            log.info("User with LINE UID {} not found. Creating a new user.", lineUserId);
+            UserRecord.CreateRequest request = new UserRecord.CreateRequest()
+                    .setUid(lineUserId)
+                    .setDisplayName(name)
+                    .setPhotoUrl(picture);
+            try {
+                return firebaseAuth.createUser(request);
+            } catch (FirebaseAuthException ex) {
+                throw new RuntimeException("Failed to create Firebase user for LINE login", ex);
+            }
+        }
     }
 
     private AgentRes mapToAgentRes(UserRecord userRecord) {

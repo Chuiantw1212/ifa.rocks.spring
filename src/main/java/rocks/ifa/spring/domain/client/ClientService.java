@@ -4,7 +4,7 @@ import org.springframework.data.domain.Pageable;
 import rocks.ifa.spring.domain.client.dtos.ClientFullDataRes;
 import rocks.ifa.spring.domain.client.dtos.CreateClientReq;
 import rocks.ifa.spring.domain.clientProfile.dtos.ProfileRes;
-import rocks.ifa.spring.infra.common.PageResponse;
+import rocks.ifa.spring.infrastructure.common.PageResponse;
 
 import java.util.UUID;
 

@@ -1,4 +1,4 @@
-package rocks.ifa.spring.infra.status;
+package rocks.ifa.spring.infrastructure.status;
 
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;

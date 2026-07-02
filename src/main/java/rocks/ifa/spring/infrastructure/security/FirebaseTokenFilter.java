@@ -1,4 +1,4 @@
-package rocks.ifa.spring.infra.security;
+package rocks.ifa.spring.infrastructure.security;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;

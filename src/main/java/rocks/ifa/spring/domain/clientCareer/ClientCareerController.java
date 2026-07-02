@@ -14,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import rocks.ifa.spring.domain.clientCareer.dtos.CareerRes;
 import rocks.ifa.spring.domain.clientCareer.dtos.UpdateCareerReq;
-import rocks.ifa.spring.infra.security.SecurityUtils;
+import rocks.ifa.spring.infrastructure.security.SecurityUtils;
 
 import java.util.Collections;
 import java.util.Optional;
