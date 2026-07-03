@@ -8,16 +8,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import rocks.ifa.spring.auth.dtos.AuthRes;
-import rocks.ifa.spring.auth.dtos.FirebaseCustomToken;
-import rocks.ifa.spring.auth.dtos.LiffIdToken;
-import rocks.ifa.spring.auth.dtos.LoginReq;
-import rocks.ifa.spring.auth.port.LineAuthPort;
+import rocks.ifa.spring.auth.dtos.FirebaseLoginReq;
 import rocks.ifa.spring.domain.agent.AgentEntity;
 import rocks.ifa.spring.domain.agent.AgentRepository;
 import rocks.ifa.spring.domain.agent.dtos.AuthResponse;
 import rocks.ifa.spring.domain.line.LineTokenPayload;
 
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -26,12 +23,46 @@ import java.util.Optional;
 public class AuthServiceImpl implements AuthService {
 
     private final FirebaseAuth firebaseAuth;
-    private final AgentRepository agentRepository; // Injected AgentRepository
-    private final LineAuthPort lineAuthPort;
+    private final AgentRepository agentRepository;
 
     @Override
     @Transactional
-    public AuthResponse loginWithLine(LineTokenPayload lineTokenPayload) throws FirebaseAuthException {
+    public AuthResponse handleFirebaseLogin(FirebaseLoginReq req) throws FirebaseAuthException {
+        // 1. Verify Firebase ID Token
+        FirebaseToken decodedToken = firebaseAuth.verifyIdToken(req.idToken());
+        String uid = decodedToken.getUid();
+        String email = decodedToken.getEmail();
+        String name = decodedToken.getName();
+        String picture = decodedToken.getPicture();
+
+        // 2. Find or Create Agent
+        AgentEntity agent = agentRepository.findByFirebaseUid(uid)
+                .orElseGet(() -> {
+                    log.info("Agent with Firebase UID {} not found. Checking by email...", uid);
+                    // If not found by UID, try to find by email to link accounts
+                    if (email != null) {
+                        Optional<AgentEntity> agentByEmail = agentRepository.findByEmail(email);
+                        if (agentByEmail.isPresent()) {
+                            log.info("Found agent by email {}. Linking Firebase UID {}.", email, uid);
+                            AgentEntity existingAgent = agentByEmail.get();
+                            existingAgent.setFirebaseUid(uid); // Link the new Firebase UID
+                            return agentRepository.save(existingAgent);
+                        }
+                    }
+                    // If still not found, create a new agent
+                    log.info("Creating a new agent for Firebase user {}", uid);
+                    AgentEntity newAgent = new AgentEntity(null, uid, null, email, name, picture);
+                    return agentRepository.save(newAgent);
+                });
+
+        // 3. Create a custom token to consolidate session
+        String customToken = firebaseAuth.createCustomToken(agent.getFirebaseUid(), Map.of("agentId", agent.getId().toString()));
+        return AuthResponse.success(customToken);
+    }
+
+    @Override
+    @Transactional
+    public AuthResponse handleLineLogin(LineTokenPayload lineTokenPayload) throws FirebaseAuthException {
         String lineUserId = lineTokenPayload.sub();
         String email = lineTokenPayload.email();
 
@@ -68,6 +99,11 @@ public class AuthServiceImpl implements AuthService {
         return AuthResponse.success(customToken);
     }
 
+    @Override
+    public void logout() {
+        log.info("User logout requested. Client should clear its token.");
+    }
+
     private String ensureFirebaseUser(String uid, String email, String name, String picture) throws FirebaseAuthException {
         try {
             UserRecord userRecord = firebaseAuth.getUser(uid);
@@ -85,24 +121,5 @@ public class AuthServiceImpl implements AuthService {
             }
             throw e;
         }
-    }
-
-    // --- Existing methods ---
-    @Override
-    public AuthRes loginWithFirebase(LoginReq req) {
-        // This method might need adjustment if AgentService is fully removed.
-        // For now, it's kept as is, but might need to inject AgentMapper.
-        throw new UnsupportedOperationException("loginWithFirebase needs to be refactored without AgentService.");
-    }
-
-    @Override
-    public FirebaseCustomToken loginWithLiff(LiffIdToken idToken) {
-        // This method also needs refactoring to use AgentRepository directly.
-        throw new UnsupportedOperationException("loginWithLiff needs to be refactored without AgentService.");
-    }
-
-    @Override
-    public void logout() {
-        log.info("User logout requested.");
     }
 }

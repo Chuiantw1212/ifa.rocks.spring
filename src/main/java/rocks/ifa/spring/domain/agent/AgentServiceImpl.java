@@ -25,12 +25,14 @@ public class AgentServiceImpl implements AgentService {
     private final ClientProfileRepository clientProfileRepository;
     private final AgentMapper agentMapper;
 
+    // createAgent has been moved to AuthServiceImpl and renamed to register
+
     @Override
     @Transactional
     public AgentRes bindLineUserToAgent(LineTokenPayload lineTokenPayload) {
         String firebaseUid = SecurityUtils.getCurrentUserUid();
         String lineUserId = lineTokenPayload.sub();
-        String email = lineTokenPayload.email(); // Can be null
+        String email = lineTokenPayload.email();
 
         Optional<AgentEntity> agentByFirebase = agentRepository.findByFirebaseUid(firebaseUid);
         Optional<AgentEntity> agentByLine = agentRepository.findByLineUserId(lineUserId);
@@ -44,7 +46,6 @@ public class AgentServiceImpl implements AgentService {
             agent.setLineUserId(lineUserId);
             agent.setName(lineTokenPayload.name());
             agent.setPictureUrl(lineTokenPayload.picture());
-            // Only update email if it's not already set and the new one is not null
             if (agent.getEmail() == null && email != null) {
                 agent.setEmail(email);
             }
@@ -60,28 +61,6 @@ public class AgentServiceImpl implements AgentService {
 
         AgentEntity savedAgent = agentRepository.save(agent);
         return agentMapper.toAgentRes(savedAgent);
-    }
-
-    @Override
-    @Transactional
-    public AgentRes createAgent(CreateAgentReq req) throws FirebaseAuthException {
-        agentRepository.findByEmail(req.email()).ifPresent(agent -> {
-            throw new IllegalArgumentException("An account with this email already exists.");
-        });
-
-        UserRecord.CreateRequest request = new UserRecord.CreateRequest()
-                .setEmail(req.email())
-                .setPassword(req.password())
-                .setDisplayName(req.displayName())
-                .setDisabled(false);
-
-        UserRecord userRecord = firebaseAuth.createUser(request);
-        log.info("Successfully created new agent in Firebase: {}", userRecord.getUid());
-
-        AgentEntity newAgent = new AgentEntity(null, userRecord.getUid(), null, req.email(), req.displayName(), userRecord.getPhotoUrl());
-        agentRepository.save(newAgent);
-
-        return agentMapper.toAgentRes(newAgent);
     }
     
     @Override

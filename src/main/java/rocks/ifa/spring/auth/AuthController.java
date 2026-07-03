@@ -7,42 +7,36 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import rocks.ifa.spring.auth.dtos.AuthRes;
-import rocks.ifa.spring.auth.dtos.FirebaseCustomToken;
-import rocks.ifa.spring.auth.dtos.LiffIdToken;
-import rocks.ifa.spring.auth.dtos.LoginReq;
+import rocks.ifa.spring.auth.dtos.FirebaseLoginReq;
 import rocks.ifa.spring.domain.agent.dtos.AuthResponse;
 import rocks.ifa.spring.domain.line.LineTokenPayload;
 
 @RestController
 @RequestMapping("/api/v1/auth")
-@Tag(name = "Authentication API", description = "處理所有使用者登入登出相關的認證服務")
+@Tag(name = "Authentication API", description = "Handles user sign-in and sign-up for both LINE (mobile) and Firebase (desktop).")
 @RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
 
-    @Operation(summary = "Sign in with LINE",
-               description = "Receives a LINE ID Token, finds or creates a user, and returns a Firebase Custom Token.")
-    @PostMapping("/login-line")
-    public AuthResponse loginWithLine(@RequestBody @Valid LineTokenPayload lineTokenPayload) throws FirebaseAuthException {
-        return authService.loginWithLine(lineTokenPayload);
+    @Operation(summary = "Firebase Sign-in (Desktop)",
+               description = "Handles both sign-in and sign-up via Firebase. The client provides a Firebase ID Token, " +
+                             "and the backend finds or creates the corresponding agent.")
+    @PostMapping("/firebase")
+    public AuthResponse handleFirebaseLogin(@RequestBody @Valid FirebaseLoginReq req) throws FirebaseAuthException {
+        return authService.handleFirebaseLogin(req);
     }
 
-    @Operation(summary = "顧問透過 Firebase 登入")
-    @PostMapping("/agent/login")
-    public ResponseEntity<AuthRes> loginWithFirebase(@RequestBody @Valid LoginReq req) {
-        return ResponseEntity.ok(authService.loginWithFirebase(req));
+    @Operation(summary = "LINE Sign-in (Mobile)",
+               description = "Handles both sign-in and sign-up via LINE. The client provides a LINE ID Token, " +
+                             "and the backend finds or creates the corresponding agent and returns a Firebase Custom Token.")
+    @PostMapping("/line")
+    public AuthResponse handleLineLogin(@RequestBody @Valid LineTokenPayload lineTokenPayload) throws FirebaseAuthException {
+        return authService.handleLineLogin(lineTokenPayload);
     }
 
-    @Operation(summary = "使用者透過 LINE LIFF 登入")
-    @PostMapping("/liff")
-    public FirebaseCustomToken loginWithLiff(@RequestBody LiffIdToken idToken) {
-        return authService.loginWithLiff(idToken);
-    }
-
-    @Operation(summary = "顧問登出")
-    @PostMapping("/agent/logout")
+    @Operation(summary = "Sign out the current user")
+    @PostMapping("/logout")
     public ResponseEntity<Void> logout() {
         authService.logout();
         return ResponseEntity.ok().build();

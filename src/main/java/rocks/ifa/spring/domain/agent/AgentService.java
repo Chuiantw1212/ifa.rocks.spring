@@ -7,13 +7,10 @@ import rocks.ifa.spring.domain.line.LineTokenPayload;
 
 public interface AgentService {
 
-    // loginWithLine has been moved to AuthService
+    // createAgent has been moved to AuthService and renamed to register
 
-    // === Account Binding Operation ===
     AgentRes bindLineUserToAgent(LineTokenPayload lineTokenPayload);
 
-    // === Original CRUD Operations ===
-    AgentRes createAgent(CreateAgentReq req) throws FirebaseAuthException;
     AgentRes getAgent(String agentId);
     AgentRes updateAgent(String agentId, UpdateAgentReq req) throws FirebaseAuthException;
     void deleteAgent() throws FirebaseAuthException;
