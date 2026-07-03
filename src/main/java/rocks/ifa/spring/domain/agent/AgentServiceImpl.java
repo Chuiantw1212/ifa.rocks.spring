@@ -27,51 +27,10 @@ public class AgentServiceImpl implements AgentService {
 
     @Override
     @Transactional
-    public AuthResponse loginWithLine(LineTokenPayload lineTokenPayload) throws FirebaseAuthException {
-        String lineUserId = lineTokenPayload.sub();
-
-        // Step 1: Find or Create local Agent record
-        AgentEntity agent = agentRepository.findByLineUserId(lineUserId)
-                .orElseGet(() -> {
-                    log.info("LINE user {} not found in local DB. Creating a new agent.", lineUserId);
-                    AgentEntity newAgent = new AgentEntity(null, null, lineUserId, lineTokenPayload.name(), lineTokenPayload.picture());
-                    return agentRepository.save(newAgent);
-                });
-
-        // Step 2: Find or Create Firebase user
-        try {
-            firebaseAuth.getUser(lineUserId);
-            log.info("User {} already exists in Firebase.", lineUserId);
-        } catch (FirebaseAuthException e) {
-            if (e.getAuthErrorCode() == com.google.firebase.auth.AuthErrorCode.USER_NOT_FOUND) {
-                log.info("User {} not found in Firebase. Creating a new Firebase user.", lineUserId);
-                UserRecord.CreateRequest request = new UserRecord.CreateRequest()
-                        .setUid(lineUserId) // Use LINE User ID as Firebase UID
-                        .setDisplayName(lineTokenPayload.name())
-                        .setPhotoUrl(lineTokenPayload.picture());
-                firebaseAuth.createUser(request);
-
-                // If the local agent didn't have a firebaseUid, set it now.
-                if (agent.getFirebaseUid() == null) {
-                    agent.setFirebaseUid(lineUserId);
-                    agentRepository.save(agent);
-                }
-            } else {
-                throw e;
-            }
-        }
-
-        // Step 3: Create Firebase Custom Token
-        String customToken = firebaseAuth.createCustomToken(lineUserId);
-        return new AuthResponse(customToken);
-    }
-
-
-    @Override
-    @Transactional
     public AgentRes bindLineUserToAgent(LineTokenPayload lineTokenPayload) {
         String firebaseUid = SecurityUtils.getCurrentUserUid();
         String lineUserId = lineTokenPayload.sub();
+        String email = lineTokenPayload.email(); // Can be null
 
         Optional<AgentEntity> agentByFirebase = agentRepository.findByFirebaseUid(firebaseUid);
         Optional<AgentEntity> agentByLine = agentRepository.findByLineUserId(lineUserId);
@@ -85,6 +44,10 @@ public class AgentServiceImpl implements AgentService {
             agent.setLineUserId(lineUserId);
             agent.setName(lineTokenPayload.name());
             agent.setPictureUrl(lineTokenPayload.picture());
+            // Only update email if it's not already set and the new one is not null
+            if (agent.getEmail() == null && email != null) {
+                agent.setEmail(email);
+            }
         } else if (agentByLine.isPresent()) {
             agent = agentByLine.get();
             if (agent.getFirebaseUid() != null && !agent.getFirebaseUid().equals(firebaseUid)) {
@@ -92,7 +55,7 @@ public class AgentServiceImpl implements AgentService {
             }
             agent.setFirebaseUid(firebaseUid);
         } else {
-            agent = new AgentEntity(null, firebaseUid, lineUserId, lineTokenPayload.name(), lineTokenPayload.picture());
+            agent = new AgentEntity(null, firebaseUid, lineUserId, email, lineTokenPayload.name(), lineTokenPayload.picture());
         }
 
         AgentEntity savedAgent = agentRepository.save(agent);
@@ -100,7 +63,12 @@ public class AgentServiceImpl implements AgentService {
     }
 
     @Override
+    @Transactional
     public AgentRes createAgent(CreateAgentReq req) throws FirebaseAuthException {
+        agentRepository.findByEmail(req.email()).ifPresent(agent -> {
+            throw new IllegalArgumentException("An account with this email already exists.");
+        });
+
         UserRecord.CreateRequest request = new UserRecord.CreateRequest()
                 .setEmail(req.email())
                 .setPassword(req.password())
@@ -110,12 +78,12 @@ public class AgentServiceImpl implements AgentService {
         UserRecord userRecord = firebaseAuth.createUser(request);
         log.info("Successfully created new agent in Firebase: {}", userRecord.getUid());
 
-        AgentEntity newAgent = new AgentEntity(null, userRecord.getUid(), null, userRecord.getDisplayName(), userRecord.getPhotoUrl());
+        AgentEntity newAgent = new AgentEntity(null, userRecord.getUid(), null, req.email(), req.displayName(), userRecord.getPhotoUrl());
         agentRepository.save(newAgent);
 
         return agentMapper.toAgentRes(newAgent);
     }
-
+    
     @Override
     public AgentRes getAgent(String agentId) {
         AgentEntity agent = agentRepository.findById(UUID.fromString(agentId))
@@ -165,20 +133,24 @@ public class AgentServiceImpl implements AgentService {
 
     @Override
     public UserRecord findOrCreateAgentByLineId(String lineUserId, String name, String picture) {
+        // This method is now effectively replaced by the logic in loginWithLine
+        // and can be considered for removal.
         try {
-            return firebaseAuth.getUserByProviderUid("line.me", lineUserId);
+            return firebaseAuth.getUser(lineUserId);
         } catch (FirebaseAuthException e) {
-            log.info("User with LINE UID {} not found. Creating a new user.", lineUserId);
-            UserRecord.CreateRequest request = new UserRecord.CreateRequest()
-                    .setProviderId("line.me")
-                    .setProviderUid(lineUserId)
-                    .setDisplayName(name)
-                    .setPhotoUrl(picture);
-            try {
-                return firebaseAuth.createUser(request);
-            } catch (FirebaseAuthException ex) {
-                throw new RuntimeException("Failed to create Firebase user for LINE login", ex);
+            if (e.getAuthErrorCode() == com.google.firebase.auth.AuthErrorCode.USER_NOT_FOUND) {
+                log.info("User with LINE UID {} not found. Creating a new user.", lineUserId);
+                UserRecord.CreateRequest request = new UserRecord.CreateRequest()
+                        .setUid(lineUserId)
+                        .setDisplayName(name)
+                        .setPhotoUrl(picture);
+                try {
+                    return firebaseAuth.createUser(request);
+                } catch (FirebaseAuthException ex) {
+                    throw new RuntimeException("Failed to create Firebase user for LINE login", ex);
+                }
             }
+            throw new RuntimeException(e);
         }
     }
 }

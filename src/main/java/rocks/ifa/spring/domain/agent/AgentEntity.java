@@ -12,7 +12,9 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "agents")
+@Table(name = "agents", indexes = {
+    @Index(name = "idx_agent_email", columnList = "email")
+})
 public class AgentEntity {
 
     @Id
@@ -25,6 +27,9 @@ public class AgentEntity {
 
     @Column(unique = true)
     private String lineUserId;
+
+    @Column(unique = true)
+    private String email;
 
     private String name;
 

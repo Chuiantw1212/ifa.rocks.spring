@@ -10,8 +10,9 @@ public interface AgentMapper {
 
     AgentMapper INSTANCE = Mappers.getMapper(AgentMapper.class);
 
-    @Mapping(source = "id", target = "uid") // Corrected: target is now "uid"
-    @Mapping(source = "name", target = "name")
+    @Mapping(source = "id", target = "uid")
+    @Mapping(source = "email", target = "email")
+    @Mapping(source = "name", target = "displayName")
     @Mapping(source = "pictureUrl", target = "picture")
     AgentRes toAgentRes(AgentEntity agent);
 }

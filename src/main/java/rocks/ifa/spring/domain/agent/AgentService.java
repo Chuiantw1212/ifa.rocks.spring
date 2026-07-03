@@ -7,8 +7,7 @@ import rocks.ifa.spring.domain.line.LineTokenPayload;
 
 public interface AgentService {
 
-    // === NEW: Authentication Operations ===
-    AuthResponse loginWithLine(LineTokenPayload lineTokenPayload) throws FirebaseAuthException;
+    // loginWithLine has been moved to AuthService
 
     // === Account Binding Operation ===
     AgentRes bindLineUserToAgent(LineTokenPayload lineTokenPayload);

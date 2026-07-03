@@ -12,4 +12,6 @@ public interface AgentRepository extends JpaRepository<AgentEntity, UUID> {
     Optional<AgentEntity> findByFirebaseUid(String firebaseUid);
 
     Optional<AgentEntity> findByLineUserId(String lineUserId);
+
+    Optional<AgentEntity> findByEmail(String email);
 }
