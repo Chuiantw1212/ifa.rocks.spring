@@ -13,14 +13,15 @@ public record AuthResponse(
                           "This is typically present only when status is SUCCESS.")
     String token,
 
-    @Schema(description = "A message providing more context, especially for ACCOUNT_EXISTS_EMAIL_MISMATCH status.")
+    @Schema(description = "A message providing more context, especially for redirect or failure statuses.")
     String message
 ) {
     public enum AuthStatus {
         /** The user was successfully authenticated or created, and a token is provided. */
         SUCCESS,
-        /** An account with the same email already exists, but is not linked to this login method.
-            The client should prompt the user to sign in with their existing method and then link the new one. */
+        /** An account with the same email already exists. The client should redirect the user to the standard Firebase login flow. */
+        REDIRECT_TO_FIREBASE_LOGIN,
+        /** DEPRECATED: An account with the same email already exists, but is not linked to this login method. */
         ACCOUNT_EXISTS_EMAIL_MISMATCH
     }
 
@@ -28,6 +29,12 @@ public record AuthResponse(
         return new AuthResponse(AuthStatus.SUCCESS, token, null);
     }
 
+    public static AuthResponse redirectToFirebase(String message) {
+        return new AuthResponse(AuthStatus.REDIRECT_TO_FIREBASE_LOGIN, null, message);
+    }
+
+    /** @deprecated Use redirectToFirebase instead. */
+    @Deprecated
     public static AuthResponse accountExists(String message) {
         return new AuthResponse(AuthStatus.ACCOUNT_EXISTS_EMAIL_MISMATCH, null, message);
     }

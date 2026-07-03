@@ -25,8 +25,6 @@ public class AgentServiceImpl implements AgentService {
     private final ClientProfileRepository clientProfileRepository;
     private final AgentMapper agentMapper;
 
-    // createAgent has been moved to AuthServiceImpl and renamed to register
-
     @Override
     @Transactional
     public AgentRes bindLineUserToAgent(LineTokenPayload lineTokenPayload) {
@@ -67,6 +65,13 @@ public class AgentServiceImpl implements AgentService {
     public AgentRes getAgent(String agentId) {
         AgentEntity agent = agentRepository.findById(UUID.fromString(agentId))
                 .orElseThrow(() -> new RuntimeException("Agent not found with id: " + agentId));
+        return agentMapper.toAgentRes(agent);
+    }
+
+    @Override
+    public AgentRes getAgentByFirebaseUid(String firebaseUid) {
+        AgentEntity agent = agentRepository.findByFirebaseUid(firebaseUid)
+                .orElseThrow(() -> new RuntimeException("Agent not found with firebase uid: " + firebaseUid));
         return agentMapper.toAgentRes(agent);
     }
 
@@ -112,8 +117,6 @@ public class AgentServiceImpl implements AgentService {
 
     @Override
     public UserRecord findOrCreateAgentByLineId(String lineUserId, String name, String picture) {
-        // This method is now effectively replaced by the logic in loginWithLine
-        // and can be considered for removal.
         try {
             return firebaseAuth.getUser(lineUserId);
         } catch (FirebaseAuthException e) {

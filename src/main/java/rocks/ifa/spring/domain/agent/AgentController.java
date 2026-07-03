@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import rocks.ifa.spring.domain.agent.dtos.AgentRes;
 import rocks.ifa.spring.domain.agent.dtos.UpdateAgentReq;
 import rocks.ifa.spring.domain.line.LineTokenPayload;
+import rocks.ifa.spring.infrastructure.security.SecurityUtils;
 
 @RestController
 @RequestMapping("/api/v1/agents")
@@ -20,8 +21,16 @@ public class AgentController {
 
     private final AgentService agentService;
 
-    @Operation(summary = "Bind LINE account to the current user",
-               description = "Binds a LINE identity to the currently authenticated user's agent profile.")
+    @Operation(summary = "Get the current user's own agent profile",
+               description = "Retrieves the complete agent profile for the currently authenticated user.")
+    @GetMapping("/me")
+    @SecurityRequirement(name = "bearerAuth")
+    public AgentRes getOwnAgentProfile() {
+        String firebaseUid = SecurityUtils.getCurrentUserUid();
+        return agentService.getAgentByFirebaseUid(firebaseUid);
+    }
+
+    @Operation(summary = "Bind LINE account to the current user")
     @PostMapping("/me/bind-line")
     @ResponseStatus(HttpStatus.OK)
     @SecurityRequirement(name = "bearerAuth")
@@ -29,7 +38,7 @@ public class AgentController {
         return agentService.bindLineUserToAgent(lineTokenPayload);
     }
 
-    @Operation(summary = "Get a specific agent's profile")
+    @Operation(summary = "Get a specific agent's profile by their internal UUID")
     @GetMapping("/{id}")
     public AgentRes getAgent(@PathVariable String id) {
         return agentService.getAgent(id);
@@ -41,8 +50,7 @@ public class AgentController {
         return agentService.updateAgent(id, req);
     }
 
-    @Operation(summary = "Delete the current user's own agent account",
-               description = "Deletes the agent account of the currently authenticated user.")
+    @Operation(summary = "Delete the current user's own agent account")
     @DeleteMapping("/me")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @SecurityRequirement(name = "bearerAuth")

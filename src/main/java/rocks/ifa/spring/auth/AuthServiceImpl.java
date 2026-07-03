@@ -82,11 +82,12 @@ public class AuthServiceImpl implements AuthService {
             return AuthResponse.success(customToken);
         }
 
+        // This is the modified logic as per your request
         if (email != null) {
             Optional<AgentEntity> agentByEmail = agentRepository.findByEmail(email);
             if (agentByEmail.isPresent()) {
-                log.warn("LINE login attempt with email {} that already exists in the system.", email);
-                return AuthResponse.accountExists("An account with this email already exists. Please log in with your original method and link your LINE account from the settings.");
+                log.warn("LINE login attempt with an existing email [{}]. Instructing client to redirect to Firebase login.", email);
+                return AuthResponse.redirectToFirebase("An account with this email already exists. Please complete the login with your usual method to link your LINE account.");
             }
         }
 
@@ -113,7 +114,6 @@ public class AuthServiceImpl implements AuthService {
                 log.info("User {} not found in Firebase. Creating a new Firebase user.", uid);
                 UserRecord.CreateRequest request = new UserRecord.CreateRequest().setUid(uid);
 
-                // Only set email if it has a valid value
                 if (StringUtils.hasText(email)) {
                     request.setEmail(email);
                 }

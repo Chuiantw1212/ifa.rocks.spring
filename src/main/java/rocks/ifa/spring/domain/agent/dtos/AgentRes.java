@@ -14,5 +14,8 @@ public record AgentRes(
     String displayName,
 
     @Schema(description = "URL of the agent's profile picture.", example = "https://example.com/profile.jpg")
-    String picture
+    String picture,
+
+    @Schema(description = "Indicates whether the agent has linked their LINE account.", example = "true")
+    boolean isLineBound
 ) {}
