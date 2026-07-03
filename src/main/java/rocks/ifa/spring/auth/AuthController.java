@@ -8,8 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import rocks.ifa.spring.auth.dtos.FirebaseLoginReq;
+import rocks.ifa.spring.auth.dtos.LineLoginReq;
 import rocks.ifa.spring.domain.agent.dtos.AuthResponse;
-import rocks.ifa.spring.domain.line.LineTokenPayload;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -28,11 +28,11 @@ public class AuthController {
     }
 
     @Operation(summary = "LINE Sign-in (Mobile)",
-               description = "Handles both sign-in and sign-up via LINE. The client provides a LINE ID Token, " +
-                             "and the backend finds or creates the corresponding agent and returns a Firebase Custom Token.")
+               description = "Handles both sign-in and sign-up via LINE. The client provides a raw LINE ID Token, " +
+                             "the backend verifies it, finds or creates the agent, and returns a Firebase Custom Token.")
     @PostMapping("/line")
-    public AuthResponse handleLineLogin(@RequestBody @Valid LineTokenPayload lineTokenPayload) throws FirebaseAuthException {
-        return authService.handleLineLogin(lineTokenPayload);
+    public AuthResponse handleLineLogin(@RequestBody @Valid LineLoginReq req) throws FirebaseAuthException {
+        return authService.handleLineLogin(req);
     }
 
     @Operation(summary = "Sign out the current user")
