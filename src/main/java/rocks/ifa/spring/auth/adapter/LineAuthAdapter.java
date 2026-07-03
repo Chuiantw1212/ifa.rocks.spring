@@ -9,7 +9,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import rocks.ifa.spring.auth.dtos.LineTokenPayload;
+// Corrected import
+import rocks.ifa.spring.domain.line.LineTokenPayload;
 import rocks.ifa.spring.auth.port.LineAuthPort;
 
 import java.util.Optional;
