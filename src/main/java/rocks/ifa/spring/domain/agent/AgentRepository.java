@@ -8,6 +8,8 @@ import java.util.UUID;
 
 @Repository
 public interface AgentRepository extends JpaRepository<AgentEntity, UUID> {
-    Optional<AgentEntity> findByLineUserId(String lineUserId);
+
     Optional<AgentEntity> findByFirebaseUid(String firebaseUid);
+
+    Optional<AgentEntity> findByLineUserId(String lineUserId);
 }

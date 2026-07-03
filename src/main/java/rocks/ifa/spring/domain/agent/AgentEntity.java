@@ -2,47 +2,31 @@ package rocks.ifa.spring.domain.agent;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.UuidGenerator;
 
-import java.time.Instant;
 import java.util.UUID;
 
-@Entity
-@Table(name = "agents")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
+@Table(name = "agents")
 public class AgentEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue
+    @UuidGenerator
     private UUID id;
 
-    @Column(name = "firebase_uid", unique = true, nullable = false)
+    @Column(unique = true)
     private String firebaseUid;
 
-    @Column(name = "line_user_id", unique = true)
+    @Column(unique = true)
     private String lineUserId;
 
-    @Column(name = "display_name")
-    private String displayName;
+    private String name;
 
-    @Column(name = "picture_url", columnDefinition = "TEXT")
     private String pictureUrl;
-
-    @Column(name = "email")
-    private String email;
-
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private Instant createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private Instant updatedAt;
 }
