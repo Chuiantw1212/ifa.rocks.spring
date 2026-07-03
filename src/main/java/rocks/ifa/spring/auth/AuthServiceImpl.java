@@ -8,13 +8,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import rocks.ifa.spring.auth.dtos.FirebaseLoginReq;
 import rocks.ifa.spring.auth.dtos.LineLoginReq;
-import rocks.ifa.spring.auth.port.LineAuthPort;
 import rocks.ifa.spring.domain.agent.AgentEntity;
 import rocks.ifa.spring.domain.agent.AgentRepository;
 import rocks.ifa.spring.domain.agent.dtos.AuthResponse;
 import rocks.ifa.spring.domain.line.LineTokenPayload;
+import rocks.ifa.spring.auth.port.LineAuthPort;
+
 
 import java.util.Map;
 import java.util.Optional;
@@ -26,7 +28,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final FirebaseAuth firebaseAuth;
     private final AgentRepository agentRepository;
-    private final LineAuthPort lineAuthPort; // Using the existing port for verification
+    private final LineAuthPort lineAuthPort;
 
     @Override
     @Transactional
@@ -61,11 +63,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthResponse handleLineLogin(LineLoginReq req) throws FirebaseAuthException {
-        // Step 1: Verify and decode the ID Token using the port
         LineTokenPayload lineTokenPayload = lineAuthPort.verifyIdToken(req.idToken())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid or unverifiable LINE ID Token."));
 
-        // The rest of the logic remains the same, but uses the verified payload
         String lineUserId = lineTokenPayload.sub();
         String email = lineTokenPayload.email();
 
@@ -111,11 +111,16 @@ public class AuthServiceImpl implements AuthService {
         } catch (FirebaseAuthException e) {
             if (e.getAuthErrorCode() == com.google.firebase.auth.AuthErrorCode.USER_NOT_FOUND) {
                 log.info("User {} not found in Firebase. Creating a new Firebase user.", uid);
-                UserRecord.CreateRequest request = new UserRecord.CreateRequest()
-                        .setUid(uid)
-                        .setEmail(email)
-                        .setDisplayName(name)
-                        .setPhotoUrl(picture);
+                UserRecord.CreateRequest request = new UserRecord.CreateRequest().setUid(uid);
+
+                // Only set email if it has a valid value
+                if (StringUtils.hasText(email)) {
+                    request.setEmail(email);
+                }
+                
+                request.setDisplayName(name);
+                request.setPhotoUrl(picture);
+
                 UserRecord newUser = firebaseAuth.createUser(request);
                 return newUser.getUid();
             }
