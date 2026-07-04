@@ -28,33 +28,54 @@ public class AgentServiceImpl implements AgentService {
     @Override
     @Transactional
     public AgentRes bindLineUserToAgent(LineTokenPayload lineTokenPayload) {
+        // Corrected: Only one set of declarations
         String firebaseUid = SecurityUtils.getCurrentUserUid();
         String lineUserId = lineTokenPayload.sub();
         String email = lineTokenPayload.email();
+        String name = lineTokenPayload.name();
+        String picture = lineTokenPayload.picture();
 
+        // 1. Find agent by Firebase UID (current authenticated user)
         Optional<AgentEntity> agentByFirebase = agentRepository.findByFirebaseUid(firebaseUid);
+        // 2. Find agent by LINE User ID (from the token payload)
         Optional<AgentEntity> agentByLine = agentRepository.findByLineUserId(lineUserId);
 
         AgentEntity agent;
+
         if (agentByFirebase.isPresent()) {
+            // Case 1: Current Firebase user already exists in our DB.
             agent = agentByFirebase.get();
             if (agent.getLineUserId() != null && !agent.getLineUserId().equals(lineUserId)) {
                 throw new IllegalStateException("Agent is already bound to a different LINE user.");
             }
+            // Link LINE ID to existing Firebase agent
             agent.setLineUserId(lineUserId);
-            agent.setName(lineTokenPayload.name());
-            agent.setPictureUrl(lineTokenPayload.picture());
+            agent.setName(name);
+            agent.setPictureUrl(picture);
             if (agent.getEmail() == null && email != null) {
                 agent.setEmail(email);
             }
         } else if (agentByLine.isPresent()) {
+            // Case 2: LINE user already exists in our DB, but not linked to current Firebase user.
             agent = agentByLine.get();
             if (agent.getFirebaseUid() != null && !agent.getFirebaseUid().equals(firebaseUid)) {
                 throw new IllegalStateException("Agent is already bound to a different Firebase user.");
             }
+            // Link Firebase UID to existing LINE agent
             agent.setFirebaseUid(firebaseUid);
+            // Update name and picture from LINE if they are more recent or not set
+            if (agent.getName() == null || agent.getName().isEmpty()) {
+                agent.setName(name);
+            }
+            if (agent.getPictureUrl() == null || agent.getPictureUrl().isEmpty()) {
+                agent.setPictureUrl(picture);
+            }
+            if (agent.getEmail() == null && email != null) {
+                agent.setEmail(email);
+            }
         } else {
-            agent = new AgentEntity(null, firebaseUid, lineUserId, email, lineTokenPayload.name(), lineTokenPayload.picture());
+            // Case 3: Neither Firebase UID nor LINE User ID found in our DB. Create a new agent.
+            agent = new AgentEntity(null, firebaseUid, lineUserId, email, name, picture);
         }
 
         AgentEntity savedAgent = agentRepository.save(agent);
@@ -69,9 +90,35 @@ public class AgentServiceImpl implements AgentService {
     }
 
     @Override
+    @Transactional
     public AgentRes getAgentByFirebaseUid(String firebaseUid) {
+        // Implements "Just-in-Time Provisioning"
         AgentEntity agent = agentRepository.findByFirebaseUid(firebaseUid)
-                .orElseThrow(() -> new RuntimeException("Agent not found with firebase uid: " + firebaseUid));
+                .orElseGet(() -> {
+                    log.warn("Agent with firebase uid {} not found in local DB. Provisioning now...", firebaseUid);
+                    try {
+                        // Fetch the authoritative user record from Firebase
+                        UserRecord userRecord = firebaseAuth.getUser(firebaseUid);
+                        
+                        // Create a new agent entity based on the Firebase record
+                        AgentEntity newAgent = new AgentEntity(
+                            null,
+                            userRecord.getUid(),
+                            null, // lineUserId is unknown at this point
+                            userRecord.getEmail(), // email can be null
+                            userRecord.getDisplayName(),
+                            userRecord.getPhotoUrl()
+                        );
+                        
+                        // Save the new agent to our database and return it
+                        return agentRepository.save(newAgent);
+                    } catch (FirebaseAuthException e) {
+                        log.error("Failed to fetch user from Firebase while provisioning: {}", firebaseUid, e);
+                        // If we can't even find the user in Firebase, then something is seriously wrong.
+                        throw new IllegalStateException("User not found in Firebase, cannot provision local agent.", e);
+                    }
+                });
+
         return agentMapper.toAgentRes(agent);
     }
 
@@ -116,23 +163,77 @@ public class AgentServiceImpl implements AgentService {
     }
 
     @Override
+    @Transactional
     public UserRecord findOrCreateAgentByLineId(String lineUserId, String name, String picture) {
-        try {
-            return firebaseAuth.getUser(lineUserId);
-        } catch (FirebaseAuthException e) {
-            if (e.getAuthErrorCode() == com.google.firebase.auth.AuthErrorCode.USER_NOT_FOUND) {
-                log.info("User with LINE UID {} not found. Creating a new user.", lineUserId);
-                UserRecord.CreateRequest request = new UserRecord.CreateRequest()
-                        .setUid(lineUserId)
-                        .setDisplayName(name)
-                        .setPhotoUrl(picture);
-                try {
-                    return firebaseAuth.createUser(request);
-                } catch (FirebaseAuthException ex) {
-                    throw new RuntimeException("Failed to create Firebase user for LINE login", ex);
+        // First, check if an agent with this LINE ID already exists in our local database.
+        Optional<AgentEntity> existingAgent = agentRepository.findByLineUserId(lineUserId);
+
+        if (existingAgent.isPresent()) {
+            // If the agent exists locally, ensure a Firebase user also exists for this LINE ID.
+            // This handles cases where a local agent might exist but the Firebase user was deleted or not created yet.
+            try {
+                return firebaseAuth.getUser(lineUserId);
+            } catch (FirebaseAuthException e) {
+                if (e.getAuthErrorCode() == com.google.firebase.auth.AuthErrorCode.USER_NOT_FOUND) {
+                    log.warn("Local agent found for LINE UID {} but Firebase user not found. Creating Firebase user.", lineUserId);
+                    UserRecord.CreateRequest request = new UserRecord.CreateRequest()
+                            .setUid(lineUserId)
+                            .setDisplayName(name)
+                            .setPhotoUrl(picture);
+                    try {
+                        return firebaseAuth.createUser(request);
+                    } catch (FirebaseAuthException ex) {
+                        log.error("Failed to create Firebase user for LINE login: {}", lineUserId, ex);
+                        throw new RuntimeException("Failed to create Firebase user for LINE login", ex);
+                    }
                 }
+                log.error("Failed to fetch Firebase user for LINE UID {}: {}", lineUserId, e.getMessage());
+                throw new RuntimeException("Failed to fetch Firebase user for LINE login", e);
             }
-            throw new RuntimeException(e);
+        } else {
+            // If no local agent, check Firebase.
+            try {
+                UserRecord firebaseUser = firebaseAuth.getUser(lineUserId);
+                log.warn("Firebase user found for LINE UID {} but no local agent. Provisioning local agent.", lineUserId);
+                // Provision local agent based on Firebase user data
+                AgentEntity newAgent = new AgentEntity(
+                        null,
+                        firebaseUser.getUid(),
+                        lineUserId,
+                        firebaseUser.getEmail(),
+                        firebaseUser.getDisplayName(),
+                        firebaseUser.getPhotoUrl()
+                );
+                agentRepository.save(newAgent);
+                return firebaseUser;
+            } catch (FirebaseAuthException e) {
+                if (e.getAuthErrorCode() == com.google.firebase.auth.AuthErrorCode.USER_NOT_FOUND) {
+                    log.info("User with LINE UID {} not found in Firebase. Creating new Firebase user and local agent.", lineUserId);
+                    UserRecord.CreateRequest request = new UserRecord.CreateRequest()
+                            .setUid(lineUserId)
+                            .setDisplayName(name)
+                            .setPhotoUrl(picture);
+                    try {
+                        UserRecord newUser = firebaseAuth.createUser(request);
+                        // Create new local agent
+                        AgentEntity newAgent = new AgentEntity(
+                                null,
+                                newUser.getUid(),
+                                lineUserId,
+                                null, // Email is not provided by LINE token directly for new Firebase users
+                                name,
+                                picture
+                        );
+                        agentRepository.save(newAgent);
+                        return newUser;
+                    } catch (FirebaseAuthException ex) {
+                        log.error("Failed to create Firebase user for LINE login: {}", lineUserId, ex);
+                        throw new RuntimeException("Failed to create Firebase user for LINE login", ex);
+                    }
+                }
+                log.error("Failed to fetch Firebase user for LINE UID {}: {}", lineUserId, e.getMessage());
+                throw new RuntimeException("Failed to fetch Firebase user for LINE login", e);
+            }
         }
     }
 }
