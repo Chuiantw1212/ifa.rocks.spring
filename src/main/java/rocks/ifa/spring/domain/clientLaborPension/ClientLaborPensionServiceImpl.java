@@ -9,7 +9,7 @@ import org.springframework.web.server.ResponseStatusException;
 import rocks.ifa.spring.domain.clientLaborPension.dtos.LaborPensionRes;
 import rocks.ifa.spring.domain.clientLaborPension.dtos.UpdateLaborPensionReq;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileRepository;
-import rocks.ifa.spring.infra.security.SecurityUtils;
+import rocks.ifa.spring.infrastructure.security.SecurityUtils;
 
 import java.util.Objects;
 import java.util.Optional;

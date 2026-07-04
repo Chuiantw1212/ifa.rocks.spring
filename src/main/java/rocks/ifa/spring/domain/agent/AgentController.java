@@ -7,62 +7,51 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import rocks.ifa.spring.domain.agent.dtos.*;
+import rocks.ifa.spring.domain.agent.dtos.AgentRes;
+import rocks.ifa.spring.domain.agent.dtos.UpdateAgentReq;
+import rocks.ifa.spring.domain.line.LineTokenPayload;
+import rocks.ifa.spring.infrastructure.security.SecurityUtils;
 
 @RestController
 @RequestMapping("/api/v1/agents")
-@Tag(name = "Agent Management API", description = "IFA 顧問後台管理使用者帳號")
+@Tag(name = "Agent Management API", description = "管理 Agent (顧問) 的資源")
 @RequiredArgsConstructor
 public class AgentController {
 
     private final AgentService agentService;
-    // private final LiffAuthService liffAuthService; // Temporarily commented out
 
-    @Operation(summary = "顧問登入")
-    @PostMapping("/login")
-    public ResponseEntity<AuthRes> login(@RequestBody @Valid LoginReq req) {
-        return ResponseEntity.ok(agentService.login(req));
+    @Operation(summary = "Get the current user's own agent profile",
+               description = "Retrieves the complete agent profile for the currently authenticated user.")
+    @GetMapping("/me")
+    @SecurityRequirement(name = "bearerAuth")
+    public AgentRes getOwnAgentProfile() {
+        String firebaseUid = SecurityUtils.getCurrentUserUid();
+        return agentService.getAgentByFirebaseUid(firebaseUid);
     }
 
-    /*
-    @Operation(summary = "顧問透過 LINE LIFF 登入")
-    @PostMapping("/auth/liff")
-    public ResponseEntity<AuthRes> loginWithLiff(@RequestBody @Valid LiffLoginReq req) {
-        return ResponseEntity.ok(liffAuthService.loginWithLiff(req)); // Temporarily commented out
-    }
-    */
-
-    @Operation(summary = "顧問登出")
-    @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestHeader("Authorization") String token) {
-        String agentId = "dummy-agent-id";
-        agentService.logout(agentId);
-        return ResponseEntity.ok().build();
+    @Operation(summary = "Bind LINE account to the current user")
+    @PostMapping("/me/bind-line")
+    @ResponseStatus(HttpStatus.OK)
+    @SecurityRequirement(name = "bearerAuth")
+    public AgentRes bindLineUser(@RequestBody @Valid LineTokenPayload lineTokenPayload) {
+        return agentService.bindLineUserToAgent(lineTokenPayload);
     }
 
-    @Operation(summary = "建立新使用者")
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public AgentRes createAgent(@RequestBody @Valid CreateAgentReq req) throws FirebaseAuthException {
-        return agentService.createAgent(req);
-    }
-
-    @Operation(summary = "取得單一使用者資訊")
+    @Operation(summary = "Get a specific agent's profile by their internal UUID")
     @GetMapping("/{id}")
-    public AgentRes getAgent(@PathVariable String id) throws FirebaseAuthException {
+    public AgentRes getAgent(@PathVariable String id) {
         return agentService.getAgent(id);
     }
 
-    @Operation(summary = "更新使用者資訊")
+    @Operation(summary = "Update a specific agent's profile")
     @PutMapping("/{id}")
     public AgentRes updateAgent(@PathVariable String id, @RequestBody @Valid UpdateAgentReq req) throws FirebaseAuthException {
         return agentService.updateAgent(id, req);
     }
 
-    @Operation(summary = "刪除自己的帳號", description = "刪除當前登入用戶自己的帳號，並連動刪除所有相關資料。")
-    @DeleteMapping
+    @Operation(summary = "Delete the current user's own agent account")
+    @DeleteMapping("/me")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @SecurityRequirement(name = "bearerAuth")
     public void deleteOwnAgentAccount() throws FirebaseAuthException {

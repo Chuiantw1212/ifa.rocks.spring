@@ -20,7 +20,7 @@ import rocks.ifa.spring.domain.clientProfile.ClientProfileService;
 import rocks.ifa.spring.domain.clientProfile.dtos.ProfileRes;
 import rocks.ifa.spring.domain.clientRetirement.ClientRetirementService;
 import rocks.ifa.spring.domain.clientTax.ClientTaxService;
-import rocks.ifa.spring.infra.common.PageResponse;
+import rocks.ifa.spring.infrastructure.common.PageResponse;
 
 import java.util.List;
 import java.util.Objects;

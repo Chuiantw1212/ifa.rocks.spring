@@ -15,7 +15,7 @@ import rocks.ifa.spring.domain.clientProfile.dtos.PatchProfileReq;
 import rocks.ifa.spring.domain.clientProfile.dtos.ProfileRes;
 import rocks.ifa.spring.domain.clientProfile.dtos.UpdateProfileReq;
 import rocks.ifa.spring.domain.metadata.MetadataService;
-import rocks.ifa.spring.infra.common.PageResponse;
+import rocks.ifa.spring.infrastructure.common.PageResponse;
 
 import java.time.LocalDate;
 import java.time.Period;
