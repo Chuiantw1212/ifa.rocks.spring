@@ -9,9 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import rocks.ifa.spring.domain.agent.dtos.AuthResponse; // Corrected import
+import rocks.ifa.spring.application.auth.dto.AuthResponseDTO;
 import rocks.ifa.spring.application.auth.dto.FirebaseLoginReq;
 import rocks.ifa.spring.application.auth.dto.LineLoginReq;
+import rocks.ifa.spring.application.auth.exception.UserNotFoundException;
 import rocks.ifa.spring.application.auth.port.LineAuthPort;
 import rocks.ifa.spring.domain.agent.AgentEntity;
 import rocks.ifa.spring.domain.agent.AgentRepository;
@@ -31,8 +32,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public AuthResponse handleFirebaseLogin(FirebaseLoginReq req) throws FirebaseAuthException {
-        // This logic remains the same, as it handles both login and registration on desktop
+    public AuthResponseDTO handleFirebaseLogin(FirebaseLoginReq req) throws FirebaseAuthException {
         FirebaseToken decodedToken = firebaseAuth.verifyIdToken(req.idToken());
         String uid = decodedToken.getUid();
         String email = decodedToken.getEmail();
@@ -42,7 +42,7 @@ public class AuthServiceImpl implements AuthService {
         Optional<AgentEntity> agentByUid = agentRepository.findByFirebaseUid(uid);
         if (agentByUid.isPresent()) {
             log.info("Found agent by Firebase UID: {}", uid);
-            return createAuthResponse(agentByUid.get());
+            return createSuccessResponse(agentByUid.get());
         }
 
         if (email != null) {
@@ -53,44 +53,38 @@ public class AuthServiceImpl implements AuthService {
                 if (existingAgent.getFirebaseUid() != null && !existingAgent.getFirebaseUid().equals(uid)) {
                     log.warn("Account with email {} is already linked to a different Firebase UID ({}). Cannot link to new UID ({}).",
                             email, existingAgent.getFirebaseUid(), uid);
-                    return createAuthResponse(existingAgent);
+                    return createSuccessResponse(existingAgent);
                 }
                 existingAgent.setFirebaseUid(uid);
                 if (!StringUtils.hasText(existingAgent.getName())) existingAgent.setName(name);
                 if (!StringUtils.hasText(existingAgent.getPictureUrl())) existingAgent.setPictureUrl(picture);
                 AgentEntity updatedAgent = agentRepository.save(existingAgent);
                 log.info("Successfully linked Firebase UID {} to existing agent with email {}.", uid, email);
-                return createAuthResponse(updatedAgent);
+                return createSuccessResponse(updatedAgent);
             }
         }
 
         log.info("Creating a new agent for Firebase user {}", uid);
         AgentEntity newAgent = new AgentEntity(null, uid, null, email, name, picture);
         AgentEntity savedAgent = agentRepository.save(newAgent);
-        return createAuthResponse(savedAgent);
+        return createSuccessResponse(savedAgent);
     }
 
     @Override
     @Transactional
-    public AuthResponse handleLineLogin(LineLoginReq req) throws FirebaseAuthException {
-        // 1. Verify LINE ID Token
+    public AuthResponseDTO handleLineLogin(LineLoginReq req) throws FirebaseAuthException {
         LineTokenPayload lineTokenPayload = lineAuthPort.verifyIdToken(req.idToken())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid or unverifiable LINE ID Token."));
 
         String email = lineTokenPayload.email();
         if (!StringUtils.hasText(email)) {
-            log.warn("LINE login attempt without an email. Cannot proceed.");
-            return AuthResponse.userNotFound("LINE account did not provide an email address. Please register using a different method.");
+            throw new IllegalArgumentException("LINE account did not provide an email address. Please register using a different method.");
         }
 
-        // 2. Find user in Firebase by email
         try {
             UserRecord userRecord = firebaseAuth.getUserByEmail(email);
             log.info("Successfully found Firebase user with email: {}", email);
 
-            // 3. (Optional but recommended) Sync local agent database
-            // This ensures that if the user was created via Firebase login first,
-            // their LINE user ID gets linked on their first LINE login.
             AgentEntity agent = agentRepository.findByFirebaseUid(userRecord.getUid()).orElseGet(() ->
                 agentRepository.findByEmail(email).orElseGet(() -> {
                     log.warn("Firebase user {} exists, but no corresponding agent record found. Creating one now.", userRecord.getUid());
@@ -105,17 +99,14 @@ public class AuthServiceImpl implements AuthService {
                 log.info("Linked LINE User ID {} to existing agent.", lineTokenPayload.sub());
             }
 
-            // 4. Generate and return Firebase Custom Token
             String customToken = firebaseAuth.createCustomToken(userRecord.getUid());
-            return AuthResponse.success(customToken);
+            return new AuthResponseDTO(customToken, null);
 
         } catch (FirebaseAuthException e) {
             if (e.getAuthErrorCode() == com.google.firebase.auth.AuthErrorCode.USER_NOT_FOUND) {
-                // 5. If user does not exist in Firebase, return USER_NOT_FOUND status
                 log.info("User with email {} not found in Firebase.", email);
-                return AuthResponse.userNotFound("User with this email is not registered. Please sign up first.");
+                throw new UserNotFoundException("User with this email is not registered. Please sign up first.");
             }
-            // Re-throw other Firebase exceptions
             throw e;
         }
     }
@@ -125,8 +116,8 @@ public class AuthServiceImpl implements AuthService {
         log.info("User logout requested. Client should clear its token.");
     }
 
-    private AuthResponse createAuthResponse(AgentEntity agent) throws FirebaseAuthException {
+    private AuthResponseDTO createSuccessResponse(AgentEntity agent) throws FirebaseAuthException {
         String customToken = firebaseAuth.createCustomToken(agent.getFirebaseUid(), Map.of("agentId", agent.getId().toString()));
-        return AuthResponse.success(customToken);
+        return new AuthResponseDTO(customToken, null);
     }
 }
