@@ -1,8 +1,9 @@
-package rocks.ifa.spring.domain.agent;
+package rocks.ifa.spring.application.agent;
 
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
-import rocks.ifa.spring.domain.agent.dtos.*;
+import rocks.ifa.spring.application.agent.dto.AgentRes;
+import rocks.ifa.spring.application.agent.dto.UpdateAgentReq;
 import rocks.ifa.spring.domain.line.LineTokenPayload;
 
 public interface AgentService {

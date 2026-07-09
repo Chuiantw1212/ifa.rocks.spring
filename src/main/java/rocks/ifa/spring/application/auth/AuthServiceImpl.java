@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import rocks.ifa.spring.application.auth.dto.AuthResponseDTO;
 import rocks.ifa.spring.application.auth.dto.FirebaseLoginReq;
 import rocks.ifa.spring.application.auth.dto.LineLoginReq;
@@ -50,14 +49,11 @@ public class AuthServiceImpl implements AuthService {
             if (agentByEmail.isPresent()) {
                 AgentEntity existingAgent = agentByEmail.get();
                 log.info("Found agent by email: {}. Checking for account linking.", email);
-                if (existingAgent.getFirebaseUid() != null && !existingAgent.getFirebaseUid().equals(uid)) {
-                    log.warn("Account with email {} is already linked to a different Firebase UID ({}). Cannot link to new UID ({}).",
-                            email, existingAgent.getFirebaseUid(), uid);
-                    return createSuccessResponse(existingAgent);
-                }
-                existingAgent.setFirebaseUid(uid);
-                if (!StringUtils.hasText(existingAgent.getName())) existingAgent.setName(name);
-                if (!StringUtils.hasText(existingAgent.getPictureUrl())) existingAgent.setPictureUrl(picture);
+                
+                // Use the new business method
+                existingAgent.linkFirebaseAccount(uid);
+                existingAgent.updateProfile(name, picture);
+                
                 AgentEntity updatedAgent = agentRepository.save(existingAgent);
                 log.info("Successfully linked Firebase UID {} to existing agent with email {}.", uid, email);
                 return createSuccessResponse(updatedAgent);
@@ -65,7 +61,8 @@ public class AuthServiceImpl implements AuthService {
         }
 
         log.info("Creating a new agent for Firebase user {}", uid);
-        AgentEntity newAgent = new AgentEntity(null, uid, null, email, name, picture);
+        // Use the new factory method
+        AgentEntity newAgent = AgentEntity.createWithFirebase(uid, email, name, picture);
         AgentEntity savedAgent = agentRepository.save(newAgent);
         return createSuccessResponse(savedAgent);
     }
@@ -77,7 +74,7 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid or unverifiable LINE ID Token."));
 
         String email = lineTokenPayload.email();
-        if (!StringUtils.hasText(email)) {
+        if (email == null || email.trim().isEmpty()) {
             throw new IllegalArgumentException("LINE account did not provide an email address. Please register using a different method.");
         }
 
@@ -88,16 +85,16 @@ public class AuthServiceImpl implements AuthService {
             AgentEntity agent = agentRepository.findByFirebaseUid(userRecord.getUid()).orElseGet(() ->
                 agentRepository.findByEmail(email).orElseGet(() -> {
                     log.warn("Firebase user {} exists, but no corresponding agent record found. Creating one now.", userRecord.getUid());
-                    AgentEntity newAgent = new AgentEntity(null, userRecord.getUid(), lineTokenPayload.sub(), email, userRecord.getDisplayName(), userRecord.getPhotoUrl());
+                    // Use the new factory method
+                    AgentEntity newAgent = AgentEntity.createWithFirebase(userRecord.getUid(), email, userRecord.getDisplayName(), userRecord.getPhotoUrl());
                     return agentRepository.save(newAgent);
                 })
             );
 
-            if (agent.getLineUserId() == null) {
-                agent.setLineUserId(lineTokenPayload.sub());
-                agentRepository.save(agent);
-                log.info("Linked LINE User ID {} to existing agent.", lineTokenPayload.sub());
-            }
+            // Use the new business method
+            agent.linkLineAccount(lineTokenPayload.sub(), lineTokenPayload.email(), lineTokenPayload.name(), lineTokenPayload.picture());
+            agentRepository.save(agent);
+            log.info("Linked LINE User ID {} to existing agent.", lineTokenPayload.sub());
 
             String customToken = firebaseAuth.createCustomToken(userRecord.getUid());
             return new AuthResponseDTO(customToken, null);

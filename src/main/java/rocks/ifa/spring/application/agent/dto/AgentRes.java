@@ -1,4 +1,4 @@
-package rocks.ifa.spring.domain.agent.dtos;
+package rocks.ifa.spring.application.agent.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

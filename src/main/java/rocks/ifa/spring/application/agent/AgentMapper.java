@@ -1,11 +1,12 @@
-package rocks.ifa.spring.domain.agent;
+package rocks.ifa.spring.application.agent;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 import org.springframework.util.StringUtils;
-import rocks.ifa.spring.domain.agent.dtos.AgentRes;
+import rocks.ifa.spring.application.agent.dto.AgentRes;
+import rocks.ifa.spring.domain.agent.AgentEntity;
 
 @Mapper(componentModel = "spring")
 public interface AgentMapper {

@@ -1,4 +1,4 @@
-package rocks.ifa.spring.domain.agent.dtos;
+package rocks.ifa.spring.application.agent.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

@@ -1,4 +1,4 @@
-package rocks.ifa.spring.domain.agent;
+package rocks.ifa.spring.application.agent;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
@@ -7,7 +7,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import rocks.ifa.spring.domain.agent.dtos.*;
+import rocks.ifa.spring.application.agent.dto.AgentRes;
+import rocks.ifa.spring.application.agent.dto.UpdateAgentReq;
+import rocks.ifa.spring.domain.agent.AgentEntity;
+import rocks.ifa.spring.domain.agent.AgentRepository;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileRepository;
 import rocks.ifa.spring.domain.line.LineTokenPayload;
 import rocks.ifa.spring.infrastructure.security.SecurityUtils;
@@ -28,55 +31,17 @@ public class AgentServiceImpl implements AgentService {
     @Override
     @Transactional
     public AgentRes bindLineUserToAgent(LineTokenPayload lineTokenPayload) {
-        // Corrected: Only one set of declarations
         String firebaseUid = SecurityUtils.getCurrentUserUid();
         String lineUserId = lineTokenPayload.sub();
-        String email = lineTokenPayload.email();
-        String name = lineTokenPayload.name();
-        String picture = lineTokenPayload.picture();
 
-        // 1. Find agent by Firebase UID (current authenticated user)
-        Optional<AgentEntity> agentByFirebase = agentRepository.findByFirebaseUid(firebaseUid);
-        // 2. Find agent by LINE User ID (from the token payload)
-        Optional<AgentEntity> agentByLine = agentRepository.findByLineUserId(lineUserId);
-
-        AgentEntity agent;
-
-        if (agentByFirebase.isPresent()) {
-            // Case 1: Current Firebase user already exists in our DB.
-            agent = agentByFirebase.get();
-            if (agent.getLineUserId() != null && !agent.getLineUserId().equals(lineUserId)) {
-                throw new IllegalStateException("Agent is already bound to a different LINE user.");
-            }
-            // Link LINE ID to existing Firebase agent
-            agent.setLineUserId(lineUserId);
-            agent.setName(name);
-            agent.setPictureUrl(picture);
-            if (agent.getEmail() == null && email != null) {
-                agent.setEmail(email);
-            }
-        } else if (agentByLine.isPresent()) {
-            // Case 2: LINE user already exists in our DB, but not linked to current Firebase user.
-            agent = agentByLine.get();
-            if (agent.getFirebaseUid() != null && !agent.getFirebaseUid().equals(firebaseUid)) {
-                throw new IllegalStateException("Agent is already bound to a different Firebase user.");
-            }
-            // Link Firebase UID to existing LINE agent
-            agent.setFirebaseUid(firebaseUid);
-            // Update name and picture from LINE if they are more recent or not set
-            if (agent.getName() == null || agent.getName().isEmpty()) {
-                agent.setName(name);
-            }
-            if (agent.getPictureUrl() == null || agent.getPictureUrl().isEmpty()) {
-                agent.setPictureUrl(picture);
-            }
-            if (agent.getEmail() == null && email != null) {
-                agent.setEmail(email);
-            }
-        } else {
-            // Case 3: Neither Firebase UID nor LINE User ID found in our DB. Create a new agent.
-            agent = new AgentEntity(null, firebaseUid, lineUserId, email, name, picture);
-        }
+        // Find agent by current authenticated user (Firebase) or by the LINE ID from the token
+        AgentEntity agent = agentRepository.findByFirebaseUid(firebaseUid)
+                .orElseGet(() -> agentRepository.findByLineUserId(lineUserId)
+                        .orElse(AgentEntity.createWithFirebase(firebaseUid, lineTokenPayload.email(), null, null)));
+        
+        // Delegate business logic to the aggregate root
+        agent.linkFirebaseAccount(firebaseUid);
+        agent.linkLineAccount(lineUserId, lineTokenPayload.email(), lineTokenPayload.name(), lineTokenPayload.picture());
 
         AgentEntity savedAgent = agentRepository.save(agent);
         return agentMapper.toAgentRes(savedAgent);
@@ -97,24 +62,17 @@ public class AgentServiceImpl implements AgentService {
                 .orElseGet(() -> {
                     log.warn("Agent with firebase uid {} not found in local DB. Provisioning now...", firebaseUid);
                     try {
-                        // Fetch the authoritative user record from Firebase
                         UserRecord userRecord = firebaseAuth.getUser(firebaseUid);
-                        
-                        // Create a new agent entity based on the Firebase record
-                        AgentEntity newAgent = new AgentEntity(
-                            null,
+                        // Use the factory method on the entity
+                        AgentEntity newAgent = AgentEntity.createWithFirebase(
                             userRecord.getUid(),
-                            null, // lineUserId is unknown at this point
-                            userRecord.getEmail(), // email can be null
+                            userRecord.getEmail(),
                             userRecord.getDisplayName(),
                             userRecord.getPhotoUrl()
                         );
-                        
-                        // Save the new agent to our database and return it
                         return agentRepository.save(newAgent);
                     } catch (FirebaseAuthException e) {
                         log.error("Failed to fetch user from Firebase while provisioning: {}", firebaseUid, e);
-                        // If we can't even find the user in Firebase, then something is seriously wrong.
                         throw new IllegalStateException("User not found in Firebase, cannot provision local agent.", e);
                     }
                 });
@@ -123,15 +81,19 @@ public class AgentServiceImpl implements AgentService {
     }
 
     @Override
+    @Transactional
     public AgentRes updateAgent(String agentId, UpdateAgentReq req) throws FirebaseAuthException {
         AgentEntity agent = agentRepository.findById(UUID.fromString(agentId))
                 .orElseThrow(() -> new RuntimeException("Agent not found with id: " + agentId));
 
+        // Update Firebase record first
         UserRecord.UpdateRequest request = new UserRecord.UpdateRequest(agent.getFirebaseUid())
                 .setDisplayName(req.displayName());
         firebaseAuth.updateUser(request);
 
-        agent.setName(req.displayName());
+        // Delegate profile update to the entity
+        agent.updateProfile(req.displayName(), null); // Assuming pictureUrl is not updated here
+        
         AgentEntity updatedAgent = agentRepository.save(agent);
 
         log.info("Successfully updated agent: {}", updatedAgent.getFirebaseUid());
@@ -169,8 +131,6 @@ public class AgentServiceImpl implements AgentService {
         Optional<AgentEntity> existingAgent = agentRepository.findByLineUserId(lineUserId);
 
         if (existingAgent.isPresent()) {
-            // If the agent exists locally, ensure a Firebase user also exists for this LINE ID.
-            // This handles cases where a local agent might exist but the Firebase user was deleted or not created yet.
             try {
                 return firebaseAuth.getUser(lineUserId);
             } catch (FirebaseAuthException e) {
@@ -191,19 +151,11 @@ public class AgentServiceImpl implements AgentService {
                 throw new RuntimeException("Failed to fetch Firebase user for LINE login", e);
             }
         } else {
-            // If no local agent, check Firebase.
             try {
                 UserRecord firebaseUser = firebaseAuth.getUser(lineUserId);
                 log.warn("Firebase user found for LINE UID {} but no local agent. Provisioning local agent.", lineUserId);
-                // Provision local agent based on Firebase user data
-                AgentEntity newAgent = new AgentEntity(
-                        null,
-                        firebaseUser.getUid(),
-                        lineUserId,
-                        firebaseUser.getEmail(),
-                        firebaseUser.getDisplayName(),
-                        firebaseUser.getPhotoUrl()
-                );
+                AgentEntity newAgent = AgentEntity.createWithFirebase(firebaseUser.getUid(), firebaseUser.getEmail(), firebaseUser.getDisplayName(), firebaseUser.getPhotoUrl());
+                newAgent.linkLineAccount(lineUserId, firebaseUser.getEmail(), name, picture);
                 agentRepository.save(newAgent);
                 return firebaseUser;
             } catch (FirebaseAuthException e) {
@@ -215,15 +167,8 @@ public class AgentServiceImpl implements AgentService {
                             .setPhotoUrl(picture);
                     try {
                         UserRecord newUser = firebaseAuth.createUser(request);
-                        // Create new local agent
-                        AgentEntity newAgent = new AgentEntity(
-                                null,
-                                newUser.getUid(),
-                                lineUserId,
-                                null, // Email is not provided by LINE token directly for new Firebase users
-                                name,
-                                picture
-                        );
+                        AgentEntity newAgent = AgentEntity.createWithFirebase(newUser.getUid(), null, name, picture);
+                        newAgent.linkLineAccount(lineUserId, null, name, picture);
                         agentRepository.save(newAgent);
                         return newUser;
                     } catch (FirebaseAuthException ex) {
