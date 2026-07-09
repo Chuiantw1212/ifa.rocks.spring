@@ -1,9 +1,9 @@
-package rocks.ifa.spring.auth;
+package rocks.ifa.spring.application.auth;
 
 import com.google.firebase.auth.FirebaseAuthException;
-import rocks.ifa.spring.auth.dtos.FirebaseLoginReq;
-import rocks.ifa.spring.auth.dtos.LineLoginReq;
-import rocks.ifa.spring.domain.agent.dtos.AuthResponse;
+import rocks.ifa.spring.domain.agent.dtos.AuthResponse; // Corrected import
+import rocks.ifa.spring.application.auth.dto.FirebaseLoginReq;
+import rocks.ifa.spring.application.auth.dto.LineLoginReq;
 
 public interface AuthService {
 

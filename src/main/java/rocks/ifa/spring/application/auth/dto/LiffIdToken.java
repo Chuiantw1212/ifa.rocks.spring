@@ -1,4 +1,4 @@
-package rocks.ifa.spring.auth.dtos;
+package rocks.ifa.spring.application.auth.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

@@ -1,6 +1,7 @@
-package rocks.ifa.spring.auth.adapter;
+package rocks.ifa.spring.infrastructure.auth;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -9,19 +10,28 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-// Corrected import
+import rocks.ifa.spring.application.auth.port.LineAuthPort;
 import rocks.ifa.spring.domain.line.LineTokenPayload;
-import rocks.ifa.spring.auth.port.LineAuthPort;
 
 import java.util.Optional;
 
 @Slf4j
-@Component("lineAuthAdapter")
+@Component
 public class LineAuthAdapter implements LineAuthPort {
 
-    private final RestTemplate restTemplate = new RestTemplate();
-    private static final String LINE_VERIFY_URL = "https://api.line.me/oauth2/v2.1/verify";
-    private static final String LINE_CHANNEL_ID = "2009612107";
+    private final RestTemplate restTemplate;
+    private final String lineVerifyUrl;
+    private final String lineChannelId;
+
+    public LineAuthAdapter(
+            RestTemplate restTemplate,
+            @Value("${line.auth.verify-url}") String lineVerifyUrl,
+            @Value("${line.auth.channel-id}") String lineChannelId
+    ) {
+        this.restTemplate = restTemplate;
+        this.lineVerifyUrl = lineVerifyUrl;
+        this.lineChannelId = lineChannelId;
+    }
 
     @Override
     public Optional<LineTokenPayload> verifyIdToken(String idToken) {
@@ -30,12 +40,12 @@ public class LineAuthAdapter implements LineAuthPort {
 
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         map.add("id_token", idToken);
-        map.add("client_id", LINE_CHANNEL_ID);
+        map.add("client_id", lineChannelId);
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
 
         try {
-            LineTokenPayload payload = restTemplate.postForObject(LINE_VERIFY_URL, request, LineTokenPayload.class);
+            LineTokenPayload payload = restTemplate.postForObject(lineVerifyUrl, request, LineTokenPayload.class);
             log.info("Successfully verified LINE ID token.");
             return Optional.ofNullable(payload);
         } catch (HttpClientErrorException e) {

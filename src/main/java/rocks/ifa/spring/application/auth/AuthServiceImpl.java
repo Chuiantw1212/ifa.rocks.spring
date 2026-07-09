@@ -1,4 +1,4 @@
-package rocks.ifa.spring.auth;
+package rocks.ifa.spring.application.auth;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
@@ -9,14 +9,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import rocks.ifa.spring.auth.dtos.FirebaseLoginReq;
-import rocks.ifa.spring.auth.dtos.LineLoginReq;
+import rocks.ifa.spring.domain.agent.dtos.AuthResponse; // Corrected import
+import rocks.ifa.spring.application.auth.dto.FirebaseLoginReq;
+import rocks.ifa.spring.application.auth.dto.LineLoginReq;
+import rocks.ifa.spring.application.auth.port.LineAuthPort;
 import rocks.ifa.spring.domain.agent.AgentEntity;
 import rocks.ifa.spring.domain.agent.AgentRepository;
-import rocks.ifa.spring.domain.agent.dtos.AuthResponse;
 import rocks.ifa.spring.domain.line.LineTokenPayload;
-import rocks.ifa.spring.auth.port.LineAuthPort;
-
 
 import java.util.Map;
 import java.util.Optional;
