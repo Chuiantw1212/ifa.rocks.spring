@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import rocks.ifa.spring.application.clientLaborPension.ClientLaborPensionService;
 import rocks.ifa.spring.application.clientLaborPension.dtos.LaborPensionRes;
 import rocks.ifa.spring.application.clientLaborPension.dtos.UpdateLaborPensionReq;
-import rocks.ifa.spring.infrastructure.security.SecurityUtils;
+import rocks.ifa.spring.infrastructure.config.SecurityUtils;
 
 import java.util.Collections;
 import java.util.Optional;

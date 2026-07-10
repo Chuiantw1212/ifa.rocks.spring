@@ -13,13 +13,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import rocks.ifa.client.dto.PageResponse;
 import rocks.ifa.spring.application.clientProfile.dtos.PatchProfileReq;
 import rocks.ifa.spring.application.clientProfile.dtos.ProfileRes;
 import rocks.ifa.spring.application.clientProfile.dtos.UpdateProfileReq;
+import rocks.ifa.spring.application.metadata.MetadataApplicationService;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileEntity;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileRepository;
-import rocks.ifa.spring.domain.metadata.MetadataService;
-import rocks.ifa.spring.infrastructure.common.PageResponse;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 public class ClientProfileServiceImpl implements ClientProfileService {
 
     private final ClientProfileRepository clientProfileRepository;
-    private final MetadataService metadataService;
+    private final MetadataApplicationService metadataService;
     private final ClientProfileMapper clientProfileMapper;
     private final FirebaseAuth firebaseAuth;
 

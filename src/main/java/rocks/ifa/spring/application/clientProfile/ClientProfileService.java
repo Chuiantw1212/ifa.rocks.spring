@@ -1,10 +1,10 @@
 package rocks.ifa.spring.application.clientProfile;
 
 import org.springframework.data.domain.Pageable;
+import rocks.ifa.client.dto.PageResponse;
 import rocks.ifa.spring.application.clientProfile.dtos.PatchProfileReq;
 import rocks.ifa.spring.application.clientProfile.dtos.ProfileRes;
 import rocks.ifa.spring.application.clientProfile.dtos.UpdateProfileReq;
-import rocks.ifa.spring.infrastructure.common.PageResponse;
 
 import java.util.UUID;
 
