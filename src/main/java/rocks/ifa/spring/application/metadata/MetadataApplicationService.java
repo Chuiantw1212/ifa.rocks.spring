@@ -1,12 +1,12 @@
-package rocks.ifa.spring.domain.metadata;
+package rocks.ifa.spring.application.metadata;
 
-import rocks.ifa.spring.domain.metadata.dtos.LifeExpectancyRes;
+import rocks.ifa.spring.application.metadata.dtos.LifeExpectancyRes;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public interface MetadataService {
+public interface MetadataApplicationService {
 
     Map<String, Object> getAllMetadata();
 

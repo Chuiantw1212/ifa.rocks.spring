@@ -1,18 +1,20 @@
-package rocks.ifa.spring.domain.clientTax;
+package rocks.ifa.spring.application.clientTax;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import rocks.ifa.spring.domain.clientTax.dtos.TaxRes;
-import rocks.ifa.spring.domain.clientTax.dtos.UpdateTaxReq;
+import rocks.ifa.spring.application.clientTax.dtos.TaxRes;
+import rocks.ifa.spring.application.clientTax.dtos.UpdateTaxReq;
+import rocks.ifa.spring.domain.clientTax.ClientTaxEntity;
+import rocks.ifa.spring.domain.clientTax.ClientTaxRepository;
 
 import java.util.UUID;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ClientTaxServiceImpl implements ClientTaxService {
+public class ClientTaxServiceImpl implements ClientTaxApplicationService {
 
     private final ClientTaxRepository clientTaxRepository;
 

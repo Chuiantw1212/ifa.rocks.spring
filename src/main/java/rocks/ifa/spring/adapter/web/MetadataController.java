@@ -1,4 +1,4 @@
-package rocks.ifa.spring.domain.metadata;
+package rocks.ifa.spring.adapter.web;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -6,7 +6,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import rocks.ifa.spring.domain.metadata.dtos.LifeExpectancyRes;
+import rocks.ifa.spring.application.metadata.MetadataApplicationService; // Will be created
+import rocks.ifa.spring.application.metadata.dtos.LifeExpectancyRes; // Will be moved
 
 import java.io.IOException;
 import java.util.List;
@@ -18,12 +19,12 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class MetadataController {
 
-    private final MetadataService metadataService;
+    private final MetadataApplicationService metadataApplicationService; // Renamed
 
     @Operation(summary = "獲取所有前端配置元數據")
     @GetMapping
     public Map<String, Object> fetchAll() {
-        return metadataService.getAllMetadata();
+        return metadataApplicationService.getAllMetadata();
     }
 
     @Operation(summary = "查詢預期壽命")
@@ -37,7 +38,7 @@ public class MetadataController {
             return ResponseEntity.badRequest().build();
         }
 
-        LifeExpectancyRes result = metadataService.getLifeExpectancy(year, gender, age);
+        LifeExpectancyRes result = metadataApplicationService.getLifeExpectancy(year, gender, age);
 
         if (result == null) {
             return ResponseEntity.notFound().build();
@@ -57,7 +58,7 @@ public class MetadataController {
             return ResponseEntity.badRequest().build();
         }
 
-        List<LifeExpectancyRes> results = metadataService.getLifeExpectancyRange(gender, baseAge, year);
+        List<LifeExpectancyRes> results = metadataApplicationService.getLifeExpectancyRange(gender, baseAge, year);
 
         if (results.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -70,7 +71,7 @@ public class MetadataController {
     @Operation(summary = "同步所有本地 metadata JSON 檔案到 Firestore (排除生命表)")
     public ResponseEntity<String> syncMetadata() {
         try {
-            metadataService.syncMetadata();
+            metadataApplicationService.syncMetadata();
             return ResponseEntity.ok("Metadata sync process started successfully.");
         } catch (IOException e) {
             return ResponseEntity.internalServerError().body("Failed to read metadata files: " + e.getMessage());
@@ -81,7 +82,7 @@ public class MetadataController {
     @Operation(summary = "同步生命表 (Life Table) 到 Firestore", description = "專門用於上傳 `opt_life_table.json`，使用批次寫入以提升性能。")
     public ResponseEntity<String> syncLifeTable() {
         try {
-            metadataService.syncLifeTable();
+            metadataApplicationService.syncLifeTable();
             return ResponseEntity.ok("Life table sync process started successfully.");
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Failed to sync life table: " + e.getMessage());

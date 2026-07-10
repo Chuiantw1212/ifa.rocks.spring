@@ -1,4 +1,4 @@
-package rocks.ifa.spring.domain.metadata;
+package rocks.ifa.spring.application.metadata;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Service;
-import rocks.ifa.spring.domain.metadata.dtos.LifeExpectancyRes;
+import rocks.ifa.spring.application.metadata.dtos.LifeExpectancyRes;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,7 +24,7 @@ import java.util.concurrent.ExecutionException;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class MetadataServiceImpl implements MetadataService {
+public class MetadataServiceImpl implements MetadataApplicationService {
 
     private final Firestore firestore;
     private final ObjectMapper objectMapper;

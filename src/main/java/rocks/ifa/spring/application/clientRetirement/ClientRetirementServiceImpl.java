@@ -1,14 +1,16 @@
-package rocks.ifa.spring.domain.clientRetirement;
+package rocks.ifa.spring.application.clientRetirement;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import rocks.ifa.spring.domain.clientRetirement.dtos.RetirementRes;
+import rocks.ifa.spring.application.clientRetirement.dtos.RetirementRes;
+import rocks.ifa.spring.domain.clientRetirement.ClientRetirementEntity;
+import rocks.ifa.spring.domain.clientRetirement.ClientRetirementRepository;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ClientRetirementServiceImpl implements ClientRetirementService {
+public class ClientRetirementServiceImpl implements ClientRetirementApplicationService {
 
     private final ClientRetirementRepository clientRetirementRepository;
 
