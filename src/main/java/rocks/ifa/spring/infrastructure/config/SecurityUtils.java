@@ -1,4 +1,4 @@
-package rocks.ifa.spring.infrastructure.security;
+package rocks.ifa.spring.infrastructure.config;
 
 import com.google.firebase.auth.UserRecord;
 import org.springframework.http.HttpStatus;

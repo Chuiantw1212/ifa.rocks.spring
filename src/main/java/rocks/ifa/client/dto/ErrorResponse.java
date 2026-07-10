@@ -1,4 +1,4 @@
-package rocks.ifa.spring.infrastructure.common;
+package rocks.ifa.client.dto;
 
 import java.time.Instant;
 

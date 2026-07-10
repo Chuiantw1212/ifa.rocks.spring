@@ -5,8 +5,8 @@ import rocks.ifa.spring.application.clientCareer.dtos.CareerRes;
 import rocks.ifa.spring.application.clientLaborInsurance.dtos.LaborInsuranceRes;
 import rocks.ifa.spring.application.clientLaborPension.dtos.LaborPensionRes;
 import rocks.ifa.spring.application.clientProfile.dtos.ProfileRes;
-import rocks.ifa.spring.domain.clientRetirement.dtos.RetirementRes;
-import rocks.ifa.spring.domain.clientTax.dtos.TaxRes;
+import rocks.ifa.spring.application.clientRetirement.dtos.RetirementRes;
+import rocks.ifa.spring.application.clientTax.dtos.TaxRes;
 
 import java.util.UUID;
 

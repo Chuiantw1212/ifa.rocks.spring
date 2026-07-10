@@ -11,7 +11,7 @@ import rocks.ifa.spring.application.clientLaborPension.dtos.UpdateLaborPensionRe
 import rocks.ifa.spring.domain.clientLaborPension.ClientLaborPensionEntity;
 import rocks.ifa.spring.domain.clientLaborPension.ClientLaborPensionRepository;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileRepository;
-import rocks.ifa.spring.infrastructure.security.SecurityUtils;
+import rocks.ifa.spring.infrastructure.config.SecurityUtils;
 
 import java.util.Objects;
 import java.util.Optional;

@@ -8,19 +8,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import rocks.ifa.client.dto.PageResponse;
 import rocks.ifa.spring.application.client.dtos.ClientFullDataRes;
 import rocks.ifa.spring.application.client.dtos.CreateClientReq;
 import rocks.ifa.spring.application.clientCareer.ClientCareerService;
 import rocks.ifa.spring.application.clientLaborInsurance.ClientLaborInsuranceService;
 import rocks.ifa.spring.application.clientLaborPension.ClientLaborPensionService;
+import rocks.ifa.spring.application.clientProfile.ClientProfileService;
 import rocks.ifa.spring.application.clientProfile.ClientProfileServiceImpl;
+import rocks.ifa.spring.application.clientProfile.dtos.ProfileRes;
+import rocks.ifa.spring.application.clientRetirement.ClientRetirementApplicationService;
+import rocks.ifa.spring.application.clientTax.ClientTaxApplicationService;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileEntity;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileRepository;
-import rocks.ifa.spring.application.clientProfile.ClientProfileService;
-import rocks.ifa.spring.application.clientProfile.dtos.ProfileRes;
-import rocks.ifa.spring.domain.clientRetirement.ClientRetirementService;
-import rocks.ifa.spring.domain.clientTax.ClientTaxService;
-import rocks.ifa.spring.infrastructure.common.PageResponse;
 
 import java.util.List;
 import java.util.Objects;
@@ -36,8 +36,8 @@ public class ClientServiceImpl implements ClientService {
     private final ClientCareerService clientCareerService;
     private final ClientLaborPensionService clientLaborPensionService;
     private final ClientLaborInsuranceService clientLaborInsuranceService;
-    private final ClientRetirementService clientRetirementService;
-    private final ClientTaxService clientTaxService;
+    private final ClientRetirementApplicationService clientRetirementService;
+    private final ClientTaxApplicationService clientTaxService;
     private final ClientProfileRepository clientProfileRepository;
     private final ClientProfileServiceImpl.ClientProfileMapper clientProfileMapper;
 
@@ -116,11 +116,10 @@ public class ClientServiceImpl implements ClientService {
             var laborInsurance = clientLaborInsuranceService.getLaborInsurance(clientId, requesterUid).orElse(null);
             
             log.debug("Fetching retirement...");
-            // Assuming these will also be updated to return Optional eventually
-            var retirement = clientRetirementService.getRetirement(clientId.toString());
+            var retirement = clientRetirementService.getRetirement(requesterUid);
             
             log.debug("Fetching tax...");
-            var tax = clientTaxService.getTax(clientId.toString());
+            var tax = clientTaxService.getTax(requesterUid);
 
             log.debug("All sub-domain data fetched successfully for client ID: {}", clientId);
             

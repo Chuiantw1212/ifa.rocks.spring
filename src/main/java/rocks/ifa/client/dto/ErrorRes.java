@@ -1,4 +1,4 @@
-package rocks.ifa.spring.infrastructure.exception;
+package rocks.ifa.client.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.http.HttpStatus;

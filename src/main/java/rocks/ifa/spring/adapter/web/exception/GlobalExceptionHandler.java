@@ -1,4 +1,4 @@
-package rocks.ifa.spring.infrastructure.exception;
+package rocks.ifa.spring.adapter.web.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import rocks.ifa.spring.client.dto.ErrorRes;
 
 @ControllerAdvice
 @Slf4j

@@ -13,11 +13,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import rocks.ifa.spring.application.clientCareer.ClientCareerService;
-import rocks.ifa.spring.domain.clientCareer.dtos.CareerRes;
-import rocks.ifa.spring.domain.clientCareer.dtos.UpdateCareerReq;
-import rocks.ifa.spring.infrastructure.security.SecurityUtils;
+import rocks.ifa.spring.application.clientCareer.dtos.CareerRes;
+import rocks.ifa.spring.application.clientCareer.dtos.UpdateCareerReq;
+import rocks.ifa.spring.application.status.StatusService;
+import rocks.ifa.spring.infrastructure.config.SecurityUtils;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -39,10 +41,10 @@ public class ClientCareerController {
     public ResponseEntity<Object> getCareer(
             @Parameter(description = "客戶的唯一識別碼 (UUID)", required = true)
             @PathVariable UUID clientId) {
-        
+
         String requesterUid = SecurityUtils.getCurrentUserUid();
         Optional<CareerRes> careerOpt = clientCareerService.getCareer(clientId, requesterUid);
-        
+
         if (careerOpt.isPresent()) {
             return ResponseEntity.ok(careerOpt.get());
         } else {
@@ -62,5 +64,20 @@ public class ClientCareerController {
         String requesterUid = SecurityUtils.getCurrentUserUid();
         clientCareerService.updateCareer(clientId, req, requesterUid);
         return ResponseEntity.noContent().build();
+    }
+
+    @RestController
+    @RequestMapping("/")
+    @Tag(name = "Status API", description = "提供伺服器狀態與健康檢查")
+    @RequiredArgsConstructor
+    public static class StatusController {
+
+        private final StatusService statusService;
+
+        @GetMapping
+        @Operation(summary = "獲取伺服器資源狀態", description = "回傳一個包含當前記憶體、CPU等核心指標的JSON物件。")
+        public Map<String, Object> getServerStatus() {
+            return statusService.getServerStatus();
+        }
     }
 }

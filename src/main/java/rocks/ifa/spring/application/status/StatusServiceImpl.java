@@ -1,4 +1,4 @@
-package rocks.ifa.spring.infrastructure.status;
+package rocks.ifa.spring.application.status;
 
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -12,10 +12,11 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
-public class StatusService {
+public class StatusServiceImpl implements StatusService {
 
     private final MeterRegistry meterRegistry;
 
+    @Override
     public Map<String, Object> getServerStatus() {
         Map<String, Object> status = new HashMap<>();
 
