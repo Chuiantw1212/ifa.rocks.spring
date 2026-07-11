@@ -1,5 +1,6 @@
 package rocks.ifa.spring.application.auth;
 
+import com.alibaba.cola.exception.BizException;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
@@ -11,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import rocks.ifa.spring.application.auth.dto.AuthResponseDTO;
 import rocks.ifa.spring.application.auth.dto.FirebaseLoginReq;
 import rocks.ifa.spring.application.auth.dto.LineLoginReq;
-import rocks.ifa.spring.application.auth.exception.UserNotFoundException;
 import rocks.ifa.spring.application.auth.port.LineAuthPort;
 import rocks.ifa.spring.domain.agent.AgentEntity;
 import rocks.ifa.spring.domain.agent.AgentRepository;
@@ -71,11 +71,11 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public AuthResponseDTO handleLineLogin(LineLoginReq req) throws FirebaseAuthException {
         LineTokenPayload lineTokenPayload = lineAuthPort.verifyIdToken(req.idToken())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid or unverifiable LINE ID Token."));
+                .orElseThrow(() -> new BizException("INVALID_LINE_TOKEN", "Invalid or unverifiable LINE ID Token."));
 
         String email = lineTokenPayload.email();
         if (email == null || email.trim().isEmpty()) {
-            throw new IllegalArgumentException("LINE account did not provide an email address. Please register using a different method.");
+            throw new BizException("EMAIL_NOT_PROVIDED", "LINE account did not provide an email address. Please register using a different method.");
         }
 
         try {
@@ -101,8 +101,8 @@ public class AuthServiceImpl implements AuthService {
 
         } catch (FirebaseAuthException e) {
             if (e.getAuthErrorCode() == com.google.firebase.auth.AuthErrorCode.USER_NOT_FOUND) {
-                log.info("User with email {} not found in Firebase.", email);
-                throw new UserNotFoundException("User with this email is not registered. Please sign up first.");
+                log.warn("User with email {} not found in Firebase.", email);
+                throw new BizException("USER_NOT_FOUND", "User with this email is not registered. Please sign up first.");
             }
             throw e;
         }
