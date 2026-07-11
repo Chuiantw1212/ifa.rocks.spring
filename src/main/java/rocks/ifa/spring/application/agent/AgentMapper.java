@@ -6,7 +6,7 @@ import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 import org.springframework.util.StringUtils;
 import rocks.ifa.spring.application.agent.dto.AgentRes;
-import rocks.ifa.spring.domain.agent.AgentEntity;
+import rocks.ifa.spring.domain.agent.Agent;
 
 @Mapper(componentModel = "spring")
 public interface AgentMapper {
@@ -18,7 +18,7 @@ public interface AgentMapper {
     @Mapping(source = "name", target = "displayName")
     @Mapping(source = "pictureUrl", target = "picture")
     @Mapping(source = "lineUserId", target = "isLineBound", qualifiedByName = "mapLineBindingStatus")
-    AgentRes toAgentRes(AgentEntity agent);
+    AgentRes toAgentRes(Agent agent);
 
     @Named("mapLineBindingStatus")
     default boolean mapLineBindingStatus(String lineUserId) {
