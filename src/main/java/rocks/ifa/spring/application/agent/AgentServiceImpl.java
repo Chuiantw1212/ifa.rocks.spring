@@ -13,7 +13,7 @@ import rocks.ifa.spring.domain.agent.AgentEntity;
 import rocks.ifa.spring.domain.agent.AgentRepository;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileRepository;
 import rocks.ifa.spring.domain.line.LineTokenPayload;
-import rocks.ifa.spring.infrastructure.security.SecurityUtils;
+import rocks.ifa.spring.infrastructure.config.SecurityUtils;
 
 import java.util.Optional;
 import java.util.UUID;

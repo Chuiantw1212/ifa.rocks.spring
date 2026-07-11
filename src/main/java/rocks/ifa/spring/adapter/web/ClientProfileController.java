@@ -1,5 +1,6 @@
 package rocks.ifa.spring.adapter.web;
 
+import com.alibaba.cola.dto.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -8,11 +9,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import rocks.ifa.spring.application.clientProfile.ClientProfileService;
-import rocks.ifa.spring.application.clientProfile.dto.PatchProfileReq;
-import rocks.ifa.spring.application.clientProfile.dto.ProfileRes;
-import rocks.ifa.spring.application.clientProfile.dto.UpdateProfileReq;
-import rocks.ifa.spring.infrastructure.common.PageResponse;
-import rocks.ifa.spring.infrastructure.security.SecurityUtils;
+import rocks.ifa.spring.application.clientProfile.dtos.PatchProfileReq;
+import rocks.ifa.spring.application.clientProfile.dtos.ProfileRes;
+import rocks.ifa.spring.application.clientProfile.dtos.UpdateProfileReq;
+import rocks.ifa.spring.infrastructure.config.SecurityUtils;
 
 import java.util.UUID;
 

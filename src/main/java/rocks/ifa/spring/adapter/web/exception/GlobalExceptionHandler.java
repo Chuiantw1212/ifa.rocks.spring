@@ -1,111 +1,72 @@
 package rocks.ifa.spring.adapter.web.exception;
 
+import com.alibaba.cola.dto.Response;
+import com.alibaba.cola.exception.BizException;
+import com.alibaba.cola.exception.SysException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.resource.NoResourceFoundException;
-import rocks.ifa.spring.client.dto.ErrorRes;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@ControllerAdvice
+import java.util.stream.Collectors;
+
+@RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
 
-    @Value("${spring.profiles.active:prod}")
-    private String activeProfile;
+    private static final String BIZ_ERROR_CODE = "BIZ_ERROR";
+    private static final String SYS_ERROR_CODE = "SYS_ERROR";
+    private static final String VALIDATION_ERROR_CODE = "VALIDATION_ERROR";
 
     /**
-     * CRITICAL FIX: Handles the specific case where a controller returns an empty body,
-     * which can mistakenly trigger the static resource handler.
-     * This handler intercepts the exception and returns the desired 200 OK with an empty body.
+     * Handles business logic exceptions (BizException).
+     * These are expected errors, like "User not found" or "Insufficient balance".
+     * Returns HTTP 200 OK, but with success=false in the response body.
      */
-    @ExceptionHandler(NoResourceFoundException.class)
-    public ResponseEntity<Void> handleNoResourceFoundException(NoResourceFoundException ex, HttpServletRequest request) {
-        log.warn("✅ NoResourceFoundException caught for {}. This is likely due to a GET endpoint returning an empty body. Suppressing 500 and returning 200 OK as requested.", request.getRequestURI());
-        return ResponseEntity.ok().build();
+    @ExceptionHandler(value = BizException.class)
+    public Response handleBizException(BizException e) {
+        log.warn("---BizException Handler---: Code: {}, Message: {}", e.getErrCode(), e.getMessage());
+        return Response.buildFailure(e.getErrCode(), e.getMessage());
     }
 
     /**
-     * Handles exceptions that we throw intentionally (e.g., for authorization).
-     * Catches: 403 Forbidden, 404 Not Found, etc.
+     * Handles system-level exceptions (SysException).
+     * These are unexpected technical errors, like "Database connection failed".
+     * Returns HTTP 500 Internal Server Error.
      */
-    @ExceptionHandler(ResponseStatusException.class)
-    public ResponseEntity<ErrorRes> handleResponseStatusException(ResponseStatusException ex, HttpServletRequest request) {
-        HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());
-        log.warn("ResponseStatusException caught: {} {} - {}", status.value(), request.getMethod(), request.getRequestURI());
-        ErrorRes errorResponse = new ErrorRes(status, ex.getReason(), request.getRequestURI());
-        return new ResponseEntity<>(errorResponse, status);
+    @ExceptionHandler(value = SysException.class)
+    public ResponseEntity<Response> handleSysException(SysException e, HttpServletRequest request) {
+        log.error("---SysException Handler---: Path: {}, Code: {}, Message: {}", request.getRequestURI(), e.getErrCode(), e.getMessage(), e);
+        Response response = Response.buildFailure(e.getErrCode(), "System Error: " + e.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
      * Handles DTO validation failures (@Valid).
-     * Catches: 400 Bad Request.
+     * Returns HTTP 400 Bad Request.
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorRes> handleValidationExceptions(MethodArgumentNotValidException ex, HttpServletRequest request) {
-        String firstErrorMessage = ex.getBindingResult().getAllErrors().get(0).getDefaultMessage();
-        log.warn("⚠️ DTO validation failed for request {}: {}", request.getRequestURI(), firstErrorMessage);
-        String userMessage = "The request data is invalid. Please check the fields. Details: " + firstErrorMessage;
-        ErrorRes errorResponse = new ErrorRes(HttpStatus.BAD_REQUEST, userMessage, request.getRequestURI());
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-
-    /**
-     * Handles malformed JSON or missing request body.
-     * Catches: 400 Bad Request.
-     */
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorRes> handleMessageNotReadableException(HttpMessageNotReadableException ex, HttpServletRequest request) {
-        log.warn("🚫 Could not read request body for {}: {}", request.getRequestURI(), ex.getMessage());
-        String userMessage = "Request body is missing or JSON format is invalid.";
-        ErrorRes errorResponse = new ErrorRes(HttpStatus.BAD_REQUEST, userMessage, request.getRequestURI());
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-
-    /**
-     * Handles database constraint violations (e.g., unique key conflicts).
-     * Catches: 409 Conflict.
-     */
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorRes> handleDataIntegrityViolation(DataIntegrityViolationException ex, HttpServletRequest request) {
-        String rootCauseMessage = ex.getMostSpecificCause().getMessage();
-        log.warn("⚠️ Data integrity violation for request {}: {}", request.getRequestURI(), rootCauseMessage);
-
-        String userMessage = "The request violates a database constraint. Please check your input.";
-        if (rootCauseMessage != null && rootCauseMessage.contains("client_profiles_email_key")) {
-            userMessage = "This email is already registered.";
-        }
-        
-        ErrorRes errorResponse = new ErrorRes(HttpStatus.CONFLICT, userMessage, request.getRequestURI());
-        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    public ResponseEntity<Response> handleValidationException(MethodArgumentNotValidException e) {
+        String errorMsg = e.getBindingResult().getAllErrors().stream()
+                .map(error -> error.getDefaultMessage())
+                .collect(Collectors.joining("; "));
+        log.warn("---Validation Exception Handler---: {}", errorMsg);
+        Response response = Response.buildFailure(VALIDATION_ERROR_CODE, errorMsg);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     /**
      * The ultimate fallback handler for all other uncaught exceptions.
-     * Catches: 500 Internal Server Error.
+     * Treats any other exception as a system error.
+     * Returns HTTP 500 Internal Server Error.
      */
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorRes> handleAllUncaughtException(Exception ex, HttpServletRequest request) {
-        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-        String path = request.getRequestURI();
-        
-        log.error("🔥🔥🔥 Uncaught Exception: {} {} - Root cause: {}", status.value(), path, ex.getMessage(), ex);
-
-        String message;
-        if ("dev".equalsIgnoreCase(activeProfile) || "local".equalsIgnoreCase(activeProfile)) {
-            message = "An unexpected error occurred. Cause: " + ex.getMessage();
-        } else {
-            message = "An unexpected internal server error occurred. Please contact support or check server logs for details.";
-        }
-
-        ErrorRes errorResponse = new ErrorRes(status, message, path);
-        return new ResponseEntity<>(errorResponse, status);
+    @ExceptionHandler(value = Exception.class)
+    public ResponseEntity<Response> handleAllUncaughtException(Exception e, HttpServletRequest request) {
+        log.error("---AllUncaughtException Handler---: Path: {}, Message: {}", request.getRequestURI(), e.getMessage(), e);
+        Response response = Response.buildFailure(SYS_ERROR_CODE, "An unexpected internal server error occurred.");
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

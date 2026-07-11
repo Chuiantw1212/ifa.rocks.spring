@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import rocks.ifa.client.dto.PageResponse;
+import com.alibaba.cola.dto.PageResponse;
 import rocks.ifa.spring.application.client.ClientService;
 import rocks.ifa.spring.application.client.dtos.ClientFullDataRes;
 import rocks.ifa.spring.application.client.dtos.CreateClientReq;

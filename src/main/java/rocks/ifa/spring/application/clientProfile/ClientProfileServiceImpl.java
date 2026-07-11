@@ -1,5 +1,7 @@
 package rocks.ifa.spring.application.clientProfile;
 
+import com.alibaba.cola.dto.PageResponse;
+import com.alibaba.cola.exception.BizException;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
@@ -9,11 +11,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-import rocks.ifa.client.dto.PageResponse;
 import rocks.ifa.spring.application.clientProfile.dtos.PatchProfileReq;
 import rocks.ifa.spring.application.clientProfile.dtos.ProfileRes;
 import rocks.ifa.spring.application.clientProfile.dtos.UpdateProfileReq;
@@ -43,13 +42,13 @@ public class ClientProfileServiceImpl implements ClientProfileService {
     public ProfileRes getOwnProfile(String clientFirebaseUid) {
         return clientProfileRepository.findByClientFirebaseUid(clientFirebaseUid)
                 .map(clientProfileMapper::toProfileRes)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client profile not found for the current user."));
+                .orElseThrow(() -> new BizException("NOT_FOUND", "Client profile not found for the current user."));
     }
     
     @Override
     public ProfileRes getClientProfileById(UUID clientId, String requesterUid) {
         ClientProfileEntity entity = clientProfileRepository.findById(clientId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client profile not found"));
+                .orElseThrow(() -> new BizException("NOT_FOUND", "Client profile not found"));
         authorizeModification(requesterUid, entity);
         return clientProfileMapper.toProfileRes(entity);
     }
@@ -65,7 +64,7 @@ public class ClientProfileServiceImpl implements ClientProfileService {
     @Transactional
     public ProfileRes updateProfile(UUID clientId, UpdateProfileReq req, String requesterUid) {
         ClientProfileEntity entity = clientProfileRepository.findById(clientId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client profile not found"));
+                .orElseThrow(() -> new BizException("NOT_FOUND", "Client profile not found"));
         
         authorizeModification(requesterUid, entity);
 
@@ -89,7 +88,7 @@ public class ClientProfileServiceImpl implements ClientProfileService {
     @Transactional
     public ProfileRes patchProfile(UUID clientId, PatchProfileReq req, String requesterUid) {
         ClientProfileEntity entity = clientProfileRepository.findById(clientId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client profile not found"));
+                .orElseThrow(() -> new BizException("NOT_FOUND", "Client profile not found"));
 
         authorizeModification(requesterUid, entity);
 
@@ -134,7 +133,7 @@ public class ClientProfileServiceImpl implements ClientProfileService {
         List<ProfileRes> dtoList = sortedProfiles.stream()
                 .map(clientProfileMapper::toProfileRes)
                 .collect(Collectors.toList());
-        return new PageResponse<>(dtoList, profilePage.getTotalElements(), profilePage.getNumber(), profilePage.getSize());
+        return PageResponse.of(dtoList, (int) profilePage.getTotalElements(), pageable.getPageSize(), pageable.getPageNumber());
     }
 
     private void authorizeModification(String requesterUid, ClientProfileEntity entity) {
@@ -143,7 +142,7 @@ public class ClientProfileServiceImpl implements ClientProfileService {
 
         if (!isOwnerAgent && !isClientSelf) {
             log.warn("Unauthorized attempt to access client profile {}. Requester UID: {}", entity.getId(), requesterUid);
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to access this profile.");
+            throw new BizException("FORBIDDEN", "You do not have permission to access this profile.");
         }
     }
 

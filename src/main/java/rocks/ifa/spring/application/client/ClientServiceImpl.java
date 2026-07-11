@@ -1,14 +1,13 @@
 package rocks.ifa.spring.application.client;
 
+import com.alibaba.cola.dto.PageResponse;
+import com.alibaba.cola.exception.BizException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-import rocks.ifa.client.dto.PageResponse;
 import rocks.ifa.spring.application.client.dtos.ClientFullDataRes;
 import rocks.ifa.spring.application.client.dtos.CreateClientReq;
 import rocks.ifa.spring.application.clientCareer.ClientCareerService;
@@ -56,7 +55,7 @@ public class ClientServiceImpl implements ClientService {
         List<ClientFullDataRes> dtoList = clientPage.getContent().stream()
                 .map(entity -> mapToFullDataRes(entity, agentUid))
                 .collect(Collectors.toList());
-        return new PageResponse<>(dtoList, clientPage.getTotalElements(), clientPage.getNumber(), clientPage.getSize());
+        return PageResponse.of(dtoList, (int) clientPage.getTotalElements(), pageable.getPageSize(), pageable.getPageNumber());
     }
 
     @Override
@@ -84,14 +83,14 @@ public class ClientServiceImpl implements ClientService {
     public void deleteClient(UUID clientId, String requesterUid) {
         log.info("Attempting to delete client ID: {}", clientId);
         ClientProfileEntity clientProfile = clientProfileRepository.findById(clientId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client not found"));
+                .orElseThrow(() -> new BizException("NOT_FOUND", "Client not found"));
 
         boolean isOwnerAgent = Objects.equals(requesterUid, clientProfile.getAgentFirebaseUid());
         boolean isClientSelf = Objects.equals(requesterUid, clientProfile.getClientFirebaseUid());
 
         if (!isOwnerAgent && !isClientSelf) {
             log.warn("Unauthorized attempt to delete client {}. Requester UID: {}", clientId, requesterUid);
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to delete this client.");
+            throw new BizException("FORBIDDEN", "You do not have permission to delete this client.");
         }
 
         clientProfileRepository.deleteById(clientId);

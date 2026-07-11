@@ -11,7 +11,7 @@ import rocks.ifa.spring.domain.clientLaborInsurance.ClientLaborInsuranceReposito
 import rocks.ifa.spring.application.clientLaborInsurance.dtos.LaborInsuranceRes;
 import rocks.ifa.spring.application.clientLaborInsurance.dtos.UpdateLaborInsuranceReq;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileRepository;
-import rocks.ifa.spring.infrastructure.security.SecurityUtils;
+import rocks.ifa.spring.infrastructure.config.SecurityUtils;
 
 import java.util.Objects;
 import java.util.Optional;

@@ -45,13 +45,9 @@ public class ClientCareerController {
         String requesterUid = SecurityUtils.getCurrentUserUid();
         Optional<CareerRes> careerOpt = clientCareerService.getCareer(clientId, requesterUid);
 
-        if (careerOpt.isPresent()) {
-            return ResponseEntity.ok(careerOpt.get());
-        } else {
-            // CRITICAL FIX: Return a 200 OK with a non-null, empty JSON object body `{}`.
-            // This prevents Spring MVC from triggering view resolution and throwing NoResourceFoundException.
-            return ResponseEntity.ok(Collections.emptyMap());
-        }
+        // CRITICAL FIX: Return a 200 OK with a non-null, empty JSON object body `{}`.
+        // This prevents Spring MVC from triggering view resolution and throwing NoResourceFoundException.
+        return careerOpt.<ResponseEntity<Object>>map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.ok(Collections.emptyMap()));
     }
 
     @PutMapping
@@ -64,20 +60,5 @@ public class ClientCareerController {
         String requesterUid = SecurityUtils.getCurrentUserUid();
         clientCareerService.updateCareer(clientId, req, requesterUid);
         return ResponseEntity.noContent().build();
-    }
-
-    @RestController
-    @RequestMapping("/")
-    @Tag(name = "Status API", description = "提供伺服器狀態與健康檢查")
-    @RequiredArgsConstructor
-    public static class StatusController {
-
-        private final StatusService statusService;
-
-        @GetMapping
-        @Operation(summary = "獲取伺服器資源狀態", description = "回傳一個包含當前記憶體、CPU等核心指標的JSON物件。")
-        public Map<String, Object> getServerStatus() {
-            return statusService.getServerStatus();
-        }
     }
 }

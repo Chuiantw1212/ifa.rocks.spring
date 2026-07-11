@@ -11,7 +11,7 @@ import rocks.ifa.spring.application.clientCareer.dtos.UpdateCareerReq;
 import rocks.ifa.spring.domain.clientCareer.ClientCareerEntity;
 import rocks.ifa.spring.domain.clientCareer.ClientCareerRepository;
 import rocks.ifa.spring.domain.clientProfile.ClientProfileRepository;
-import rocks.ifa.spring.infrastructure.security.SecurityUtils;
+import rocks.ifa.spring.infrastructure.config.SecurityUtils;
 
 import java.util.Objects;
 import java.util.Optional;

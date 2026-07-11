@@ -12,7 +12,7 @@ import rocks.ifa.spring.application.agent.AgentService;
 import rocks.ifa.spring.application.agent.dto.AgentRes;
 import rocks.ifa.spring.application.agent.dto.UpdateAgentReq;
 import rocks.ifa.spring.domain.line.LineTokenPayload;
-import rocks.ifa.spring.infrastructure.security.SecurityUtils;
+import rocks.ifa.spring.infrastructure.config.SecurityUtils;
 
 @RestController
 @RequestMapping("/api/v1/agents")

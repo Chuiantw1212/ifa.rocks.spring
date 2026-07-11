@@ -1,11 +1,10 @@
 package rocks.ifa.spring.application.clientLaborPension;
 
+import com.alibaba.cola.exception.BizException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 import rocks.ifa.spring.application.clientLaborPension.dtos.LaborPensionRes;
 import rocks.ifa.spring.application.clientLaborPension.dtos.UpdateLaborPensionReq;
 import rocks.ifa.spring.domain.clientLaborPension.ClientLaborPensionEntity;
@@ -61,14 +60,14 @@ public class ClientLaborPensionServiceImpl implements ClientLaborPensionService 
 
     private void authorizeAccess(UUID clientId, String requesterUid) {
         var profile = clientProfileRepository.findById(clientId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Associated client profile not found."));
+                .orElseThrow(() -> new BizException("CLIENT_NOT_FOUND", "Associated client profile not found."));
         
         boolean isOwnerAgent = Objects.equals(requesterUid, profile.getAgentFirebaseUid());
         boolean isClientSelf = Objects.equals(requesterUid, profile.getClientFirebaseUid());
 
         if (!isOwnerAgent && !isClientSelf) {
             log.warn("Unauthorized attempt to access labor pension data for client {}. Requester UID: {}", clientId, requesterUid);
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to access this data.");
+            throw new BizException("FORBIDDEN", "You do not have permission to access this data.");
         }
     }
 
