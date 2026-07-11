@@ -10,7 +10,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
-import rocks.ifa.spring.infrastructure.security.FirebaseTokenFilter;
+import rocks.ifa.spring.infrastructure.filter.FirebaseTokenFilter;
 
 @Configuration
 @EnableWebSecurity

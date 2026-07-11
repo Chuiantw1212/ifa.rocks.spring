@@ -36,6 +36,7 @@ app:
     allowed-origins:
       # For local development (e.g., Vite, React Dev Server)
       - http://localhost:5173
+      - http://localhost:9222
       # For production
       - https://ifa.rocks
       - https://ifa-rocks.web.app
