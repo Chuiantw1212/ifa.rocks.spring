@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import rocks.ifa.spring.domain.clientLaborInsurance.dtos.LaborInsuranceRes;
 import rocks.ifa.spring.domain.clientLaborInsurance.dtos.UpdateLaborInsuranceReq;
-import rocks.ifa.spring.infrastructure.security.SecurityUtils;
+import rocks.ifa.spring.common.config.SecurityUtils;
 
 import java.util.Collections;
 import java.util.Optional;

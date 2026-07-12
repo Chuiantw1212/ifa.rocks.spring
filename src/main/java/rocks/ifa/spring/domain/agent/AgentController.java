@@ -8,10 +8,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import rocks.ifa.spring.domain.agent.dtos.AgentRes;
+import rocks.ifa.spring.common.config.SecurityUtils;
+import rocks.ifa.spring.domain.agent.dtos.AgentRecord;
 import rocks.ifa.spring.domain.agent.dtos.UpdateAgentReq;
 import rocks.ifa.spring.domain.line.LineTokenPayload;
-import rocks.ifa.spring.infrastructure.security.SecurityUtils;
 
 @RestController
 @RequestMapping("/api/v1/agents")
@@ -21,11 +21,10 @@ public class AgentController {
 
     private final AgentService agentService;
 
-    @Operation(summary = "Get the current user's own agent profile",
-               description = "Retrieves the complete agent profile for the currently authenticated user.")
+    @Operation(summary = "Get the current user's own agent profile")
     @GetMapping("/me")
     @SecurityRequirement(name = "bearerAuth")
-    public AgentRes getOwnAgentProfile() {
+    public AgentRecord getOwnAgentProfile() {
         String firebaseUid = SecurityUtils.getCurrentUserUid();
         return agentService.getAgentByFirebaseUid(firebaseUid);
     }
@@ -34,19 +33,13 @@ public class AgentController {
     @PostMapping("/me/bind-line")
     @ResponseStatus(HttpStatus.OK)
     @SecurityRequirement(name = "bearerAuth")
-    public AgentRes bindLineUser(@RequestBody @Valid LineTokenPayload lineTokenPayload) {
+    public AgentRecord bindLineUser(@RequestBody @Valid LineTokenPayload lineTokenPayload) {
         return agentService.bindLineUserToAgent(lineTokenPayload);
-    }
-
-    @Operation(summary = "Get a specific agent's profile by their internal UUID")
-    @GetMapping("/{id}")
-    public AgentRes getAgent(@PathVariable String id) {
-        return agentService.getAgent(id);
     }
 
     @Operation(summary = "Update a specific agent's profile")
     @PutMapping("/{id}")
-    public AgentRes updateAgent(@PathVariable String id, @RequestBody @Valid UpdateAgentReq req) throws FirebaseAuthException {
+    public AgentRecord updateAgent(@PathVariable String id, @RequestBody @Valid UpdateAgentReq req) throws FirebaseAuthException {
         return agentService.updateAgent(id, req);
     }
 

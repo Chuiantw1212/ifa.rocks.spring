@@ -7,11 +7,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface AgentRepository extends JpaRepository<AgentEntity, UUID> {
-
-    Optional<AgentEntity> findByFirebaseUid(String firebaseUid);
-
-    Optional<AgentEntity> findByLineUserId(String lineUserId);
-
-    Optional<AgentEntity> findByEmail(String email);
+public interface AgentRepository extends JpaRepository<Agent, UUID> {
+    Optional<Agent> findByFirebaseUid(String firebaseUid);
+    Optional<Agent> findByLineUserId(String lineUserId);
+    Optional<Agent> findByEmail(String email);
 }
