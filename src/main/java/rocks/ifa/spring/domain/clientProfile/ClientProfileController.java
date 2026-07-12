@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import rocks.ifa.spring.domain.clientProfile.dtos.PatchProfileReq;
 import rocks.ifa.spring.domain.clientProfile.dtos.ProfileRes;
 import rocks.ifa.spring.domain.clientProfile.dtos.UpdateProfileReq;
-import rocks.ifa.spring.infrastructure.common.PageResponse;
-import rocks.ifa.spring.infrastructure.security.SecurityUtils;
+import rocks.ifa.spring.common.dto.PageResponse;
+import rocks.ifa.spring.common.config.SecurityUtils;
 
 import java.util.UUID;
 
