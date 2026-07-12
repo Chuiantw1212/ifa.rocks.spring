@@ -1,4 +1,4 @@
-package rocks.ifa.spring.auth.adapter;
+package rocks.ifa.spring.domain.auth.adapter;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
@@ -11,7 +11,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 // Corrected import
 import rocks.ifa.spring.domain.line.LineTokenPayload;
-import rocks.ifa.spring.auth.port.LineAuthPort;
+import rocks.ifa.spring.domain.auth.port.LineAuthPort;
 
 import java.util.Optional;
 

@@ -1,4 +1,4 @@
-package rocks.ifa.spring.auth.dtos;
+package rocks.ifa.spring.domain.auth.dtos;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

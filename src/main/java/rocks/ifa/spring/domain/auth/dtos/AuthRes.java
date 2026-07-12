@@ -1,4 +1,4 @@
-package rocks.ifa.spring.auth.dtos;
+package rocks.ifa.spring.domain.auth.dtos;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import rocks.ifa.spring.domain.agent.dtos.AgentRes;

@@ -4,35 +4,36 @@
 
 ## 架構邊界與目錄規範
 
-專案揚棄傳統按技術分層打包的弱內聚結構，全面推行按領域或功能打包 (Package by Feature/Domain) 思維。屬於同一業務領域的控制器、服務、持久層與傳輸物件皆封裝在同一套件中，透過 Java 的 package-private 存取修飾子隱藏內部實作，為未來向微服務拆分奠定物理邊界。
+專案採用領域驅動的邊界隔離，將全域共通元件與業務領域元件明確區隔。所有業務領域功能皆收納於 domain 資料夾中，並在內部推行按領域或功能打包 (Package by Feature/Domain) 思維。屬於同一業務領域的控制器、服務、持久層與傳輸物件皆封裝在各自的子套件中，透過 Java 的 package-private 存取修飾子隱藏內部實作，為未來向微服務拆分奠定物理邊界。
 
 ### 套件目錄結構示範
 
 ```text
 src/main/java/com/example/myapp
-├── Application.java (主程式入口)
+├── SpringBootApplication.java (主程式入口)
 ├── common (全域橫切關注點配置)
 │   ├── config (基礎設施配置)
 │   ├── exception (全域例外轉譯處理)
 │   └── logging (日誌與監控指標攔截)
-├── user (使用者管理領域)
-│   ├── UserController.java (展示層)
-│   ├── UserService.java (業務介面)
-│   ├── UserServiceImpl.java (業務實作)
-│   ├── UserRepository.java (持久層)
-│   └── UserRecord.java (不可變 DTO)
-└── order (訂單處理領域)
-    ├── OrderController.java
-    ├── OrderService.java
-    ├── OrderRepository.java
-    └── OrderRecord.java
+└── domain (業務領域模組)
+    ├── user (使用者管理領域)
+    │   ├── UserController.java (展示層)
+    │   ├── UserService.java (業務介面)
+    │   ├── UserServiceImpl.java (業務實作)
+    │   ├── UserRepository.java (持久層)
+    │   └── UserRecord.java (不可變 DTO)
+    └── order (訂單處理領域)
+        ├── OrderController.java
+        ├── OrderService.java
+        ├── OrderRepository.java
+        └── OrderRecord.java
 
 ```
 
 ### 架構分層職責說明
 
 * 展示層 (Presentation Layer)
-處理 HTTP 動詞、定義 URI、反序列化 JSON 負載並執行基礎參數驗證。控制器必須保持極度輕量，嚴禁滲透任何業務決策。
+處理 HTTP 動詞、定義 URI、反序列化 JSON 負載並執行基礎參數驗證。控制器必須保持極度輕量，嚴禁滲透 any 業務決策。
 * 業務層 (Business Service Layer)
 實作核心領域規則與跨模組協調，是系統的核心大腦。本層為定義 @Transactional 資料庫交易邊界的唯一場所。控制層僅能依賴服務層介面，以符合依賴反轉原則並便利單元測試的替身物件注入。
 * 持久層 (Persistence Repository Layer)

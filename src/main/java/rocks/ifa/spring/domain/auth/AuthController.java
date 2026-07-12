@@ -1,4 +1,4 @@
-package rocks.ifa.spring.auth;
+package rocks.ifa.spring.domain.auth;
 
 import com.google.firebase.auth.FirebaseAuthException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -7,8 +7,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import rocks.ifa.spring.auth.dtos.FirebaseLoginReq;
-import rocks.ifa.spring.auth.dtos.LineLoginReq;
+import rocks.ifa.spring.domain.auth.dtos.FirebaseLoginReq;
+import rocks.ifa.spring.domain.auth.dtos.LineLoginReq;
 import rocks.ifa.spring.domain.agent.dtos.AuthResponse;
 
 @RestController

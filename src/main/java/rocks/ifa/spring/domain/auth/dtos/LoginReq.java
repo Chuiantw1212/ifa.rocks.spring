@@ -1,4 +1,4 @@
-package rocks.ifa.spring.auth.dtos;
+package rocks.ifa.spring.domain.auth.dtos;
 
 import jakarta.validation.constraints.NotBlank;
 
