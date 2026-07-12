@@ -15,24 +15,26 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/client-credit-cards")
+@RequestMapping("/api/v1/clients/{clientId}/credit-cards")
 @Tag(name = "Client Credit Cards", description = "管理客戶的信用卡資料")
 @RequiredArgsConstructor
 public class ClientCreditCardController {
 
     private final ClientCreditCardService creditCardService;
 
-    @Operation(summary = "新增一張信用卡")
+    @Operation(summary = "為指定客戶新增一張信用卡")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CreditCardRes createCreditCard(@RequestBody @Valid CreateCreditCardReq req) {
+    public CreditCardRes createCreditCard(
+            @PathVariable UUID clientId,
+            @RequestBody @Valid CreateCreditCardReq req) {
         String requesterUid = SecurityUtils.getCurrentUserUid();
-        return creditCardService.createCreditCard(req, requesterUid);
+        return creditCardService.createCreditCard(clientId, req, requesterUid);
     }
 
     @Operation(summary = "獲取指定客戶的所有信用卡列表")
     @GetMapping
-    public List<CreditCardRes> getCreditCards(@RequestParam UUID clientId) {
+    public List<CreditCardRes> getCreditCards(@PathVariable UUID clientId) {
         String requesterUid = SecurityUtils.getCurrentUserUid();
         return creditCardService.getCreditCardsByClientId(clientId, requesterUid);
     }
@@ -40,17 +42,20 @@ public class ClientCreditCardController {
     @Operation(summary = "更新指定的信用卡資料")
     @PutMapping("/{cardId}")
     public CreditCardRes updateCreditCard(
+            @PathVariable UUID clientId, // clientId is available from the path
             @PathVariable UUID cardId,
             @RequestBody @Valid UpdateCreditCardReq req) {
         String requesterUid = SecurityUtils.getCurrentUserUid();
-        return creditCardService.updateCreditCard(cardId, req, requesterUid);
+        return creditCardService.updateCreditCard(clientId, cardId, req, requesterUid);
     }
 
     @Operation(summary = "刪除指定的信用卡")
     @DeleteMapping("/{cardId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteCreditCard(@PathVariable UUID cardId) {
+    public void deleteCreditCard(
+            @PathVariable UUID clientId, // clientId is available from the path
+            @PathVariable UUID cardId) {
         String requesterUid = SecurityUtils.getCurrentUserUid();
-        creditCardService.deleteCreditCard(cardId, requesterUid);
+        creditCardService.deleteCreditCard(clientId, cardId, requesterUid);
     }
 }
