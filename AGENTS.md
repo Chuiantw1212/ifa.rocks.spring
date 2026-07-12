@@ -1,4 +1,4 @@
-# Spring Boot & Neon PostgreSQL 開發規範指南 (AGENTS.md)
+# Spring Boot & Neon PostgreSQL 開發規範指南
 
 本文件定義了 AI Agent 在生成、修改或審查基於 Spring Boot (3.x) 與 Neon (PostgreSQL) 專案程式碼時，必須絕對遵守的核心原則與架構標準。請在撰寫程式碼前載入並嚴格遵守以下規則。
 
