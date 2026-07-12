@@ -11,7 +11,7 @@ import rocks.ifa.spring.domain.clientCreditCards.dtos.UpdateCreditCardReq;
 public interface ClientCreditCardMapper {
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "clientId", ignore = true) // This will be set in the service
+    @Mapping(target = "clientId", ignore = true)
     @Mapping(target = "agentFirebaseUid", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)

@@ -29,10 +29,12 @@ public class ClientCreditCardServiceImpl implements ClientCreditCardService {
         authorizeAccess(clientId, requesterUid);
 
         ClientCreditCardEntity newEntity = creditCardMapper.toEntity(req);
-        newEntity.setId(UUID.randomUUID()); // Generate a new UUID for the card itself
-        newEntity.setClientId(clientId); // Set the client it belongs to
+        
+        // Set the foreign key and audit fields
+        newEntity.setClientId(clientId); 
         newEntity.setAgentFirebaseUid(requesterUid);
         
+        // Let the database generate the primary key 'id'
         ClientCreditCardEntity savedEntity = creditCardRepository.save(newEntity);
         return creditCardMapper.toRes(savedEntity);
     }
@@ -54,9 +56,8 @@ public class ClientCreditCardServiceImpl implements ClientCreditCardService {
         ClientCreditCardEntity entity = creditCardRepository.findById(cardId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Credit card not found with ID: " + cardId));
         
-        // Extra check to ensure the card belongs to the client specified in the URL
         if (!entity.getClientId().equals(clientId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Credit card does not belong to the specified client.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This credit card does not belong to the specified client.");
         }
         
         creditCardMapper.updateEntityFromReq(req, entity);
@@ -74,11 +75,10 @@ public class ClientCreditCardServiceImpl implements ClientCreditCardService {
         ClientCreditCardEntity entity = creditCardRepository.findById(cardId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Credit card not found with ID: " + cardId));
 
-        // Extra check
         if (!entity.getClientId().equals(clientId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Credit card does not belong to the specified client.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This credit card does not belong to the specified client.");
         }
-        
+
         creditCardRepository.delete(entity);
     }
 
