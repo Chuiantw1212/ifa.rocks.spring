@@ -1,4 +1,4 @@
-package rocks.ifa.spring.domain.status;
+package rocks.ifa.spring.common.status;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,7 +18,7 @@ public class StatusController {
     private final StatusService statusService;
 
     @GetMapping
-    @Operation(summary = "獲取伺服器資源狀態", description = "回傳一個包含當前記憶體、CPU等核心指標的JSON物件。")
+    @Operation(summary = "獲取伺服器資源狀態", description = "回傳一個包含當前記憶體、CPU、啟動時間等核心指標的JSON物件。")
     public Map<String, Object> getServerStatus() {
         return statusService.getServerStatus();
     }
