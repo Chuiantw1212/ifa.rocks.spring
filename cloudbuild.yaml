@@ -15,7 +15,7 @@ steps:
       - '--path=.'
       - '--publish' # This is the key to build and push atomically.
       # This is a safety measure to prevent silent Java version upgrades in the build environment.
-      - '--env=GOOGLE_RUNTIME_VERSION=21'
+      - '--env=GOOGLE_RUNTIME_VERSION=25'
       - '--clear-cache'
 
   # STEP 2: Update the Cloud Run service to use the newly published image.
