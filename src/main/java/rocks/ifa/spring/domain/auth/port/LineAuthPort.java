@@ -1,7 +1,6 @@
 package rocks.ifa.spring.domain.auth.port;
 
-// Corrected import
-import rocks.ifa.spring.domain.line.LineTokenPayload;
+import rocks.ifa.spring.domain.auth.dtos.LineTokenPayload;
 
 import java.util.Optional;
 
