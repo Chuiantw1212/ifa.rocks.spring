@@ -15,7 +15,7 @@ import rocks.ifa.spring.domain.auth.dtos.LineLoginReq;
 import rocks.ifa.spring.domain.agent.Agent;
 import rocks.ifa.spring.domain.agent.AgentRepository;
 import rocks.ifa.spring.domain.agent.dtos.AuthResponse;
-import rocks.ifa.spring.domain.line.LineTokenPayload;
+import rocks.ifa.spring.domain.auth.dtos.LineTokenPayload;
 import rocks.ifa.spring.domain.auth.port.LineAuthPort;
 
 import java.util.Map;

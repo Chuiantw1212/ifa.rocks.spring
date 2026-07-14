@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import rocks.ifa.spring.common.config.SecurityUtils;
 import rocks.ifa.spring.domain.agent.dtos.AgentRecord;
 import rocks.ifa.spring.domain.agent.dtos.UpdateAgentReq;
-import rocks.ifa.spring.domain.line.LineTokenPayload;
+import rocks.ifa.spring.domain.auth.dtos.LineTokenPayload;
 
 @Slf4j
 @Service
